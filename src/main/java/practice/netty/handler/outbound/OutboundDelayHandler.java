@@ -3,12 +3,15 @@ package practice.netty.handler.outbound;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
+import lombok.RequiredArgsConstructor;
 
-public class BlockingWriteHandler extends ChannelOutboundHandlerAdapter {
+@RequiredArgsConstructor
+public class OutboundDelayHandler extends ChannelOutboundHandlerAdapter {
+    private final int delayMillis;
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         ctx.writeAndFlush(msg, promise);
-        Thread.sleep(5000);
+        Thread.sleep(delayMillis);
     }
 }

@@ -20,7 +20,7 @@ import practice.netty.handler.duplex.Logger;
 import practice.netty.handler.inbound.ActiveServerChannelUpdater;
 import practice.netty.handler.inbound.ReceiveDataUpdater;
 import practice.netty.handler.inbound.ServerResponseHandler;
-import practice.netty.handler.outbound.BlockingWriteHandler;
+import practice.netty.handler.outbound.OutboundDelayHandler;
 
 import java.net.SocketAddress;
 import java.util.concurrent.BlockingQueue;
@@ -146,7 +146,7 @@ public class test {
     @SneakyThrows
     void blockingSideEffectTest() {
         // Given : Blocking 동작을 가진 Handler 추가
-        clientChannel.pipeline().addLast(new BlockingWriteHandler());
+        clientChannel.pipeline().addLast(new OutboundDelayHandler(3000));
 
         // When : 클라이언트에서 메시지 1개 전송(Blocking), 서버에서 10개 메시지 전송
         clientChannel.writeAndFlush("ABCD");
@@ -167,7 +167,7 @@ public class test {
     @SneakyThrows
     void TakeAwayBlockingSideEffectTest() {
         // Given : Blocking 동작을 가진 Handler 독립적인 쓰레드로 처리
-        clientChannel.pipeline().addLast(new DefaultEventLoopGroup(), new BlockingWriteHandler());
+        clientChannel.pipeline().addLast(new DefaultEventLoopGroup(), new OutboundDelayHandler(3000));
 
         // When : 클라이언트에서 메시지 1개 전송(Blocking), 서버에서 10개 메시지 전송
         clientChannel.writeAndFlush("ABCD");
