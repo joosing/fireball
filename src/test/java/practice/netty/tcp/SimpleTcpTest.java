@@ -1,4 +1,4 @@
-package practice.netty;
+package practice.netty.tcp;
 
 
 import io.netty.bootstrap.Bootstrap;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-public class test {
+public class SimpleTcpTest {
     // 서버
     ServerBootstrap serverBootstrap = new ServerBootstrap();
     NioEventLoopGroup serverAcceptGroup = new NioEventLoopGroup();
