@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class Logger extends ChannelDuplexHandler {
     private final String host;
+    private final boolean endOfPipeline;
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
@@ -20,18 +21,24 @@ public class Logger extends ChannelDuplexHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         log.info(host + " : active");
-        ctx.fireChannelActive();
+        if (!endOfPipeline) {
+            ctx.fireChannelActive();
+        }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         log.info(host + " : inactive");
-        ctx.fireChannelInactive();
+        if (!endOfPipeline) {
+            ctx.fireChannelInactive();
+        }
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         log.info(host + " : read " + msg.toString());
-        ctx.fireChannelRead(msg);
+        if (!endOfPipeline) {
+            ctx.fireChannelRead(msg);
+        }
     }
 }

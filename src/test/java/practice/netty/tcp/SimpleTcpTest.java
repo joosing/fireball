@@ -86,7 +86,7 @@ public class SimpleTcpTest {
                                 .addLast(new StringEncoder())
 
                                 // Duplex
-                                .addLast(new Logger("Server"));
+                                .addLast(new Logger("Server", true));
                     }
                 });
         serverBootstrap.bind().sync();
@@ -110,7 +110,7 @@ public class SimpleTcpTest {
                                 .addLast(new StringEncoder())
 
                                 // Duplex
-                                .addLast(new Logger("Client"));
+                                .addLast(new Logger("Client", true));
                     }
                 });
         clientChannel = clientBootstrap.connect().sync().channel();
