@@ -1,6 +1,5 @@
 package practice.netty.tcp;
 
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -30,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@DisplayName("TCP 서버-클라이언트 간단한 통신 테스트")
-public class SimpleTcpTest {
+@DisplayName("Blocking 발생하는 Handler 의 영향과 해결")
+public class BlockingHandlerTest {
     // 서버
     ServerBootstrap serverBootstrap = new ServerBootstrap();
     NioEventLoopGroup serverAcceptGroup = new NioEventLoopGroup();
@@ -119,25 +118,36 @@ public class SimpleTcpTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("메시지 전송-응답 테스트")
-    void simpleResponseTest() {
-        // Given : 연결된 서버, 클라이언트
+    @DisplayName("Blocking 발생하는 Handler 에 의해 전체 채널 지연")
+    void blockingSideEffectTest() {
+        // Given : Blocking 동작을 가진 Handler 추가
+        clientChannel.pipeline().addLast(new OutboundDelayHandler(3000));
 
-        // When : 클라이언트에서 메시지 전송
+        // When : 클라이언트에서 메시지 1개 전송(Blocking), 서버에서 10개 메시지 전송
         clientChannel.writeAndFlush("ABCD");
 
-        // Then : 서버로부터 응답 수신
-        String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
-        Assertions.assertEquals(fixedResponse, response);
+        Channel serverServiceChannel = activeServerChannelMap.get(clientChannel.localAddress());
+        for (int i = 0; i < 10; i++) {
+            serverServiceChannel.writeAndFlush(String.format("RES%d", i));
+        }
+
+        // Then : 클라이언트에서 10개 메시지 수신
+        for (int i = 0; i < 10; i++) {
+            String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
+            Assertions.assertNull(response);
+        }
     }
 
     @Test
     @SneakyThrows
-    @DisplayName("메시지 N개 수신 테스트")
-    void multipleReceiveTest() {
-        // Given : 연결된 서버, 클라이언트
+    @DisplayName("Blocking 발생하는 Handler 독립적 쓰레드로 분리")
+    void TakeAwayBlockingSideEffectTest() {
+        // Given : Blocking 동작을 가진 Handler 독립적인 쓰레드로 처리
+        clientChannel.pipeline().addLast(new DefaultEventLoopGroup(), new OutboundDelayHandler(3000));
 
-        // When : 서버에서 10개 메시지 전송
+        // When : 클라이언트에서 메시지 1개 전송(Blocking), 서버에서 10개 메시지 전송
+        clientChannel.writeAndFlush("ABCD");
+
         Channel serverServiceChannel = activeServerChannelMap.get(clientChannel.localAddress());
         for (int i = 0; i < 10; i++) {
             serverServiceChannel.writeAndFlush(String.format("RES%d", i));
