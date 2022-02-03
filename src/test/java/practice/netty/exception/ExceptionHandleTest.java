@@ -9,6 +9,7 @@ import practice.netty.exception.utils.ExceptionCallable;
 import practice.netty.exception.utils.ExceptionHandler;
 import practice.netty.exception.utils.ExceptionThrowable;
 
+@DisplayName("Exception Handling in Channel")
 public class ExceptionHandleTest {
 
     @Test

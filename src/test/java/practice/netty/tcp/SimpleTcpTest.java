@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@DisplayName("TCP 서버-클라이언트 간단한 통신 테스트")
+@DisplayName("TCP server-client simple test")
 public class SimpleTcpTest {
     // 서버
     ServerBootstrap serverBootstrap = new ServerBootstrap();
@@ -119,31 +119,31 @@ public class SimpleTcpTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("메시지 전송-응답 테스트")
+    @DisplayName("When client sends a command, Then server react with response and client receive it")
     void simpleResponseTest() {
-        // Given : 연결된 서버, 클라이언트
+        // Given : Connected server and client
 
-        // When : 클라이언트에서 메시지 전송
+        // When : Client sends a command
         clientChannel.writeAndFlush("ABCD");
 
-        // Then : 서버로부터 응답 수신
+        // Then : Server sends a response and client receive it
         String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
         Assertions.assertEquals(fixedResponse, response);
     }
 
     @Test
     @SneakyThrows
-    @DisplayName("메시지 N개 수신 테스트")
+    @DisplayName("When Server sends 10 commands, Then client receive 10 responses")
     void multipleReceiveTest() {
-        // Given : 연결된 서버, 클라이언트
+        // Given : Connected server and client
 
-        // When : 서버에서 10개 메시지 전송
+        // When : Server sends 10 commands
         Channel serverServiceChannel = activeServerChannelMap.get(clientChannel.localAddress());
         for (int i = 0; i < 10; i++) {
             serverServiceChannel.writeAndFlush(String.format("RES%d", i));
         }
 
-        // Then : 클라이언트에서 10개 메시지 수신
+        // Then : Client receive 10 responses
         for (int i = 0; i < 10; i++) {
             String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
             Assertions.assertEquals(String.format("RES%d", i), response);
