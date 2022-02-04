@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@DisplayName("Blocking 발생하는 Handler 의 영향과 해결")
+@DisplayName("Influence and resolution of Blocking Handlers")
 public class BlockingHandlerTest {
     // 서버
     ServerBootstrap serverBootstrap = new ServerBootstrap();
@@ -158,5 +158,7 @@ public class BlockingHandlerTest {
             String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
             Assertions.assertEquals(String.format("RES%d", i), response);
         }
+
+        Thread.sleep(300000);
     }
 }
