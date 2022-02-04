@@ -158,5 +158,7 @@ public class BlockingHandlerTest {
             String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
             Assertions.assertEquals(String.format("RES%d", i), response);
         }
+
+        Thread.sleep(300000);
     }
 }

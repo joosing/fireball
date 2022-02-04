@@ -6,7 +6,7 @@ import io.netty.channel.ChannelPromise;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ExceptionCallable extends ChannelOutboundHandlerAdapter {
+public class ExceptionOutboundCallable extends ChannelOutboundHandlerAdapter {
     private final Throwable cause;
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
