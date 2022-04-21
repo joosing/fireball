@@ -1,4 +1,4 @@
-package practice.netty.tcp;
+package practice.netty.handler;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -54,7 +54,7 @@ public class BlockingHandlerTest {
         waitForServerServiceActive();
     }
 
-    private void waitForServerServiceActive() throws InterruptedException {
+    private static void waitForServerServiceActive() throws InterruptedException {
         Thread.sleep(100);
     }
 
@@ -126,14 +126,14 @@ public class BlockingHandlerTest {
         // When : 클라이언트에서 메시지 1개 전송(Blocking), 서버에서 10개 메시지 전송
         clientChannel.writeAndFlush("ABCD");
 
-        Channel serverServiceChannel = activeServerChannelMap.get(clientChannel.localAddress());
+        final Channel serverServiceChannel = activeServerChannelMap.get(clientChannel.localAddress());
         for (int i = 0; i < 10; i++) {
             serverServiceChannel.writeAndFlush(String.format("RES%d", i));
         }
 
         // Then : 클라이언트에서 10개 메시지 수신
         for (int i = 0; i < 10; i++) {
-            String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
+            final String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
             Assertions.assertNull(response);
         }
     }
@@ -148,17 +148,17 @@ public class BlockingHandlerTest {
         // When : 클라이언트에서 메시지 1개 전송(Blocking), 서버에서 10개 메시지 전송
         clientChannel.writeAndFlush("ABCD");
 
-        Channel serverServiceChannel = activeServerChannelMap.get(clientChannel.localAddress());
+        final Channel serverServiceChannel = activeServerChannelMap.get(clientChannel.localAddress());
         for (int i = 0; i < 10; i++) {
             serverServiceChannel.writeAndFlush(String.format("RES%d", i));
         }
 
         // Then : 클라이언트에서 10개 메시지 수신
         for (int i = 0; i < 10; i++) {
-            String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
+            final String response = clientResponseQueue.poll(100, TimeUnit.MILLISECONDS);
             Assertions.assertEquals(String.format("RES%d", i), response);
         }
 
-        Thread.sleep(300000);
+        // Thread.sleep(300000);
     }
 }
