@@ -41,7 +41,23 @@
 			<artifactId>armeria</artifactId>
 			<version>1.16.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.linecorp.armeria</groupId>
+			<artifactId>armeria-graphql</artifactId>
+		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.linecorp.armeria</groupId>
+				<artifactId>armeria-bom</artifactId>
+				<version>1.16.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
