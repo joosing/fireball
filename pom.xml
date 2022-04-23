@@ -36,7 +36,12 @@
 			<artifactId>netty-all</artifactId>
 			<version>4.1.73.Final</version>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.linecorp.armeria</groupId>
+			<artifactId>armeria</artifactId>
+			<version>1.16.0</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
