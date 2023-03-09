@@ -1,4 +1,4 @@
-package practice.netty.handler.frame;
+package practice.netty.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -10,8 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 @DisplayName("DelimiterBasedFrameDecoder")
 public class DelimiterBasedFrameDecoderTest {
