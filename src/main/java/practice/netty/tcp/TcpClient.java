@@ -14,9 +14,11 @@ import org.springframework.lang.Nullable;
 import practice.netty.handler.inbound.ReceiveDataUpdater;
 
 import java.net.SocketAddress;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class TcpClient implements ReceiveAvailableListener {
     private final Bootstrap bootstrap;
@@ -62,6 +64,14 @@ public class TcpClient implements ReceiveAvailableListener {
         channel.writeAndFlush(data);
     }
 
+    public Optional<String> receive(int timeout, TimeUnit unit) throws InterruptedException {
+        if (recvQueue == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(recvQueue.poll(timeout, unit));
+    }
+
     public void disconnect() {
         if (channel != null) {
             channel.close();
@@ -92,11 +102,6 @@ public class TcpClient implements ReceiveAvailableListener {
     public class Test {
         public ChannelPipeline pipeline() {
             return channel.pipeline();
-        }
-
-        @Nullable
-        public BlockingQueue<String> recvQueue() {
-            return recvQueue;
         }
     }
 }

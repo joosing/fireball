@@ -7,6 +7,7 @@ import practice.netty.handler.outbound.OutboundDelayHandler;
 import practice.netty.tcp.TcpClient;
 import practice.netty.tcp.TcpServer;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -43,8 +44,8 @@ public class BlockingHandlerTest {
 
         // Then : 클라이언트 수신 실패
         for (int i = 0; i < 10; i++) {
-            String response = client.test().recvQueue().poll(100, TimeUnit.MILLISECONDS);
-            Assertions.assertNull(response);
+            Optional<String> response = client.receive(100, TimeUnit.MILLISECONDS);
+            Assertions.assertTrue(response.isEmpty());
         }
     }
 
@@ -63,8 +64,9 @@ public class BlockingHandlerTest {
 
         // Then : 클라이언트에서 10개 메시지 수신
         for (int i = 0; i < 10; i++) {
-            String actualResponse = client.test().recvQueue().poll(100, TimeUnit.MILLISECONDS);
-            Assertions.assertEquals("Response(%d)".formatted(i), actualResponse);
+            Optional<String> response = client.receive(100, TimeUnit.MILLISECONDS);
+            Assertions.assertTrue(response.isPresent());
+            Assertions.assertEquals("Response(%d)".formatted(i), response.get());
         }
     }
 }
