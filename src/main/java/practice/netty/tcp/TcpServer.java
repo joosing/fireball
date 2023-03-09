@@ -12,10 +12,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import practice.netty.handler.inbound.ClientActiveNotifier;
 
 import java.net.SocketAddress;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
+import java.util.Optional;
+import java.util.concurrent.*;
 
 public class TcpServer implements ClientActiveEventListener, ReceiveAvailableListener {
     ServerBootstrap bootstrap;
@@ -59,6 +57,21 @@ public class TcpServer implements ClientActiveEventListener, ReceiveAvailableLis
 
     public void send(String message) {
         activeChannelMap.values().forEach(channel -> channel.writeAndFlush(message));
+    }
+
+    /**
+     * 특정 클라이언로부터 메시지를 수신합니다. 타임아웃 시간 동안 메시지를 수신할 수 없으면 Optional.empty()를 반환합니다.
+     * @param clientAddress 클라이언트 주소
+     * @param timeout 타임아웃 시간
+     * @param unit 타임아웃 시간 단위
+     * @return 수신된 메시지
+     */
+    public Optional<String> receive(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException {
+        BlockingQueue<String> recvQueue = channelRecvQueueMap.get(clientAddress);
+        if (recvQueue == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(recvQueue.poll(timeout, unit));
     }
 
     @Override
