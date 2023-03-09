@@ -12,9 +12,9 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.springframework.lang.Nullable;
 import practice.netty.handler.inbound.ReceiveDataUpdater;
+import practice.netty.handler.outbound.LineAppender;
 
 import java.net.SocketAddress;
-import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -46,7 +46,8 @@ public class TcpClient implements ReceiveAvailableListener {
                                 .addLast(new StringDecoder())
                                 .addLast(new ReceiveDataUpdater(TcpClient.this))
                                 // Outbound
-                                .addLast(new StringEncoder());
+                                .addLast(new StringEncoder())
+                                .addLast(new LineAppender("\n"));
                     }
                 });
 
@@ -64,12 +65,22 @@ public class TcpClient implements ReceiveAvailableListener {
         channel.writeAndFlush(data);
     }
 
-    public Optional<String> receive(int timeout, TimeUnit unit) throws InterruptedException {
+    @Nullable
+    public String receive() throws InterruptedException {
         if (recvQueue == null) {
-            return Optional.empty();
+            return null;
         }
 
-        return Optional.ofNullable(recvQueue.poll(timeout, unit));
+        return recvQueue.poll();
+    }
+
+    @Nullable
+    public String receive(int timeout, TimeUnit unit) throws InterruptedException {
+        if (recvQueue == null) {
+            return null;
+        }
+
+        return recvQueue.poll(timeout, unit);
     }
 
     public void disconnect() {
@@ -80,6 +91,10 @@ public class TcpClient implements ReceiveAvailableListener {
 
     public void destroy() {
         eventLoopGroup.shutdownGracefully();
+    }
+
+    public SocketAddress localAddress() {
+        return channel.localAddress();
     }
 
     public Test test() {

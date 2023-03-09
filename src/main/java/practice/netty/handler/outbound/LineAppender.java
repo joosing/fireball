@@ -6,12 +6,10 @@ import io.netty.channel.ChannelPromise;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class OutboundDelayHandler extends ChannelOutboundHandlerAdapter {
-    private final int delayMillis;
-
+public class LineAppender extends ChannelOutboundHandlerAdapter {
+    private final String lineSeparator;
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        ctx.writeAndFlush(msg, promise);
-        Thread.sleep(delayMillis);
+        super.write(ctx, msg + lineSeparator, promise);
     }
 }

@@ -9,10 +9,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import org.springframework.lang.Nullable;
 import practice.netty.handler.inbound.ClientActiveNotifier;
+import practice.netty.handler.inbound.ReceiveDataUpdater;
+import practice.netty.handler.outbound.LineAppender;
 
 import java.net.SocketAddress;
-import java.util.Optional;
 import java.util.concurrent.*;
 
 public class TcpServer implements ClientActiveEventListener, ReceiveAvailableListener {
@@ -43,8 +45,10 @@ public class TcpServer implements ClientActiveEventListener, ReceiveAvailableLis
                                 .addLast(new ClientActiveNotifier(TcpServer.this))
                                 .addLast(new LineBasedFrameDecoder(1024))
                                 .addLast(new StringDecoder())
+                                .addLast(new ReceiveDataUpdater(TcpServer.this))
                                 // Outbound
-                                .addLast(new StringEncoder());
+                                .addLast(new StringEncoder())
+                                .addLast(new LineAppender("\n"));
                     }
                 }).bind().addListener((ChannelFuture future) -> startFuture.complete(future.isSuccess()));
         return startFuture;
@@ -59,19 +63,27 @@ public class TcpServer implements ClientActiveEventListener, ReceiveAvailableLis
         activeChannelMap.values().forEach(channel -> channel.writeAndFlush(message));
     }
 
-    /**
-     * 특정 클라이언로부터 메시지를 수신합니다. 타임아웃 시간 동안 메시지를 수신할 수 없으면 Optional.empty()를 반환합니다.
-     * @param clientAddress 클라이언트 주소
-     * @param timeout 타임아웃 시간
-     * @param unit 타임아웃 시간 단위
-     * @return 수신된 메시지
-     */
-    public Optional<String> receive(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException {
+    @Nullable
+    public String receive(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException {
         BlockingQueue<String> recvQueue = channelRecvQueueMap.get(clientAddress);
         if (recvQueue == null) {
-            return Optional.empty();
+            return null;
         }
-        return Optional.ofNullable(recvQueue.poll(timeout, unit));
+        return recvQueue.poll(timeout, unit);
+    }
+
+    @Nullable
+    public String receive(SocketAddress clientAddress) throws InterruptedException {
+        BlockingQueue<String> recvQueue = channelRecvQueueMap.get(clientAddress);
+        if (recvQueue == null) {
+            return null;
+        }
+        return recvQueue.poll();
+    }
+
+    public boolean isActive(SocketAddress clientAddress) {
+        return activeChannelMap.containsKey(clientAddress) &&
+                channelRecvQueueMap.get(clientAddress) != null;
     }
 
     @Override
