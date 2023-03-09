@@ -10,24 +10,24 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import org.springframework.lang.Nullable;
 import practice.netty.handler.inbound.ReceiveDataUpdater;
 
+import java.net.SocketAddress;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 
-public class TcpClient {
+public class TcpClient implements ReceiveAvailableListener {
     private final Bootstrap bootstrap;
     private final NioEventLoopGroup eventLoopGroup;
-    private final BlockingQueue<String> recvQueue;
+    @Nullable private BlockingQueue<String> recvQueue;
     private final Test test;
     private Channel channel;
 
     public TcpClient() {
         bootstrap = new Bootstrap();
         eventLoopGroup = new NioEventLoopGroup();
-        recvQueue = new LinkedBlockingQueue<>();
         test = new Test();
     }
 
@@ -42,7 +42,7 @@ public class TcpClient {
                                 // Inbound
                                 .addLast(new LineBasedFrameDecoder(1024))
                                 .addLast(new StringDecoder())
-                                .addLast(new ReceiveDataUpdater(recvQueue))
+                                .addLast(new ReceiveDataUpdater(TcpClient.this))
                                 // Outbound
                                 .addLast(new StringEncoder());
                     }
@@ -76,6 +76,16 @@ public class TcpClient {
         return test;
     }
 
+    @Override
+    public void onReceiveAvailable(SocketAddress remoteAddress, BlockingQueue<String> recvQueue) {
+        this.recvQueue = recvQueue;
+    }
+
+    @Override
+    public void onReceiveUnavailable(SocketAddress remoteAddress) {
+        recvQueue = null;
+    }
+
     /**
      * 테스트를 지원하기 위한 용도의 메서드를 분리합니다.
      */
@@ -84,6 +94,7 @@ public class TcpClient {
             return channel.pipeline();
         }
 
+        @Nullable
         public BlockingQueue<String> recvQueue() {
             return recvQueue;
         }
