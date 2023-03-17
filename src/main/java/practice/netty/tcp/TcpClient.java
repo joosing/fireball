@@ -116,5 +116,8 @@ public class TcpClient implements ReadableQueueListener {
         public ChannelPipeline pipeline() {
             return channel.pipeline();
         }
+        public Channel channel() {
+            return channel;
+        }
     }
 }
