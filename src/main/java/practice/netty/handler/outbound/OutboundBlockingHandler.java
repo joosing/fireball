@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class OutboundBlockingHandler extends ChannelOutboundHandlerAdapter {
-    private final int delayMillis;
+    private final long delayMillis;
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
