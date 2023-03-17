@@ -11,7 +11,7 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.springframework.lang.Nullable;
-import practice.netty.handler.inbound.ReceiveDataUpdater;
+import practice.netty.handler.inbound.ReadDataUpdater;
 import practice.netty.handler.outbound.LineAppender;
 
 import java.net.SocketAddress;
@@ -20,21 +20,19 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class TcpClient implements ReceiveAvailableListener {
+public class TcpClient implements ReadableQueueListener {
     private final Bootstrap bootstrap;
-    private final NioEventLoopGroup eventLoopGroup;
-    @Nullable private BlockingQueue<String> recvQueue;
-    private final Test test;
     private Channel channel;
+    @Nullable private volatile BlockingQueue<String> recvQueue;
+    private final Test test;
 
     public TcpClient() {
         bootstrap = new Bootstrap();
-        eventLoopGroup = new NioEventLoopGroup();
         test = new Test();
     }
 
     public Future<Boolean> connect(String ip, int port) {
-        bootstrap.group(eventLoopGroup)
+        bootstrap.group(new NioEventLoopGroup())
                 .channel(NioSocketChannel.class)
                 .remoteAddress(ip, port)
                 .handler(new ChannelInitializer<>() {
@@ -44,7 +42,7 @@ public class TcpClient implements ReceiveAvailableListener {
                                 // Inbound
                                 .addLast(new LineBasedFrameDecoder(1024))
                                 .addLast(new StringDecoder())
-                                .addLast(new ReceiveDataUpdater(TcpClient.this))
+                                .addLast(new ReadDataUpdater(TcpClient.this))
                                 // Outbound
                                 .addLast(new StringEncoder())
                                 .addLast(new LineAppender("\n"));
@@ -66,21 +64,21 @@ public class TcpClient implements ReceiveAvailableListener {
     }
 
     @Nullable
-    public String receive() throws InterruptedException {
-        if (recvQueue == null) {
-            return null;
-        }
-
-        return recvQueue.poll();
+    public String read() throws InterruptedException {
+        return read(0, TimeUnit.MILLISECONDS);
     }
 
     @Nullable
-    public String receive(int timeout, TimeUnit unit) throws InterruptedException {
-        if (recvQueue == null) {
+    public String read(int timeout, TimeUnit unit) throws InterruptedException {
+        // 주의: recvQueue가 null 이후에 비동기적으로 채널이 닫히고 recvQueue가 null이 될 수 있기 때문에 내부
+        //      변수에 참조를 저장한 후 처리합니다.
+        BlockingQueue<String> tmpRecvQueue = recvQueue;
+
+        if (tmpRecvQueue == null) {
             return null;
         }
 
-        return recvQueue.poll(timeout, unit);
+        return tmpRecvQueue.poll(timeout, unit);
     }
 
     public void disconnect() {
@@ -90,7 +88,7 @@ public class TcpClient implements ReceiveAvailableListener {
     }
 
     public void destroy() {
-        eventLoopGroup.shutdownGracefully();
+        channel.eventLoop().parent().shutdownGracefully();
     }
 
     public SocketAddress localAddress() {
@@ -102,12 +100,12 @@ public class TcpClient implements ReceiveAvailableListener {
     }
 
     @Override
-    public void onReceiveAvailable(SocketAddress remoteAddress, BlockingQueue<String> recvQueue) {
+    public void onReadAvailable(SocketAddress remoteAddress, BlockingQueue<String> recvQueue) {
         this.recvQueue = recvQueue;
     }
 
     @Override
-    public void onReceiveUnavailable(SocketAddress remoteAddress) {
+    public void onReadUnavailable(SocketAddress remoteAddress) {
         recvQueue = null;
     }
 

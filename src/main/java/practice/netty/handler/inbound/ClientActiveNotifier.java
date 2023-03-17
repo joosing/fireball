@@ -3,21 +3,21 @@ package practice.netty.handler.inbound;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.RequiredArgsConstructor;
-import practice.netty.tcp.ClientActiveEventListener;
+import practice.netty.tcp.ClientActiveListener;
 
 @RequiredArgsConstructor
 public class ClientActiveNotifier extends ChannelInboundHandlerAdapter {
-    private final ClientActiveEventListener clientActiveEventListener;
+    private final ClientActiveListener clientActiveListener;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        clientActiveEventListener.onActive(ctx.channel().remoteAddress(), ctx.channel());
+        clientActiveListener.onActive(ctx.channel().remoteAddress(), ctx.channel());
         ctx.fireChannelActive();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        clientActiveEventListener.onInactive(ctx.channel().remoteAddress());
+        clientActiveListener.onInactive(ctx.channel().remoteAddress());
         ctx.fireChannelInactive();
     }
 }

@@ -4,6 +4,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
@@ -11,30 +12,28 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.springframework.lang.Nullable;
 import practice.netty.handler.inbound.ClientActiveNotifier;
-import practice.netty.handler.inbound.ReceiveDataUpdater;
+import practice.netty.handler.inbound.ReadDataUpdater;
 import practice.netty.handler.outbound.LineAppender;
 
 import java.net.SocketAddress;
 import java.util.concurrent.*;
 
-public class TcpServer implements ClientActiveEventListener, ReceiveAvailableListener {
+public class TcpServer implements ClientActiveListener, ReadableQueueListener {
     ServerBootstrap bootstrap;
-    NioEventLoopGroup acceptGroup;
-    NioEventLoopGroup workingGroup;
     ConcurrentHashMap<SocketAddress, Channel> activeChannelMap;
-    ConcurrentHashMap<SocketAddress, BlockingQueue<String>> channelRecvQueueMap;
+    ConcurrentHashMap<SocketAddress, BlockingQueue<String>> channelReadQueueMap;
 
     public TcpServer() {
         bootstrap = new ServerBootstrap();
-        acceptGroup = new NioEventLoopGroup();
-        workingGroup = new NioEventLoopGroup();
         activeChannelMap = new ConcurrentHashMap<>();
-        channelRecvQueueMap = new ConcurrentHashMap<>();
+        channelReadQueueMap = new ConcurrentHashMap<>();
     }
 
     public Future<Boolean> start(int bindPort) {
         CompletableFuture<Boolean> startFuture = new CompletableFuture<>();
-        bootstrap.group(acceptGroup, workingGroup)
+        EventLoopGroup acceptGroup = new NioEventLoopGroup();
+        EventLoopGroup serviceGroup = new NioEventLoopGroup();
+        bootstrap.group(acceptGroup, serviceGroup)
                 .channel(NioServerSocketChannel.class)
                 .localAddress("0.0.0.0", bindPort)
                 .childHandler(new ChannelInitializer<>() {
@@ -45,7 +44,7 @@ public class TcpServer implements ClientActiveEventListener, ReceiveAvailableLis
                                 .addLast(new ClientActiveNotifier(TcpServer.this))
                                 .addLast(new LineBasedFrameDecoder(1024))
                                 .addLast(new StringDecoder())
-                                .addLast(new ReceiveDataUpdater(TcpServer.this))
+                                .addLast(new ReadDataUpdater(TcpServer.this))
                                 // Outbound
                                 .addLast(new StringEncoder())
                                 .addLast(new LineAppender("\n"));
@@ -55,8 +54,8 @@ public class TcpServer implements ClientActiveEventListener, ReceiveAvailableLis
     }
 
     public void destroy() {
-        acceptGroup.shutdownGracefully();
-        workingGroup.shutdownGracefully();
+        bootstrap.config().group().shutdownGracefully();
+        bootstrap.config().childGroup().shutdownGracefully();
     }
 
     public void send(String message) {
@@ -64,8 +63,8 @@ public class TcpServer implements ClientActiveEventListener, ReceiveAvailableLis
     }
 
     @Nullable
-    public String receive(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException {
-        BlockingQueue<String> recvQueue = channelRecvQueueMap.get(clientAddress);
+    public String read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException {
+        BlockingQueue<String> recvQueue = channelReadQueueMap.get(clientAddress);
         if (recvQueue == null) {
             return null;
         }
@@ -73,17 +72,13 @@ public class TcpServer implements ClientActiveEventListener, ReceiveAvailableLis
     }
 
     @Nullable
-    public String receive(SocketAddress clientAddress) throws InterruptedException {
-        BlockingQueue<String> recvQueue = channelRecvQueueMap.get(clientAddress);
-        if (recvQueue == null) {
-            return null;
-        }
-        return recvQueue.poll();
+    public String read(SocketAddress clientAddress) throws InterruptedException {
+        return read(clientAddress, 0, TimeUnit.MILLISECONDS);
     }
 
     public boolean isActive(SocketAddress clientAddress) {
         return activeChannelMap.containsKey(clientAddress) &&
-                channelRecvQueueMap.get(clientAddress) != null;
+                channelReadQueueMap.get(clientAddress) != null;
     }
 
     @Override
@@ -97,12 +92,12 @@ public class TcpServer implements ClientActiveEventListener, ReceiveAvailableLis
     }
 
     @Override
-    public void onReceiveAvailable(SocketAddress remoteAddress, BlockingQueue<String> recvQueue) {
-        channelRecvQueueMap.put(remoteAddress, recvQueue);
+    public void onReadAvailable(SocketAddress remoteAddress, BlockingQueue<String> recvQueue) {
+        channelReadQueueMap.put(remoteAddress, recvQueue);
     }
 
     @Override
-    public void onReceiveUnavailable(SocketAddress remoteAddress) {
-        channelRecvQueueMap.remove(remoteAddress);
+    public void onReadUnavailable(SocketAddress remoteAddress) {
+        channelReadQueueMap.remove(remoteAddress);
     }
 }
