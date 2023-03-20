@@ -27,35 +27,48 @@ public class TcpClient implements ReadableQueueListener {
     private final Test test;
 
     public TcpClient() {
+        // 부트스트랩
         bootstrap = new Bootstrap();
+        // 테스트 지원용
         test = new Test();
+        // 이벤트 루프 그룹
+        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+        // 채널 파이프라인 구성 핸들러
+        ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<>() {
+            @Override
+            protected void initChannel(Channel ch) {
+                ch.pipeline()
+                        // Inbound
+                        .addLast(new LineBasedFrameDecoder(1024))
+                        .addLast(new StringDecoder())
+                        .addLast(new ReadDataUpdater(TcpClient.this))
+                        // Outbound
+                        .addLast(new StringEncoder())
+                        .addLast(new LineAppender("\n"));
+            }
+        };
+        // 연결 설정
+        bootstrap.group(eventLoopGroup)
+                .channel(NioSocketChannel.class)
+                .handler(channelInitializer);
     }
 
     public Future<Boolean> connect(String ip, int port) {
-        bootstrap.group(new NioEventLoopGroup())
-                .channel(NioSocketChannel.class)
-                .remoteAddress(ip, port)
-                .handler(new ChannelInitializer<>() {
-                    @Override
-                    protected void initChannel(Channel ch) {
-                        ch.pipeline()
-                                // Inbound
-                                .addLast(new LineBasedFrameDecoder(1024))
-                                .addLast(new StringDecoder())
-                                .addLast(new ReadDataUpdater(TcpClient.this))
-                                // Outbound
-                                .addLast(new StringEncoder())
-                                .addLast(new LineAppender("\n"));
-                    }
-                });
+        // 타겟 주소 설정
+        bootstrap.remoteAddress(ip, port);
 
+        // 연결 완료 시 처리 설정 (비동기적)
         CompletableFuture<Boolean> connectFuture = new CompletableFuture<>();
-        bootstrap.connect().addListener((ChannelFutureListener) channelFuture -> {
+        ChannelFutureListener connectFutureListener = channelFuture -> {
             if (channelFuture.isSuccess()) {
                 channel = channelFuture.channel();
             }
             connectFuture.complete(channelFuture.isSuccess());
-        });
+        };
+
+        // 연결
+        bootstrap.connect().addListener(connectFutureListener);
+        // 퓨처 객체 반환
         return connectFuture;
     }
 
@@ -88,7 +101,7 @@ public class TcpClient implements ReadableQueueListener {
     }
 
     public void destroy() {
-        channel.eventLoop().parent().shutdownGracefully();
+        channel.close();
     }
 
     public SocketAddress localAddress() {
