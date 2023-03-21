@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import practice.netty.tcp.LineBasedTcpClient;
 import practice.netty.tcp.TcpClient;
+import practice.netty.tcp.LineBasedTcpServer;
 import practice.netty.tcp.TcpServer;
 
 import java.util.concurrent.TimeUnit;
@@ -21,7 +22,7 @@ public class TcpLoopBackTest {
         Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
 
         // 서버 및 클라이언트 연결 설정
-        server = new TcpServer();
+        server = new LineBasedTcpServer();
         client = new LineBasedTcpClient();
         server.start(12345).get();
         client.connect("localhost", 12345).get();

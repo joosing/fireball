@@ -8,7 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.tcp.LineBasedTcpClient;
-import practice.netty.tcp.TcpServer;
+import practice.netty.tcp.LineBasedTcpServer;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @Slf4j
 public class SharableHandlerTest {
-    TcpServer server;
+    LineBasedTcpServer server;
     LineBasedTcpClient client1;
     LineBasedTcpClient client2;
 
@@ -39,7 +39,7 @@ public class SharableHandlerTest {
         Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
 
         // 서버 및 클라이언트 연결 설정
-        server = new TcpServer();
+        server = new LineBasedTcpServer();
         server.start(12345).get();
 
         client1 = new LineBasedTcpClient();

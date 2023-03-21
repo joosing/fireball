@@ -16,7 +16,7 @@ public class BlockingHandlerTest extends TcpLoopBackTest {
     @Test
     void normal() throws Exception {
         // When : 메시지 전송
-        server.send("status");
+        server.sendAll("status");
 
         // Then : 즉시 메시지 수신
         await().until(() -> Objects.equals(client.read(), "status"));
@@ -30,7 +30,7 @@ public class BlockingHandlerTest extends TcpLoopBackTest {
         client.send("blocking");
 
         // When : 서버에서 메시지 전송
-        server.send("status");
+        server.sendAll("status");
 
         // Then : 지연 이후 메시지 수신
         await().atLeast(blockingMillis, TimeUnit.MILLISECONDS)
@@ -46,7 +46,7 @@ public class BlockingHandlerTest extends TcpLoopBackTest {
         client.send("blocking");
 
         // When : 서버에서 메시지 전송
-        server.send("status");
+        server.sendAll("status");
 
         // Then : 즉시 메시지 수신
         await().atMost(100, TimeUnit.MILLISECONDS)
