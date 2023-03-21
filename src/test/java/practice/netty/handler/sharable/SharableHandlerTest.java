@@ -7,7 +7,7 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import practice.netty.tcp.TcpClient;
+import practice.netty.tcp.LineBasedTcpClient;
 import practice.netty.tcp.TcpServer;
 
 import java.util.concurrent.TimeUnit;
@@ -30,8 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 public class SharableHandlerTest {
     TcpServer server;
-    TcpClient client1;
-    TcpClient client2;
+    LineBasedTcpClient client1;
+    LineBasedTcpClient client2;
 
     @BeforeEach
     void beforeEach() throws Exception {
@@ -42,8 +42,8 @@ public class SharableHandlerTest {
         server = new TcpServer();
         server.start(12345).get();
 
-        client1 = new TcpClient();
-        client2 = new TcpClient();
+        client1 = new LineBasedTcpClient();
+        client2 = new LineBasedTcpClient();
         client1.connect("localhost", 12345).get();
         client2.connect("localhost", 12345).get();
 

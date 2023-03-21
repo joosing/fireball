@@ -3,6 +3,7 @@ package practice.netty.handler;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import practice.netty.tcp.LineBasedTcpClient;
 import practice.netty.tcp.TcpClient;
 import practice.netty.tcp.TcpServer;
 
@@ -21,7 +22,7 @@ public class TcpLoopBackTest {
 
         // 서버 및 클라이언트 연결 설정
         server = new TcpServer();
-        client = new TcpClient();
+        client = new LineBasedTcpClient();
         server.start(12345).get();
         client.connect("localhost", 12345).get();
 
