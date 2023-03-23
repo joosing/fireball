@@ -7,6 +7,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public interface TcpServer {
+    void init();
+
     Future<Boolean> start(int bindPort);
 
     void destroy();

@@ -24,7 +24,9 @@ public class TcpLoopBackTest {
         // 서버 및 클라이언트 연결 설정
         server = new LineBasedTcpServer();
         client = new LineBasedTcpClient();
+        server.init();
         server.start(12345).get();
+        client.init();
         client.connect("localhost", 12345).get();
 
         // 서버가 클라이언트와 통신 가능한 상태가 될 때까지 대기

@@ -7,6 +7,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public interface TcpClient {
+    void init();
+
     Future<Boolean> connect(String ip, int port);
 
     void send(String data);

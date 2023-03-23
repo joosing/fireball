@@ -16,11 +16,12 @@ import java.net.SocketAddress;
 import java.util.concurrent.*;
 
 public class LineBasedTcpServer implements TcpServer, ClientActiveListener, ReadableQueueListener {
-    private final ServerBootstrap bootstrap;
-    private final ConcurrentHashMap<SocketAddress, Channel> activeChannelMap;
-    private final ConcurrentHashMap<SocketAddress, BlockingQueue<String>> channelReadQueueMap;
+    private ServerBootstrap bootstrap;
+    private ConcurrentHashMap<SocketAddress, Channel> activeChannelMap;
+    private ConcurrentHashMap<SocketAddress, BlockingQueue<String>> channelReadQueueMap;
 
-    public LineBasedTcpServer() {
+    @Override
+    public void init() {
         bootstrap = new ServerBootstrap();
         activeChannelMap = new ConcurrentHashMap<>();
         channelReadQueueMap = new ConcurrentHashMap<>();
@@ -46,18 +47,18 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     }
 
     @Override
+    public void destroy() {
+        bootstrap.config().group().shutdownGracefully();
+        bootstrap.config().childGroup().shutdownGracefully();
+    }
+
+    @Override
     public Future<Boolean> start(int bindPort) {
         bootstrap.localAddress("0.0.0.0", bindPort);
         CompletableFuture<Boolean> startFuture = new CompletableFuture<>();
         ChannelFutureListener bindFutureListener = (ChannelFuture future) -> startFuture.complete(future.isSuccess());
         bootstrap.bind().addListener(bindFutureListener);
         return startFuture;
-    }
-
-    @Override
-    public void destroy() {
-        bootstrap.config().group().shutdownGracefully();
-        bootstrap.config().childGroup().shutdownGracefully();
     }
 
     @Override

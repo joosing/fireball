@@ -21,12 +21,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
-    private final Bootstrap bootstrap;
+    private Bootstrap bootstrap;
     private Channel channel;
     @Nullable private volatile BlockingQueue<String> recvQueue;
-    private final Test test;
+    private Test test;
 
-    public LineBasedTcpClient() {
+    @Override
+    public void init() {
         // 부트스트랩
         bootstrap = new Bootstrap();
         // 테스트 지원용
@@ -54,6 +55,11 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
     }
 
     @Override
+    public void destroy() {
+        channel.eventLoop().parent().shutdownGracefully();
+    }
+
+    @Override
     public Future<Boolean> connect(String ip, int port) {
         // 타겟 주소 설정
         bootstrap.remoteAddress(ip, port);
@@ -71,6 +77,13 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
         bootstrap.connect().addListener(connectFutureListener);
         // 퓨처 객체 반환
         return connectFuture;
+    }
+
+    @Override
+    public void disconnect() {
+        if (channel != null) {
+            channel.close();
+        }
     }
 
     @Override
@@ -96,18 +109,6 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
         }
 
         return tmpRecvQueue.poll(timeout, unit);
-    }
-
-    @Override
-    public void disconnect() {
-        if (channel != null) {
-            channel.close();
-        }
-    }
-
-    @Override
-    public void destroy() {
-        channel.close();
     }
 
     @Override
