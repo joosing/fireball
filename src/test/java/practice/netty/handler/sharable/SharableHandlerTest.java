@@ -40,10 +40,13 @@ public class SharableHandlerTest {
 
         // 서버 및 클라이언트 연결 설정
         server = new LineBasedTcpServer();
+        server.init();
         server.start(12345).get();
 
         client1 = new LineBasedTcpClient();
         client2 = new LineBasedTcpClient();
+        client1.init();
+        client2.init();
         client1.connect("localhost", 12345).get();
         client2.connect("localhost", 12345).get();
 

@@ -1,4 +1,4 @@
-package practice.netty.handler.inbound;
+package practice.netty.tcp.handler.inbound;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

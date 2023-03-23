@@ -1,4 +1,4 @@
-package practice.netty.handler.outbound;
+package practice.netty.tcp.handler.outbound;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;

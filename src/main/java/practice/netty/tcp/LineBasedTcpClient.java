@@ -11,8 +11,8 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.springframework.lang.Nullable;
-import practice.netty.handler.inbound.ReadDataUpdater;
-import practice.netty.handler.outbound.LineAppender;
+import practice.netty.tcp.handler.inbound.ReadDataUpdater;
+import practice.netty.tcp.handler.outbound.LineAppender;
 
 import java.net.SocketAddress;
 import java.util.concurrent.BlockingQueue;
