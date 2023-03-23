@@ -21,11 +21,13 @@ public class TcpLoopBackTest {
         // 비동기 테스트 프레임워크 설정
         Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
 
-        // 서버 및 클라이언트 연결 설정
+        // 서버 생성 및 시작
         server = new LineBasedTcpServer();
-        client = new LineBasedTcpClient();
         server.init();
         server.start(12345).get();
+
+        // 클라이언트 생성 및 연결
+        client = new LineBasedTcpClient();
         client.init();
         client.connect("localhost", 12345).get();
 
