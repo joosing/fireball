@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
     private Bootstrap bootstrap;
-    private Channel channel;
+    private volatile Channel channel;
     @Nullable private volatile BlockingQueue<String> recvQueue;
     private Test test;
 
