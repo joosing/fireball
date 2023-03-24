@@ -64,18 +64,20 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
         // 타겟 주소 설정
         bootstrap.remoteAddress(ip, port);
 
-        // 연결 완료 시 처리 설정 (비동기적)
+        /* 주의! bootstrap.connect()가 반환하는 ChannelFuture 객체를 그대로 사용자에게 반환하면 프로그램이 불안정한 상태에 놓일 수 있습니다.
+         * bootstrap.connect()가 반환하는 ChannelFuture 객체는 등록된 리스너가 호출되기 이전에 완료 상태가 되는데 그렇게 되면 channel이
+         * 초기화 되지 않은 상태에 TcpClient 구현체를 사용자가 사용하게 될 수 있습니다. 사용자가 연결 완료를 인지한 시점 부터 즉시 통신할 수
+         * 있는 안정적인 상태를 제공해야 합니다.
+         */
         CompletableFuture<Boolean> connectFuture = new CompletableFuture<>();
-        ChannelFutureListener connectFutureListener = channelFuture -> {
-            if (channelFuture.isSuccess()) {
-                channel = channelFuture.channel();
-            }
-            connectFuture.complete(channelFuture.isSuccess());
-        };
 
         // 연결
-        bootstrap.connect().addListener(connectFutureListener);
-        // 퓨처 객체 반환
+        bootstrap.connect().addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+                channel = future.channel();
+            }
+            connectFuture.complete(future.isSuccess());
+        });
         return connectFuture;
     }
 
