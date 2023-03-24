@@ -4,8 +4,8 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import practice.netty.tcp.LineBasedTcpClient;
-import practice.netty.tcp.TcpClient;
 import practice.netty.tcp.LineBasedTcpServer;
+import practice.netty.tcp.TcpClient;
 import practice.netty.tcp.TcpServer;
 
 import java.util.concurrent.TimeUnit;
@@ -37,8 +37,8 @@ public class TcpLoopBackTest {
     }
 
     @AfterEach
-    protected void afterEach() {
-        client.destroy();
-        server.destroy();
+    protected void afterEach() throws Exception {
+        client.destroy().get();
+        server.destroy().get();
     }
 }

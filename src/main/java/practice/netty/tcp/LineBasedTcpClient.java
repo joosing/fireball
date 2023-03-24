@@ -55,8 +55,8 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
     }
 
     @Override
-    public void destroy() {
-        channel.eventLoop().parent().shutdownGracefully();
+    public Future<?> destroy() {
+        return channel.eventLoop().parent().shutdownGracefully();
     }
 
     @Override

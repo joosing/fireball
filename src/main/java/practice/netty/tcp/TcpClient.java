@@ -21,7 +21,7 @@ public interface TcpClient {
 
     void disconnect();
 
-    void destroy();
+    Future<?> destroy();
 
     SocketAddress localAddress();
 

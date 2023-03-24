@@ -47,9 +47,11 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     }
 
     @Override
-    public void destroy() {
-        bootstrap.config().group().shutdownGracefully();
-        bootstrap.config().childGroup().shutdownGracefully();
+    public Future<Void> destroy() {
+        return CompletableFuture.allOf(
+                CompletableFuture.runAsync(() -> bootstrap.config().group().shutdownGracefully()),
+                CompletableFuture.runAsync(() -> bootstrap.config().childGroup().shutdownGracefully())
+        );
     }
 
     @Override
