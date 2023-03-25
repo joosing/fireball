@@ -60,9 +60,9 @@ public class SharableHandlerTest {
 
     @AfterEach
     void afterEach() {
-        client1.destroy();
-        client2.destroy();
-        server.destroy();
+        client1.shutdownGracefully();
+        client2.shutdownGracefully();
+        server.shutdownGracefully();
     }
 
     /**

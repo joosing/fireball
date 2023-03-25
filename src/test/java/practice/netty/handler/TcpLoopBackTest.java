@@ -38,7 +38,7 @@ public class TcpLoopBackTest {
 
     @AfterEach
     protected void afterEach() throws Exception {
-        client.destroy().get();
-        server.destroy().get();
+        client.shutdownGracefully().get();
+        server.shutdownGracefully().get();
     }
 }

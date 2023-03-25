@@ -20,6 +20,13 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     private ConcurrentHashMap<SocketAddress, Channel> activeChannelMap;
     private ConcurrentHashMap<SocketAddress, BlockingQueue<String>> channelReadQueueMap;
 
+    public static TcpServer newServer(int port) throws ExecutionException, InterruptedException {
+        TcpServer server = new LineBasedTcpServer();
+        server.init();
+        server.start(port).get();
+        return server;
+    }
+
     @Override
     public void init() {
         bootstrap = new ServerBootstrap();
@@ -47,7 +54,7 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     }
 
     @Override
-    public Future<Void> destroy() {
+    public Future<Void> shutdownGracefully() {
         return CompletableFuture.allOf(
                 CompletableFuture.runAsync(() -> bootstrap.config().group().shutdownGracefully()),
                 CompletableFuture.runAsync(() -> bootstrap.config().childGroup().shutdownGracefully())

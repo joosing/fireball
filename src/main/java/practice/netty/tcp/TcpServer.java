@@ -11,7 +11,7 @@ public interface TcpServer {
 
     Future<Boolean> start(int bindPort);
 
-    Future<Void> destroy();
+    Future<Void> shutdownGracefully();
 
     void sendAll(String message);
 

@@ -1,10 +1,7 @@
 package practice.netty.tcp;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
@@ -15,10 +12,8 @@ import practice.netty.tcp.handler.inbound.ReadDataUpdater;
 import practice.netty.tcp.handler.outbound.LineAppender;
 
 import java.net.SocketAddress;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
     private Bootstrap bootstrap;
@@ -26,14 +21,20 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
     @Nullable private volatile BlockingQueue<String> recvQueue;
     private Test test;
 
+    public static TcpClient newConnection(String ip, int port, EventLoopGroup eventLoopGroup) throws ExecutionException,
+            InterruptedException {
+        TcpClient client = new LineBasedTcpClient();
+        client.init(eventLoopGroup);
+        client.connect(ip, port).get();
+        return client;
+    }
+
     @Override
-    public void init() {
+    public void init(EventLoopGroup eventLoopGroup) {
         // 부트스트랩
         bootstrap = new Bootstrap();
         // 테스트 지원용
         test = new Test();
-        // 이벤트 루프 그룹
-        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         // 채널 파이프라인 구성 핸들러
         ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<>() {
             @Override
@@ -55,7 +56,13 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
     }
 
     @Override
-    public Future<?> destroy() {
+    public void init() {
+        EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+        init(eventLoopGroup);
+    }
+
+    @Override
+    public Future<?> shutdownGracefully() {
         return channel.eventLoop().parent().shutdownGracefully();
     }
 
@@ -89,14 +96,22 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
     }
 
     @Override
-    public void send(String data) {
-        channel.writeAndFlush(data);
+    public ChannelFuture send(String data) {
+        return channel.writeAndFlush(data);
     }
 
     @Override
     @Nullable
     public String read() throws InterruptedException {
-        return read(0, TimeUnit.MILLISECONDS);
+        // 주의: recvQueue가 null 이후에 비동기적으로 채널이 닫히고 recvQueue가 null이 될 수 있기 때문에 내부
+        //      변수에 참조를 저장한 후 처리합니다.
+        BlockingQueue<String> tmpRecvQueue = recvQueue;
+
+        if (tmpRecvQueue == null) {
+            return null;
+        }
+
+        return tmpRecvQueue.take();
     }
 
     @Override
@@ -142,6 +157,16 @@ public class LineBasedTcpClient implements TcpClient, ReadableQueueListener {
         }
         public Channel channel() {
             return channel;
+        }
+        public EventLoop eventLoop() {
+            return channel.eventLoop();
+        }
+        public Thread eventLoopThread() throws ExecutionException, InterruptedException {
+            AtomicReference<Thread> thread = new AtomicReference<>();
+            channel.writeAndFlush("").addListener((ChannelFutureListener) future -> {
+                thread.set(Thread.currentThread());
+            }).get();
+            return thread.get();
         }
     }
 }
