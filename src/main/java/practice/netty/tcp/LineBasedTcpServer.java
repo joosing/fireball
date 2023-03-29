@@ -1,7 +1,10 @@
 package practice.netty.tcp;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
@@ -13,7 +16,12 @@ import practice.netty.tcp.handler.inbound.ReadDataUpdater;
 import practice.netty.tcp.handler.outbound.LineAppender;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
+
+import static practice.netty.tcp.util.PropagateChannelFuture.propagateChannelFuture;
 
 public class LineBasedTcpServer implements TcpServer, ClientActiveListener, ReadableQueueListener {
     private ServerBootstrap bootstrap;
@@ -54,25 +62,43 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     }
 
     @Override
-    public Future<Void> shutdownGracefully() {
-        return CompletableFuture.allOf(
-                CompletableFuture.runAsync(() -> bootstrap.config().group().shutdownGracefully()),
-                CompletableFuture.runAsync(() -> bootstrap.config().childGroup().shutdownGracefully())
-        );
+    public Future<Boolean> shutdownGracefully() {
+        Supplier<io.netty.util.concurrent.Future<?>> acceptShutdownSupplier = () -> bootstrap.config().group().shutdownGracefully();
+        Supplier<io.netty.util.concurrent.Future<?>> clientsShutdownSupplier = () -> bootstrap.config().childGroup().shutdownGracefully();
+        return CompletableFuture.supplyAsync(acceptShutdownSupplier)
+                .thenCombine(CompletableFuture.supplyAsync(clientsShutdownSupplier),
+                        (acceptShutdown, clientsShutdown) -> acceptShutdown.isSuccess() && clientsShutdown.isSuccess());
+
     }
 
     @Override
     public Future<Boolean> start(int bindPort) {
         bootstrap.localAddress("0.0.0.0", bindPort);
-        CompletableFuture<Boolean> startFuture = new CompletableFuture<>();
-        ChannelFutureListener bindFutureListener = (ChannelFuture future) -> startFuture.complete(future.isSuccess());
-        bootstrap.bind().addListener(bindFutureListener);
-        return startFuture;
+        CompletableFuture<Boolean> userFuture = new CompletableFuture<>();
+        bootstrap.bind().addListener((ChannelFutureListener) channelFuture -> {
+            propagateChannelFuture(userFuture, channelFuture);
+        });
+        return userFuture;
     }
 
     @Override
-    public void sendAll(String message) {
-        activeChannelMap.values().forEach(channel -> channel.writeAndFlush(message));
+    public Future<Boolean> sendAll(String message) {
+        List<CompletableFuture<Boolean>> sendFutures = new ArrayList<>();
+        activeChannelMap.values().forEach(channel -> {
+            var sendFuture = new CompletableFuture<Boolean>();
+            channel.writeAndFlush(message).addListener((ChannelFutureListener) channelFuture -> {
+                propagateChannelFuture(sendFuture, channelFuture);
+            });
+            sendFutures.add(sendFuture);
+        });
+
+        return CompletableFuture
+                .allOf(sendFutures.toArray(CompletableFuture[]::new))
+                .thenApply(ignored ->
+                        sendFutures.stream()
+                                .map(CompletableFuture::join)
+                                .reduce(Boolean::logicalAnd)
+                                .orElse(false));
     }
 
     @Override
@@ -88,7 +114,11 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     @Override
     @Nullable
     public String read(SocketAddress clientAddress) throws InterruptedException {
-        return read(clientAddress, 0, TimeUnit.MILLISECONDS);
+        BlockingQueue<String> recvQueue = channelReadQueueMap.get(clientAddress);
+        if (recvQueue == null) {
+            return null;
+        }
+        return recvQueue.take();
     }
 
     @Override

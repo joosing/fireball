@@ -11,9 +11,9 @@ public interface TcpServer {
 
     Future<Boolean> start(int bindPort);
 
-    Future<Void> shutdownGracefully();
+    Future<?> shutdownGracefully();
 
-    void sendAll(String message);
+    Future<Boolean> sendAll(String message);
 
     @Nullable
     String read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException;

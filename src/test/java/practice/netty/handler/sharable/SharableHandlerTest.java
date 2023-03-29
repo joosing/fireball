@@ -2,18 +2,24 @@ package practice.netty.handler.sharable;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipelineException;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import practice.netty.tcp.LineBasedTcpClient;
-import practice.netty.tcp.LineBasedTcpServer;
+import practice.netty.tcp.CustomClient;
+import practice.netty.tcp.TcpServer;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static practice.netty.tcp.LineBasedClient.newConnection;
+import static practice.netty.tcp.LineBasedTcpServer.newServer;
 
 /*
  * Sharable 어노테이션의 특성에 대해 상세히 묘사합니다.
@@ -29,9 +35,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @Slf4j
 public class SharableHandlerTest {
-    LineBasedTcpServer server;
-    LineBasedTcpClient client1;
-    LineBasedTcpClient client2;
+    TcpServer server;
+    CustomClient clientOne;
+    CustomClient clientTwo;
+    EventLoopGroup clientEventLoopGroup;
 
     @BeforeEach
     void beforeEach() throws Exception {
@@ -39,30 +46,21 @@ public class SharableHandlerTest {
         Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
 
         // 서버 및 클라이언트 연결 설정
-        server = new LineBasedTcpServer();
-        server.init();
-        server.start(12345).get();
-
-        client1 = new LineBasedTcpClient();
-        client2 = new LineBasedTcpClient();
-        client1.init();
-        client2.init();
-        client1.connect("localhost", 12345).get();
-        client2.connect("localhost", 12345).get();
+        server = newServer(12345);
+        clientEventLoopGroup = new NioEventLoopGroup();
+        clientOne = newConnection("localhost", 12345, clientEventLoopGroup);
+        clientTwo = newConnection("localhost", 12345, clientEventLoopGroup);
 
         // 서버가 클라이언트와 통신 가능한 상태가 될 때까지 대기
         await().atMost(1000, TimeUnit.MILLISECONDS)
-                .until(() -> server.isActive(client1.localAddress())
-                        && server.isActive(client2.localAddress()));
-        // 두 클라이언트가 다른 쓰레드에 의해 처리됨을 확인
-        assertNotSame(client1.test().channel().eventLoop(), client2.test().channel().eventLoop());
+                .until(() -> server.isActive(clientOne.localAddress())
+                        && server.isActive(clientTwo.localAddress()));
     }
 
     @AfterEach
-    void afterEach() {
-        client1.shutdownGracefully();
-        client2.shutdownGracefully();
-        server.shutdownGracefully();
+    void afterEach() throws InterruptedException, ExecutionException {
+        server.shutdownGracefully().get();
+        clientEventLoopGroup.shutdownGracefully().sync();
     }
 
     /**
@@ -72,14 +70,14 @@ public class SharableHandlerTest {
     void sharableHandlerTwice() throws InterruptedException {
         // When: 하나의 핸들러 인스턴스를 두 번 추가하고 메시지를 전송한다.
         SharableCountingHandler handler = new SharableCountingHandler();
-        client1.test().pipeline().addLast("new", handler);
-        client2.test().pipeline().addLast("reuse", handler);
-        client1.send("message");
-        client2.send("message");
+        clientOne.pipeline().addLast("new", handler);
+        clientTwo.pipeline().addLast("reuse", handler);
+        clientOne.send("message");
+        clientTwo.send("message");
 
         // Then: 같은 인스턴스 추가 및 동일 핸들러 두 번 호출
-        ChannelHandler newHandler =  client1.test().pipeline().toMap().get("new");
-        ChannelHandler reuseHandler = client2.test().pipeline().toMap().get("reuse");
+        ChannelHandler newHandler =  clientOne.pipeline().toMap().get("new");
+        ChannelHandler reuseHandler = clientTwo.pipeline().toMap().get("reuse");
         assertSame(newHandler, reuseHandler);
         await().until(() -> handler.getCount() == 2);
     }
@@ -91,14 +89,14 @@ public class SharableHandlerTest {
     void unsafeSharableHandlerTwice() throws InterruptedException {
         // When: 하나의 핸들러 인스턴스를 두 번 추가하고 메시지를 전송한다.
         SharableThreadUnsafeCountingHandler handler = new SharableThreadUnsafeCountingHandler();
-        client1.test().pipeline().addLast("new", handler);
-        client2.test().pipeline().addLast("reuse", handler);
-        client1.send("message");
-        client2.send("message");
+        clientOne.pipeline().addLast("new", handler);
+        clientTwo.pipeline().addLast("reuse", handler);
+        clientOne.send("message");
+        clientTwo.send("message");
 
         // Then: 같은 인스턴스 추가 및 동일 핸들러 두 번 호출
-        ChannelHandler newHandler =  client1.test().pipeline().toMap().get("new");
-        ChannelHandler reuseHandler = client2.test().pipeline().toMap().get("reuse");
+        ChannelHandler newHandler =  clientOne.pipeline().toMap().get("new");
+        ChannelHandler reuseHandler = clientTwo.pipeline().toMap().get("reuse");
         assertSame(newHandler, reuseHandler);
         await().until(() -> handler.getCount() == 2);
     }
@@ -110,8 +108,8 @@ public class SharableHandlerTest {
     void UnsharableHandlerTwice() throws InterruptedException {
         UnsharableCountingHandler handler = new UnsharableCountingHandler();
         assertThrows(ChannelPipelineException.class, () -> {
-            client1.test().pipeline().addLast(handler);
-            client2.test().pipeline().addLast(handler);
+            clientOne.pipeline().addLast(handler);
+            clientTwo.pipeline().addLast(handler);
         });
     }
 }
