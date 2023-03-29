@@ -3,16 +3,18 @@ package practice.netty.helper;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.awaitility.Awaitility;
+import practice.netty.tcp.ClientFactoryType;
 import practice.netty.tcp.CustomClient;
 import practice.netty.tcp.TcpServer;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static practice.netty.tcp.LineBasedClient.newConnection;
 import static practice.netty.tcp.LineBasedTcpServer.newServer;
 
 public class TcpLoopBackTestHelper {
@@ -28,7 +30,8 @@ public class TcpLoopBackTestHelper {
         Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
     }
 
-    public void setUp(int serverPort, int nClient) throws ExecutionException, InterruptedException {
+    public void setUp(int serverPort, int nClient, ClientFactoryType clientFactoryType) throws ExecutionException, InterruptedException,
+            NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         // 비동기 테스트 프레임워크 설정
         setUpAwaitility();
 
@@ -38,8 +41,9 @@ public class TcpLoopBackTestHelper {
         // N개 클라이언트 연결 생성
         clients = new ArrayList<>();
         clientEventLoopGroup = new NioEventLoopGroup();
+        Method factoryMethod = getFactoryMethod(clientFactoryType);
         for (int i = 0; i < nClient; i++) {
-            CustomClient client = newConnection("localhost", serverPort, clientEventLoopGroup);
+            CustomClient client = (CustomClient) factoryMethod.invoke(null, "localhost", serverPort, clientEventLoopGroup);
             clients.add(client);
         }
 
@@ -48,6 +52,12 @@ public class TcpLoopBackTestHelper {
             await().atMost(1000, TimeUnit.MILLISECONDS)
                     .until(() -> server.isActive(client.localAddress()));
         }
+    }
+
+    private static Method getFactoryMethod(ClientFactoryType clientFactoryType) throws NoSuchMethodException {
+        Class<? extends CustomClient> clientClass = clientFactoryType.getClientClass();
+        String factoryMethodName = clientFactoryType.getFactoryMethodName();
+        return clientClass.getDeclaredMethod(factoryMethodName, String.class, int.class, EventLoopGroup.class);
     }
 
     public void shutdown() throws ExecutionException, InterruptedException {

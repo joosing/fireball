@@ -6,9 +6,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.handler.outbound.OutboundBlockingHandler;
 import practice.netty.helper.TcpLoopBackTestHelper;
+import practice.netty.tcp.ClientFactoryType;
 import practice.netty.tcp.CustomClient;
 import practice.netty.tcp.TcpServer;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -21,8 +23,9 @@ public class BlockingHandlerTest {
     CustomClient client;
 
     @BeforeEach
-    void setUp() throws ExecutionException, InterruptedException {
-        helper.setUp(12345, 1);
+    void setUp() throws ExecutionException, InterruptedException, InvocationTargetException, NoSuchMethodException,
+            IllegalAccessException {
+        helper.setUp(12345, 1, ClientFactoryType.LINE_BASED);
         server = helper.server();
         client = helper.client(0);
     }
