@@ -5,15 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.helper.TcpLoopBackTestHelper;
-import practice.netty.tcp.ClientFactoryType;
+import practice.netty.tcp.ClientConnectionFactory;
 import practice.netty.tcp.CustomClient;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 import static org.awaitility.Awaitility.await;
 
@@ -22,13 +20,12 @@ public class FileRegionTest extends TcpLoopBackTestHelper {
     CustomClient client;
 
     public FileRegionTest() {
-        super(12345, 1, ClientFactoryType.DEFAULT);
+        super(12345, 1, ClientConnectionFactory.DEFAULT);
     }
 
     @Override
     @BeforeEach
-    protected void setUp() throws ExecutionException, InterruptedException, NoSuchMethodException,
-            InvocationTargetException, IllegalAccessException {
+    protected void setUp() throws Exception {
         super.setUp();
         client = clients.get(0);
     }
