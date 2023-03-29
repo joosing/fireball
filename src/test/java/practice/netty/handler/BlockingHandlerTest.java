@@ -1,14 +1,12 @@
 package practice.netty.handler;
 
 import io.netty.channel.DefaultEventLoopGroup;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.handler.outbound.OutboundBlockingHandler;
 import practice.netty.helper.TcpLoopBackTestHelper;
 import practice.netty.tcp.ClientFactoryType;
 import practice.netty.tcp.CustomClient;
-import practice.netty.tcp.TcpServer;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
@@ -17,22 +15,19 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
-public class BlockingHandlerTest {
-    TcpLoopBackTestHelper helper = new TcpLoopBackTestHelper();
-    TcpServer server;
+public class BlockingHandlerTest extends TcpLoopBackTestHelper {
     CustomClient client;
 
-    @BeforeEach
-    void setUp() throws ExecutionException, InterruptedException, InvocationTargetException, NoSuchMethodException,
-            IllegalAccessException {
-        helper.setUp(12345, 1, ClientFactoryType.LINE_BASED);
-        server = helper.server();
-        client = helper.client(0);
+    public BlockingHandlerTest() {
+        super(12345, 1, ClientFactoryType.LINE_BASED);
     }
 
-    @AfterEach
-    void shutdown() throws ExecutionException, InterruptedException {
-        helper.shutdown();
+    @Override
+    @BeforeEach
+    protected void setUp() throws ExecutionException, InterruptedException, NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException {
+        super.setUp();
+        client = clients.get(0);
     }
 
     @Test
