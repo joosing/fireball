@@ -7,8 +7,8 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import practice.netty.tcp.CustomClient;
-import practice.netty.tcp.TcpServer;
+import practice.netty.tcp.client.CustomClient;
+import practice.netty.tcp.server.TcpServer;
 
 import java.net.SocketAddress;
 import java.util.concurrent.ExecutionException;
@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
-import static practice.netty.tcp.LineBasedClient.newConnection;
-import static practice.netty.tcp.LineBasedTcpServer.newServer;
+import static practice.netty.tcp.client.LineBasedClient.newConnection;
+import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
 
 @Slf4j
 public class EventLoopTest {

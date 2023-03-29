@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import practice.netty.tcp.ClientConnectionFactory;
-import practice.netty.tcp.ConnectionSupplier;
-import practice.netty.tcp.CustomClient;
-import practice.netty.tcp.TcpServer;
+import practice.netty.tcp.client.ClientConnectionFactory;
+import practice.netty.tcp.client.ConnectionSupplier;
+import practice.netty.tcp.client.CustomClient;
+import practice.netty.tcp.server.TcpServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static practice.netty.tcp.LineBasedTcpServer.newServer;
+import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
 
 @RequiredArgsConstructor
 public class TcpLoopBackTestHelper {

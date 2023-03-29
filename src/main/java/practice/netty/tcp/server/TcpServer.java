@@ -1,4 +1,4 @@
-package practice.netty.tcp;
+package practice.netty.tcp.server;
 
 import org.springframework.lang.Nullable;
 
@@ -16,10 +16,10 @@ public interface TcpServer {
     Future<Boolean> sendAll(String message);
 
     @Nullable
-    String read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException;
+    Object read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException;
 
     @Nullable
-    String read(SocketAddress clientAddress) throws InterruptedException;
+    Object read(SocketAddress clientAddress) throws InterruptedException;
 
     boolean isActive(SocketAddress clientAddress);
 }

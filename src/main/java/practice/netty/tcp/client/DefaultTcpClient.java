@@ -1,30 +1,43 @@
-package practice.netty.tcp;
+package practice.netty.tcp.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.springframework.lang.Nullable;
+import practice.netty.tcp.handler.inbound.ReadDataUpdater;
 
 import java.net.SocketAddress;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static practice.netty.tcp.util.PropagateChannelFuture.propagateChannelFuture;
 
 public class DefaultTcpClient implements TcpClient {
     private Bootstrap bootstrap;
     private volatile Channel channel;
+    private volatile BlockingQueue<Object> readQueue;
 
     @Override
-    public void init(EventLoopGroup eventLoopGroup, ChannelInitializer<Channel> channelInitializer) {
+    public void init(EventLoopGroup eventLoopGroup, List<ChannelHandler> handlers) {
+        // 읽기 큐
+        readQueue = new LinkedBlockingQueue<>();
+
+        // 자신에게 수신 메시지를 전달해줄 핸들러 추가
+        handlers.add(new ReadDataUpdater(this));
+
         // 부트스트랩
         bootstrap = new Bootstrap();
+
         // 연결 설정
         bootstrap.group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
-                .handler(channelInitializer);
+                .handler(new ChannelInitializer<>() {
+                    @Override
+                    protected void initChannel(Channel ch) {
+                        ch.pipeline().addLast(handlers.toArray(ChannelHandler[]::new));
+                    }
+                });
     }
 
     @Override
@@ -66,6 +79,23 @@ public class DefaultTcpClient implements TcpClient {
         return userFuture;
     }
 
+    /**
+     * 수신된 메시지를 읽습니다. 읽을 메시지가 없는 경우 수신될 때 까지 무한히 대기합니다.
+     */
+    @Override
+    public Object read() throws InterruptedException {
+        return readQueue.take();
+    }
+
+    /**
+     * 수신된 메시지를 읽습니다. 읽을 메시지가 없는 경우 수신될 때 까지 timeout 시간 만큼 대기합니다.
+     */
+    @Override
+    @Nullable
+    public Object read(int timeout, TimeUnit unit) throws InterruptedException {
+        return readQueue.poll(timeout, unit);
+    }
+
     @Override
     public SocketAddress localAddress() {
         return channel.localAddress();
@@ -77,7 +107,34 @@ public class DefaultTcpClient implements TcpClient {
     }
 
     @Override
+    public void onReadAvailable(SocketAddress remoteAddress, Object data) {
+        readQueue.add(data);
+    }
+
+    @Override
+    public ChannelPipeline pipeline() {
+        return channel.pipeline();
+    }
+
+    @Override
     public Channel channel() {
         return channel;
+    }
+
+    @Override
+    public EventLoop eventLoop() {
+        return channel.eventLoop();
+    }
+
+    @Override
+    public Thread eventLoopThread() throws ExecutionException, InterruptedException {
+        AtomicReference<Thread> thread = new AtomicReference<>();
+        CompletableFuture<Void> getThreadFuture = new CompletableFuture<>();
+        channel.writeAndFlush("").addListener((ChannelFutureListener) future -> {
+            thread.set(Thread.currentThread());
+            getThreadFuture.complete(null);
+        });
+        getThreadFuture.get();
+        return thread.get();
     }
 }

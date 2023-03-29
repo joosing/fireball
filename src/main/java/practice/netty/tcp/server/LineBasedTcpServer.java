@@ -1,4 +1,4 @@
-package practice.netty.tcp;
+package practice.netty.tcp.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -11,11 +11,13 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.springframework.lang.Nullable;
+import practice.netty.tcp.common.ReadDataListener;
 import practice.netty.tcp.handler.inbound.ClientActiveNotifier;
 import practice.netty.tcp.handler.inbound.ReadDataUpdater;
 import practice.netty.tcp.handler.outbound.LineAppender;
 
 import java.net.SocketAddress;
+import java.nio.channels.NotYetConnectedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -23,10 +25,9 @@ import java.util.function.Supplier;
 
 import static practice.netty.tcp.util.PropagateChannelFuture.propagateChannelFuture;
 
-public class LineBasedTcpServer implements TcpServer, ClientActiveListener, ReadableQueueListener {
+public class LineBasedTcpServer implements TcpServer, ClientActiveListener, ReadDataListener {
     private ServerBootstrap bootstrap;
-    private ConcurrentHashMap<SocketAddress, Channel> activeChannelMap;
-    private ConcurrentHashMap<SocketAddress, BlockingQueue<String>> channelReadQueueMap;
+    private ConcurrentHashMap<SocketAddress, ActiveChannel> activeChannels;
 
     public static TcpServer newServer(int port) throws ExecutionException, InterruptedException {
         TcpServer server = new LineBasedTcpServer();
@@ -38,8 +39,7 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     @Override
     public void init() {
         bootstrap = new ServerBootstrap();
-        activeChannelMap = new ConcurrentHashMap<>();
-        channelReadQueueMap = new ConcurrentHashMap<>();
+        activeChannels = new ConcurrentHashMap<>();
         EventLoopGroup acceptGroup = new NioEventLoopGroup();
         EventLoopGroup serviceGroup = new NioEventLoopGroup();
         ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<>() {
@@ -84,9 +84,9 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     @Override
     public Future<Boolean> sendAll(String message) {
         List<CompletableFuture<Boolean>> sendFutures = new ArrayList<>();
-        activeChannelMap.values().forEach(channel -> {
+        activeChannels.values().forEach(activeChannel -> {
             var sendFuture = new CompletableFuture<Boolean>();
-            channel.writeAndFlush(message).addListener((ChannelFutureListener) channelFuture -> {
+            activeChannel.channel().writeAndFlush(message).addListener((ChannelFutureListener) channelFuture -> {
                 propagateChannelFuture(sendFuture, channelFuture);
             });
             sendFutures.add(sendFuture);
@@ -103,47 +103,52 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
 
     @Override
     @Nullable
-    public String read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException {
-        BlockingQueue<String> recvQueue = channelReadQueueMap.get(clientAddress);
-        if (recvQueue == null) {
-            return null;
+    public Object read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException {
+        BlockingQueue<Object> readQueue = activeChannels.get(clientAddress).readQueue();
+        if (readQueue == null) {
+            // 연결이 안된 상태이다. 예외를 던진다.
+            throw new NotYetConnectedException();
         }
-        return recvQueue.poll(timeout, unit);
+        return readQueue.poll(timeout, unit);
     }
 
     @Override
     @Nullable
-    public String read(SocketAddress clientAddress) throws InterruptedException {
-        BlockingQueue<String> recvQueue = channelReadQueueMap.get(clientAddress);
-        if (recvQueue == null) {
-            return null;
+    public Object read(SocketAddress clientAddress) throws InterruptedException {
+        BlockingQueue<Object> readQueue = activeChannels.get(clientAddress).readQueue();
+        if (readQueue == null) {
+            // 연결이 안된 상태이다. 예외를 던진다.
+            throw new NotYetConnectedException();
         }
-        return recvQueue.take();
+        return readQueue.take();
     }
 
     @Override
     public boolean isActive(SocketAddress clientAddress) {
-        return activeChannelMap.containsKey(clientAddress) &&
-                channelReadQueueMap.get(clientAddress) != null;
+        return activeChannels.containsKey(clientAddress);
     }
 
     @Override
     public void onActive(SocketAddress remoteAddress, Channel workingChannel) {
-        activeChannelMap.put(remoteAddress, workingChannel);
+        ActiveChannel activeChannel = new ActiveChannel(remoteAddress, workingChannel, new LinkedBlockingQueue<>());
+        activeChannels.put(remoteAddress, activeChannel);
     }
 
     @Override
     public void onInactive(SocketAddress remoteAddress) {
-        activeChannelMap.remove(remoteAddress);
+        activeChannels.remove(remoteAddress);
     }
 
     @Override
-    public void onReadAvailable(SocketAddress remoteAddress, BlockingQueue<String> recvQueue) {
-        channelReadQueueMap.put(remoteAddress, recvQueue);
+    public void onReadAvailable(SocketAddress remoteAddress, Object data) {
+        BlockingQueue<Object> queue = activeChannels.get(remoteAddress).readQueue();
+        if (queue != null) {
+            // 연결이 끊어진 후 수신되는 데이터는 처리할 수 없다.
+            queue.add(data);
+        }
     }
 
-    @Override
-    public void onReadUnavailable(SocketAddress remoteAddress) {
-        channelReadQueueMap.remove(remoteAddress);
+    private record ActiveChannel(SocketAddress remoteAddress, Channel channel,
+                                 BlockingQueue<Object> readQueue) {
     }
 }

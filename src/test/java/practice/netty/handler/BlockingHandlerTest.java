@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.handler.outbound.OutboundBlockingHandler;
 import practice.netty.helper.TcpLoopBackTestHelper;
-import practice.netty.tcp.ClientConnectionFactory;
-import practice.netty.tcp.CustomClient;
+import practice.netty.tcp.client.ClientConnectionFactory;
+import practice.netty.tcp.client.CustomClient;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;

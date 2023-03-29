@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.helper.TcpLoopBackTestHelper;
-import practice.netty.tcp.ClientConnectionFactory;
-import practice.netty.tcp.CustomClient;
+import practice.netty.tcp.client.ClientConnectionFactory;
+import practice.netty.tcp.client.CustomClient;
 
 import java.io.File;
 import java.io.FileWriter;

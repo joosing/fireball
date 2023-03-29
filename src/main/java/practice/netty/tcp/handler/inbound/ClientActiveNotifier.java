@@ -3,7 +3,7 @@ package practice.netty.tcp.handler.inbound;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.RequiredArgsConstructor;
-import practice.netty.tcp.ClientActiveListener;
+import practice.netty.tcp.server.ClientActiveListener;
 
 @RequiredArgsConstructor
 public class ClientActiveNotifier extends ChannelInboundHandlerAdapter {

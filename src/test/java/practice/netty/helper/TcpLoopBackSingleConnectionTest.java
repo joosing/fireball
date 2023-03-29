@@ -5,15 +5,15 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import practice.netty.tcp.CustomClient;
-import practice.netty.tcp.TcpServer;
+import practice.netty.tcp.client.CustomClient;
+import practice.netty.tcp.server.TcpServer;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static practice.netty.tcp.LineBasedClient.newConnection;
-import static practice.netty.tcp.LineBasedTcpServer.newServer;
+import static practice.netty.tcp.client.LineBasedClient.newConnection;
+import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
 
 public class TcpLoopBackSingleConnectionTest {
     // 서버
