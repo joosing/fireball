@@ -9,7 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import practice.netty.tcp.client.CustomClient;
 import practice.netty.tcp.client.CustomClientFactor;
 import practice.netty.tcp.client.CustomClientType;
-import practice.netty.tcp.server.TcpServer;
+import practice.netty.tcp.server.CustomServer;
+import practice.netty.tcp.server.CustomServerFactory;
+import practice.netty.tcp.server.CustomServerType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
 
 @RequiredArgsConstructor
 public class TcpLoopBackTestHelper {
@@ -28,7 +29,7 @@ public class TcpLoopBackTestHelper {
     // 클라이언트 팩토리 타입
     private final CustomClientType clientType;
     // 서버
-    protected TcpServer server;
+    protected CustomServer server;
     // 클라이언트 목록
     protected List<CustomClient> clients;
     // 이벤트 루프 그룹
@@ -49,7 +50,7 @@ public class TcpLoopBackTestHelper {
         // 서버 생성
         serverBossEventLoopGroup = new NioEventLoopGroup();
         serverChildEventLoopGroup = new NioEventLoopGroup();
-        server = newServer(12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
+        server = CustomServerFactory.newServer(CustomServerType.LINE_BASED, 12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
 
         // 클라이언트 이벤트 루프 그룹
         clientEventLoopGroup = new NioEventLoopGroup();

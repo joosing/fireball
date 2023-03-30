@@ -10,7 +10,7 @@ public interface TcpServerRequest {
 
     Future<Boolean> start(int bindPort);
 
-    Future<Boolean> sendAll(String message);
+    Future<Boolean> sendAll(Object message);
 
     @Nullable
     Object read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException;

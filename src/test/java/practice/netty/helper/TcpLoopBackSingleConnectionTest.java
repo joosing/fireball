@@ -7,20 +7,21 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import practice.netty.tcp.client.CustomClient;
 import practice.netty.tcp.client.CustomClientType;
-import practice.netty.tcp.server.TcpServer;
+import practice.netty.tcp.server.CustomServer;
+import practice.netty.tcp.server.CustomServerFactory;
+import practice.netty.tcp.server.CustomServerType;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static practice.netty.tcp.client.CustomClientFactor.newConnection;
-import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
 
 public class TcpLoopBackSingleConnectionTest {
     // 서버
     private EventLoopGroup serverBossEventLoopGroup;
     private EventLoopGroup serverChildEventLoopGroup;
-    protected TcpServer server;
+    protected CustomServer server;
 
     // 클라이언트
     private EventLoopGroup clientEventLoopGroup;
@@ -34,7 +35,7 @@ public class TcpLoopBackSingleConnectionTest {
         // 서버 생성 및 바인딩
         serverBossEventLoopGroup = new NioEventLoopGroup();
         serverChildEventLoopGroup = new NioEventLoopGroup();
-        server = newServer(12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
+        server = CustomServerFactory.newServer(CustomServerType.LINE_BASED, 12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
 
         // 클라이언트 생성 및 연결
         clientEventLoopGroup = new NioEventLoopGroup();

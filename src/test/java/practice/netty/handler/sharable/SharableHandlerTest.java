@@ -11,7 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.tcp.client.CustomClient;
 import practice.netty.tcp.client.CustomClientType;
-import practice.netty.tcp.server.TcpServer;
+import practice.netty.tcp.server.CustomServer;
+import practice.netty.tcp.server.CustomServerFactory;
+import practice.netty.tcp.server.CustomServerType;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +22,6 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static practice.netty.tcp.client.CustomClientFactor.newConnection;
-import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
 
 /*
  * Sharable 어노테이션의 특성에 대해 상세히 묘사합니다.
@@ -36,7 +37,7 @@ import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
  */
 @Slf4j
 public class SharableHandlerTest {
-    TcpServer server;
+    CustomServer server;
     CustomClient clientOne;
     CustomClient clientTwo;
     EventLoopGroup clientEventLoopGroup;
@@ -51,7 +52,7 @@ public class SharableHandlerTest {
         // 서버 및 클라이언트 연결 설정
         serverBossEventLoopGroup = new NioEventLoopGroup();
         serverChildEventLoopGroup = new NioEventLoopGroup();
-        server = newServer(12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
+        server = CustomServerFactory.newServer(CustomServerType.LINE_BASED, 12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
         clientEventLoopGroup = new NioEventLoopGroup();
         clientOne = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);
         clientTwo = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);

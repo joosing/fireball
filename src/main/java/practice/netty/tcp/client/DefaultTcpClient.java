@@ -5,11 +5,11 @@ import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.springframework.lang.Nullable;
 import practice.netty.tcp.handler.inbound.ReadDataUpdater;
+import practice.netty.tcp.util.ChannelAccessUtil;
 
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static practice.netty.tcp.util.PropagateChannelFuture.propagateChannelFuture;
 
@@ -113,7 +113,7 @@ public class DefaultTcpClient implements TcpClient {
 
     @Override
     public ChannelPipeline pipeline() {
-        return channel.pipeline();
+        return ChannelAccessUtil.pipeline(channel);
     }
 
     @Override
@@ -123,15 +123,11 @@ public class DefaultTcpClient implements TcpClient {
 
     @Override
     public EventLoop eventLoop() {
-        return channel.eventLoop();
+        return ChannelAccessUtil.eventLoop(channel);
     }
 
     @Override
     public Thread eventLoopThread() throws ExecutionException, InterruptedException {
-        AtomicReference<Thread> thread = new AtomicReference<>();
-        channel.eventLoop().schedule(() -> {
-            thread.set(Thread.currentThread());
-        }, 0, TimeUnit.MILLISECONDS).get();
-        return thread.get();
+        return ChannelAccessUtil.eventLoopThread(channel);
     }
 }

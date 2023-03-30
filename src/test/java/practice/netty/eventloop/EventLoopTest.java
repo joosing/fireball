@@ -9,7 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.tcp.client.CustomClient;
 import practice.netty.tcp.client.CustomClientType;
-import practice.netty.tcp.server.TcpServer;
+import practice.netty.tcp.server.CustomServer;
+import practice.netty.tcp.server.CustomServerFactory;
+import practice.netty.tcp.server.CustomServerType;
 
 import java.net.SocketAddress;
 import java.util.concurrent.ExecutionException;
@@ -18,12 +20,11 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static practice.netty.tcp.client.CustomClientFactor.newConnection;
-import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
 
 @Slf4j
 public class EventLoopTest {
     // 서버
-    TcpServer server;
+    CustomServer server;
 
     // 클라이언트
     EventLoopGroup clientEventLoopGroup;
@@ -39,7 +40,7 @@ public class EventLoopTest {
         // 서버 생성
         serverBossEventLoopGroup = new NioEventLoopGroup();
         serverChildEventLoopGroup = new NioEventLoopGroup();
-        server = newServer(12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
+        server = CustomServerFactory.newServer(CustomServerType.LINE_BASED, 12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
     }
 
     @AfterEach
@@ -78,7 +79,7 @@ public class EventLoopTest {
     }
 
     // 서버와 클라이언트 간 일반적인 데이터 교환 테스트
-    void assertCommunicationSuccess(TcpServer server, CustomClient clientOne, CustomClient clientTwo) throws Exception {
+    void assertCommunicationSuccess(CustomServer server, CustomClient clientOne, CustomClient clientTwo) throws Exception {
         // 서버의 통신 가능 상태 대기
         await().until(() -> server.isActive(clientOne.localAddress()) &&
                             server.isActive(clientTwo.localAddress()));

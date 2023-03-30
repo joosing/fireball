@@ -4,7 +4,8 @@ import io.netty.channel.ChannelFuture;
 
 import java.util.concurrent.CompletableFuture;
 
-public class PropagateChannelFuture {
+public final class PropagateChannelFuture {
+
     /**
      * 네티 채널에서 발생한 비동기 작업 결과를 사용자에게 전파합니다.
      *
@@ -36,4 +37,6 @@ public class PropagateChannelFuture {
         // 작업이 실행 완료된 경우
         userFuture.complete(channelFuture.isSuccess());
     }
+
+    private PropagateChannelFuture() {}
 }

@@ -18,10 +18,10 @@ public abstract class AbstractCustomClient implements CustomClient {
 
     @Override
     public void init(EventLoopGroup eventLoopGroup) {
-        // 비어있는 채널 파이프라인 생성
+        // 채널 파이프라인 생성
         List<ChannelHandler> handlers = configHandlers();
 
-        // DefaultTcpClient 생성 및 초기화
+        // TcpClient 생성 및 초기화
         client = new DefaultTcpClient();
         client.init(eventLoopGroup, handlers);
     }
