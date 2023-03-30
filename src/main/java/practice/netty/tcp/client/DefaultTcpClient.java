@@ -23,7 +23,7 @@ public class DefaultTcpClient implements TcpClient {
         // 읽기 큐
         readQueue = new LinkedBlockingQueue<>();
 
-        // 자신에게 수신 메시지를 전달해줄 핸들러 추가
+        // 자신에게 수신 메시지를 전달해 줄 핸들러 추가
         handlers.add(new ReadDataUpdater(this));
 
         // 부트스트랩
@@ -129,12 +129,9 @@ public class DefaultTcpClient implements TcpClient {
     @Override
     public Thread eventLoopThread() throws ExecutionException, InterruptedException {
         AtomicReference<Thread> thread = new AtomicReference<>();
-        CompletableFuture<Void> getThreadFuture = new CompletableFuture<>();
-        channel.writeAndFlush("").addListener((ChannelFutureListener) future -> {
+        channel.eventLoop().schedule(() -> {
             thread.set(Thread.currentThread());
-            getThreadFuture.complete(null);
-        });
-        getThreadFuture.get();
+        }, 0, TimeUnit.MILLISECONDS).get();
         return thread.get();
     }
 }
