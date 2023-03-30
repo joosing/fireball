@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import practice.netty.helper.TcpLoopBackTestHelper;
 import practice.netty.tcp.client.CustomClient;
 import practice.netty.tcp.client.CustomClientType;
+import practice.netty.tcp.server.CustomServerType;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -20,7 +21,7 @@ public class SendFileTest extends TcpLoopBackTestHelper {
     CustomClient client;
 
     public SendFileTest() {
-        super(12345, 1, CustomClientType.DEFAULT);
+        super(12345, 1, CustomServerType.LINE_BASED, CustomClientType.DEFAULT);
     }
 
     @Override

@@ -27,6 +27,8 @@ public class TcpLoopBackTestHelper {
     // 클라이언트 수
     private final int nClient;
     // 클라이언트 팩토리 타입
+    private final CustomServerType serverType;
+    // 클라이언트 팩토리 타입
     private final CustomClientType clientType;
     // 서버
     protected CustomServer server;
@@ -50,7 +52,7 @@ public class TcpLoopBackTestHelper {
         // 서버 생성
         serverBossEventLoopGroup = new NioEventLoopGroup();
         serverChildEventLoopGroup = new NioEventLoopGroup();
-        server = CustomServerFactory.newServer(CustomServerType.LINE_BASED, 12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
+        server = CustomServerFactory.newServer(serverType, 12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
 
         // 클라이언트 이벤트 루프 그룹
         clientEventLoopGroup = new NioEventLoopGroup();

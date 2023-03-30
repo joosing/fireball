@@ -7,6 +7,7 @@ import practice.netty.handler.outbound.OutboundBlockingHandler;
 import practice.netty.helper.TcpLoopBackTestHelper;
 import practice.netty.tcp.client.CustomClient;
 import practice.netty.tcp.client.CustomClientType;
+import practice.netty.tcp.server.CustomServerType;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +18,7 @@ public class BlockingHandlerTest extends TcpLoopBackTestHelper {
     CustomClient client;
 
     public BlockingHandlerTest() {
-        super(12345, 1, CustomClientType.LINE_BASED);
+        super(12345, 1, CustomServerType.LINE_BASED, CustomClientType.LINE_BASED);
     }
 
     @Override
