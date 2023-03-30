@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.handler.outbound.OutboundBlockingHandler;
 import practice.netty.helper.TcpLoopBackTestHelper;
-import practice.netty.tcp.client.ClientConnectionFactory;
 import practice.netty.tcp.client.CustomClient;
+import practice.netty.tcp.client.CustomClientType;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +17,7 @@ public class BlockingHandlerTest extends TcpLoopBackTestHelper {
     CustomClient client;
 
     public BlockingHandlerTest() {
-        super(12345, 1, ClientConnectionFactory.LINE_BASED);
+        super(12345, 1, CustomClientType.LINE_BASED);
     }
 
     @Override

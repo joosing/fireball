@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.tcp.client.CustomClient;
+import practice.netty.tcp.client.CustomClientType;
 import practice.netty.tcp.server.TcpServer;
 
 import java.net.SocketAddress;
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
-import static practice.netty.tcp.client.LineBasedClient.newConnection;
+import static practice.netty.tcp.client.CustomClientFactor.newConnection;
 import static practice.netty.tcp.server.LineBasedTcpServer.newServer;
 
 @Slf4j
@@ -49,8 +50,8 @@ public class EventLoopTest {
         // When: 2개의 클라이언트 연결 (1개 이벤트 루프 공유)
         int nEventLoop = 1;
         clientEventLoopGroup = new NioEventLoopGroup(nEventLoop);
-        clientOne = newConnection("localhost", 12345, clientEventLoopGroup);
-        clientTwo = newConnection("localhost", 12345, clientEventLoopGroup);
+        clientOne = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);
+        clientTwo = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);
 
         // Then: 하나의 이벤트 루프 공유하여 정상 통신
         assertSame(clientOne.eventLoop(), clientTwo.eventLoop());
@@ -63,8 +64,8 @@ public class EventLoopTest {
         // When: 2개의 클라이언트 연결 (각각의 이벤트 루프)
         int nThread = 2;
         clientEventLoopGroup = new NioEventLoopGroup(nThread);
-        clientOne = newConnection("localhost", 12345, clientEventLoopGroup);
-        clientTwo = newConnection("localhost", 12345, clientEventLoopGroup);
+        clientOne = newConnection(CustomClientType.LINE_BASED,"localhost", 12345, clientEventLoopGroup);
+        clientTwo = newConnection(CustomClientType.LINE_BASED,"localhost", 12345, clientEventLoopGroup);
 
         // Then: 각각의 이벤트 루프가 할당되고 정상 통신
         assertNotSame(clientOne.eventLoop(), clientTwo.eventLoop());
@@ -89,13 +90,13 @@ public class EventLoopTest {
         assertEquals("Hello I am Two", server.read(clientTwo.localAddress(), 1, TimeUnit.SECONDS));
     }
 
-    // 이벤트루프 그룹을 닫을 경우 하위에 연결된 모든 채널들이 닫힙니다.
+    // When you close an event loop group, all channels attached to it are closed.
     @Test
     void shutdownAll() throws Exception {
         // Given: 2개의 클라이언트 연결
         clientEventLoopGroup = new NioEventLoopGroup(2);
-        clientOne = newConnection("localhost", 12345, clientEventLoopGroup);
-        clientTwo = newConnection("localhost", 12345, clientEventLoopGroup);
+        clientOne = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);
+        clientTwo = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);
 
         // When: 이벤트 루프 그룹 닫기
         clientEventLoopGroup.shutdownGracefully().sync();
@@ -110,7 +111,7 @@ public class EventLoopTest {
     void keepAliveEvenIfChannelGetClosed() throws Exception {
         // Given: 연결된 채널의 이벤트 루프 쓰레드 획득
         clientEventLoopGroup = new NioEventLoopGroup();
-        clientOne = newConnection("localhost", 12345, clientEventLoopGroup);
+        clientOne = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);
         Thread clientThread = clientOne.eventLoopThread();
         SocketAddress clientLocalAddress = clientOne.localAddress();
 

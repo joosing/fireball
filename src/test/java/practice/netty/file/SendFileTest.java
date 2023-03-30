@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.helper.TcpLoopBackTestHelper;
-import practice.netty.tcp.client.ClientConnectionFactory;
 import practice.netty.tcp.client.CustomClient;
+import practice.netty.tcp.client.CustomClientType;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -20,7 +20,7 @@ public class SendFileTest extends TcpLoopBackTestHelper {
     CustomClient client;
 
     public SendFileTest() {
-        super(12345, 1, ClientConnectionFactory.DEFAULT);
+        super(12345, 1, CustomClientType.DEFAULT);
     }
 
     @Override
