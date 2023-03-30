@@ -34,7 +34,7 @@ public class WriteFutureTest extends TcpLoopBackSingleConnectionTest {
         await().atMost(100, TimeUnit.MILLISECONDS)
                 .until(() ->
                         future.isDone() &&
-                        Objects.equals(server.read(client.localAddress()), "command")
+                        Objects.equals(server.readSync(client.localAddress()), "command")
                 );
     }
 }

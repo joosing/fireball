@@ -13,8 +13,7 @@ public interface TcpClientRequest {
 
     Future<Boolean> send(Object data);
 
-    @Nullable
-    Object read() throws InterruptedException;
+    Object readSync() throws InterruptedException;
 
     @Nullable
     Object read(int timeout, TimeUnit unit) throws InterruptedException;

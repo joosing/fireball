@@ -56,9 +56,8 @@ public class DefaultCustomClient implements CustomClient {
     }
 
     @Override
-    @Nullable
-    public Object read() throws InterruptedException {
-        return client.read();
+    public Object readSync() throws InterruptedException {
+        return client.readSync();
     }
 
     @Override

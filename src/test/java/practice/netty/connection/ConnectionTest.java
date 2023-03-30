@@ -14,6 +14,6 @@ public class ConnectionTest extends TcpLoopBackSingleConnectionTest {
         // When : 서버의 메시지 전송
         server.sendAll("status").get();
         // Then : 클라이언트 메시지 수신
-        await().until(() -> Objects.equals(client.read(), "status"));
+        await().until(() -> Objects.equals(client.readSync(), "status"));
     }
 }

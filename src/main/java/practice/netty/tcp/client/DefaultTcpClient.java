@@ -83,7 +83,7 @@ public class DefaultTcpClient implements TcpClient {
      * 수신된 메시지를 읽습니다. 읽을 메시지가 없는 경우 수신될 때 까지 무한히 대기합니다.
      */
     @Override
-    public Object read() throws InterruptedException {
+    public Object readSync() throws InterruptedException {
         return readQueue.take();
     }
 

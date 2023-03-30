@@ -42,7 +42,7 @@ public class SendFileTest extends TcpLoopBackTestHelper {
         client.send(fileRegion);
 
         // 서버에서 파일 내용을 메시지로 수신
-        await().until(() -> Objects.equals(server.read(client.localAddress()), "Hello server."));
+        await().until(() -> Objects.equals(server.readSync(client.localAddress()), "Hello server."));
     }
 
     private static File newFile(String path, String content) throws IOException {

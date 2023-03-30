@@ -15,11 +15,10 @@ public interface TcpServer {
 
     Future<Boolean> sendAll(String message);
 
-    @Nullable
-    Object read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException;
+    Object readSync(SocketAddress clientAddress) throws InterruptedException;
 
     @Nullable
-    Object read(SocketAddress clientAddress) throws InterruptedException;
+    Object read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException;
 
     boolean isActive(SocketAddress clientAddress);
 }

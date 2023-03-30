@@ -113,8 +113,7 @@ public class LineBasedTcpServer implements TcpServer, ClientActiveListener, Read
     }
 
     @Override
-    @Nullable
-    public Object read(SocketAddress clientAddress) throws InterruptedException {
+    public Object readSync(SocketAddress clientAddress) throws InterruptedException {
         BlockingQueue<Object> readQueue = activeChannels.get(clientAddress).readQueue();
         if (readQueue == null) {
             // 연결이 안된 상태이다. 예외를 던진다.
