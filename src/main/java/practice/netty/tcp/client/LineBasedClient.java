@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class LineBasedClient extends DefaultCustomClient {
+public class LineBasedClient extends AbstractCustomClient {
 
     public static CustomClient newConnection(String ip, int port, EventLoopGroup eventLoopGroup) throws ExecutionException,
             InterruptedException {
@@ -22,13 +22,12 @@ public class LineBasedClient extends DefaultCustomClient {
     }
 
     @Override
-    public void init(EventLoopGroup eventLoopGroup) {
-        // Custom 채널 파이프라인 구성
+    protected List<ChannelHandler> configHandlers() {
         List<ChannelHandler> handlers = new ArrayList<>();
         handlers.add(new LineBasedFrameDecoder(1024)); // 인바운드
         handlers.add(new StringDecoder());
         handlers.add(new StringEncoder()); // 아웃바운드
         handlers.add(new LineAppender("\n"));
-        init(eventLoopGroup, handlers);
+        return handlers;
     }
 }
