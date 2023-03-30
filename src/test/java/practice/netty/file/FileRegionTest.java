@@ -2,10 +2,8 @@ package practice.netty.file;
 
 import io.netty.channel.DefaultFileRegion;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import practice.netty.helper.TcpLoopBackTestHelper;
-import practice.netty.tcp.client.CustomClient;
+import practice.netty.helper.TcpLoopbackSingleClientHelper;
 import practice.netty.tcp.client.CustomClientType;
 import practice.netty.tcp.server.CustomServerType;
 
@@ -17,18 +15,9 @@ import java.util.Objects;
 import static org.awaitility.Awaitility.await;
 
 @Slf4j
-public class FileRegionTest extends TcpLoopBackTestHelper {
-    CustomClient client;
-
+public class FileRegionTest extends TcpLoopbackSingleClientHelper {
     public FileRegionTest() {
-        super(12345, 1, CustomServerType.LINE_BASED, CustomClientType.DEFAULT);
-    }
-
-    @Override
-    @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
-        client = clients.get(0);
+        super(12345, CustomServerType.LINE_BASED, CustomClientType.DEFAULT);
     }
 
     @Test

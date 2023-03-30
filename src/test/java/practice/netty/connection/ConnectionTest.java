@@ -1,13 +1,19 @@
 package practice.netty.connection;
 
 import org.junit.jupiter.api.Test;
-import practice.netty.helper.TcpLoopBackSingleConnectionTest;
+import practice.netty.helper.TcpLoopbackSingleClientHelper;
+import practice.netty.tcp.client.CustomClientType;
+import practice.netty.tcp.server.CustomServerType;
 
 import java.util.Objects;
 
 import static org.awaitility.Awaitility.await;
 
-public class ConnectionTest extends TcpLoopBackSingleConnectionTest {
+public class ConnectionTest extends TcpLoopbackSingleClientHelper {
+
+    public ConnectionTest() {
+        super(12345, CustomServerType.LINE_BASED, CustomClientType.LINE_BASED);
+    }
 
     @Test
     void normalConnection() throws Exception {

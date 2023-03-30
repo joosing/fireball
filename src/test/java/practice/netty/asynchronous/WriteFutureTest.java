@@ -3,14 +3,20 @@ package practice.netty.asynchronous;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import org.junit.jupiter.api.Test;
-import practice.netty.helper.TcpLoopBackSingleConnectionTest;
+import practice.netty.helper.TcpLoopbackSingleClientHelper;
+import practice.netty.tcp.client.CustomClientType;
+import practice.netty.tcp.server.CustomServerType;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
-public class WriteFutureTest extends TcpLoopBackSingleConnectionTest {
+public class WriteFutureTest extends TcpLoopbackSingleClientHelper {
+    public WriteFutureTest() {
+        super(12345, CustomServerType.LINE_BASED, CustomClientType.LINE_BASED);
+    }
+
     /**
      * write() 메서드를 통한 전송 요청은 flush() 될 때 완료될 수 있다.
      */

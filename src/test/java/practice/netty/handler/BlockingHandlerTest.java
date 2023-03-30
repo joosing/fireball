@@ -1,11 +1,9 @@
 package practice.netty.handler;
 
 import io.netty.channel.DefaultEventLoopGroup;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.handler.outbound.OutboundBlockingHandler;
-import practice.netty.helper.TcpLoopBackTestHelper;
-import practice.netty.tcp.client.CustomClient;
+import practice.netty.helper.TcpLoopbackSingleClientHelper;
 import practice.netty.tcp.client.CustomClientType;
 import practice.netty.tcp.server.CustomServerType;
 
@@ -14,18 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
-public class BlockingHandlerTest extends TcpLoopBackTestHelper {
-    CustomClient client;
-
+public class BlockingHandlerTest extends TcpLoopbackSingleClientHelper {
     public BlockingHandlerTest() {
-        super(12345, 1, CustomServerType.LINE_BASED, CustomClientType.LINE_BASED);
-    }
-
-    @Override
-    @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
-        client = clients.get(0);
+        super(12345, CustomServerType.LINE_BASED, CustomClientType.LINE_BASED);
     }
 
     @Test
