@@ -27,6 +27,8 @@ public class EventLoopTest {
 
     // 클라이언트
     EventLoopGroup clientEventLoopGroup;
+    EventLoopGroup serverBossEventLoopGroup;
+    EventLoopGroup serverChildEventLoopGroup;
     CustomClient clientOne;
     CustomClient clientTwo;
 
@@ -35,12 +37,15 @@ public class EventLoopTest {
         // 비동기 테스트 프레임워크 설정
         Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
         // 서버 생성
-        server = newServer(12345);
+        serverBossEventLoopGroup = new NioEventLoopGroup();
+        serverChildEventLoopGroup = new NioEventLoopGroup();
+        server = newServer(12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
     }
 
     @AfterEach
     void tearDown() throws ExecutionException, InterruptedException {
-        server.shutdownGracefully().get();
+        serverBossEventLoopGroup.shutdownGracefully().sync();
+        serverChildEventLoopGroup.shutdownGracefully().sync();
         clientEventLoopGroup.shutdownGracefully().sync();
     }
 

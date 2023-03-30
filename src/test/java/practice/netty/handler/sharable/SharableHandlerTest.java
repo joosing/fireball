@@ -40,6 +40,8 @@ public class SharableHandlerTest {
     CustomClient clientOne;
     CustomClient clientTwo;
     EventLoopGroup clientEventLoopGroup;
+    EventLoopGroup serverBossEventLoopGroup;
+    EventLoopGroup serverChildEventLoopGroup;
 
     @BeforeEach
     void beforeEach() throws Exception {
@@ -47,7 +49,9 @@ public class SharableHandlerTest {
         Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
 
         // 서버 및 클라이언트 연결 설정
-        server = newServer(12345);
+        serverBossEventLoopGroup = new NioEventLoopGroup();
+        serverChildEventLoopGroup = new NioEventLoopGroup();
+        server = newServer(12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
         clientEventLoopGroup = new NioEventLoopGroup();
         clientOne = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);
         clientTwo = newConnection(CustomClientType.LINE_BASED, "localhost", 12345, clientEventLoopGroup);
@@ -60,7 +64,8 @@ public class SharableHandlerTest {
 
     @AfterEach
     void afterEach() throws InterruptedException, ExecutionException {
-        server.shutdownGracefully().get();
+        serverBossEventLoopGroup.shutdownGracefully().sync();
+        serverChildEventLoopGroup.shutdownGracefully().sync();
         clientEventLoopGroup.shutdownGracefully().sync();
     }
 

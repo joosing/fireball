@@ -32,7 +32,9 @@ public class TcpLoopBackTestHelper {
     // 클라이언트 목록
     protected List<CustomClient> clients;
     // 이벤트 루프 그룹
-    private EventLoopGroup clientEventLoopGroup;
+    EventLoopGroup clientEventLoopGroup;
+    EventLoopGroup serverBossEventLoopGroup;
+    EventLoopGroup serverChildEventLoopGroup;
 
     // 비동기 테스트 프레임워크 설정
     private static void setUpAwaitility() {
@@ -45,7 +47,9 @@ public class TcpLoopBackTestHelper {
         setUpAwaitility();
 
         // 서버 생성
-        server = newServer(serverPort);
+        serverBossEventLoopGroup = new NioEventLoopGroup();
+        serverChildEventLoopGroup = new NioEventLoopGroup();
+        server = newServer(12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
 
         // 클라이언트 이벤트 루프 그룹
         clientEventLoopGroup = new NioEventLoopGroup();
@@ -66,7 +70,8 @@ public class TcpLoopBackTestHelper {
 
     @AfterEach
     public void shutdown() throws ExecutionException, InterruptedException {
-        server.shutdownGracefully().get();
+        serverBossEventLoopGroup.shutdownGracefully().sync();
+        serverChildEventLoopGroup.shutdownGracefully().sync();
         clientEventLoopGroup.shutdownGracefully().sync();
     }
 }

@@ -1,24 +1,12 @@
 package practice.netty.tcp.server;
 
-import org.springframework.lang.Nullable;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.EventLoopGroup;
+import practice.netty.tcp.common.ReadDataListener;
 
-import java.net.SocketAddress;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.function.Supplier;
 
-public interface TcpServer {
-    void init();
-
-    Future<Boolean> start(int bindPort);
-
-    Future<?> shutdownGracefully();
-
-    Future<Boolean> sendAll(String message);
-
-    Object readSync(SocketAddress clientAddress) throws InterruptedException;
-
-    @Nullable
-    Object read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException;
-
-    boolean isActive(SocketAddress clientAddress);
+public interface TcpServer extends TcpServerRequest, ReadDataListener, ClientActiveListener {
+    void init(EventLoopGroup bossGroup, EventLoopGroup workGroup, List<Supplier<ChannelHandler>> childHandlers);
 }

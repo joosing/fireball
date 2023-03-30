@@ -1,17 +1,12 @@
 package practice.netty.tcp.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.springframework.lang.Nullable;
-import practice.netty.tcp.common.ReadDataListener;
 import practice.netty.tcp.handler.inbound.ClientActiveNotifier;
 import practice.netty.tcp.handler.inbound.ReadDataUpdater;
 import practice.netty.tcp.handler.outbound.LineAppender;
@@ -25,50 +20,44 @@ import java.util.function.Supplier;
 
 import static practice.netty.tcp.util.PropagateChannelFuture.propagateChannelFuture;
 
-public class LineBasedTcpServer implements TcpServer, ClientActiveListener, ReadDataListener {
+public class LineBasedTcpServer implements TcpServer {
     private ServerBootstrap bootstrap;
     private ConcurrentHashMap<SocketAddress, ActiveChannel> activeChannels;
 
-    public static TcpServer newServer(int port) throws ExecutionException, InterruptedException {
+    public static TcpServer newServer(int port, EventLoopGroup bossGroup, EventLoopGroup childGroup) throws ExecutionException, InterruptedException {
         TcpServer server = new LineBasedTcpServer();
-        server.init();
+
+        List<Supplier<ChannelHandler>> childHandlers = new ArrayList<>();
+        childHandlers.add(() -> new LineBasedFrameDecoder(1024));
+        childHandlers.add(() -> new StringDecoder());
+        childHandlers.add(() -> new StringEncoder());
+        childHandlers.add(() -> new LineAppender("\n"));
+
+        server.init(bossGroup, childGroup, childHandlers);
         server.start(port).get();
         return server;
     }
 
     @Override
-    public void init() {
+    public void init(EventLoopGroup bossGroup, EventLoopGroup childGroup, List<Supplier<ChannelHandler>> childHandlers) {
+
+        // 자신에게 클라이언트 접속을 알리도록 알림 핸들러를 추가
+        childHandlers.add(() -> new ClientActiveNotifier(this));
+        // 자신에게 클라이언트로부터 데이터를 읽었음을 알리도록 알림 핸들러를 추가
+        childHandlers.add(() -> new ReadDataUpdater(this));
+
         bootstrap = new ServerBootstrap();
         activeChannels = new ConcurrentHashMap<>();
-        EventLoopGroup acceptGroup = new NioEventLoopGroup();
-        EventLoopGroup serviceGroup = new NioEventLoopGroup();
-        ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<>() {
-            @Override
-            protected void initChannel(Channel ch) {
-                ch.pipeline()
-                        // Inbound
-                        .addLast(new ClientActiveNotifier(LineBasedTcpServer.this))
-                        .addLast(new LineBasedFrameDecoder(1024))
-                        .addLast(new StringDecoder())
-                        .addLast(new ReadDataUpdater(LineBasedTcpServer.this))
-                        // Outbound
-                        .addLast(new StringEncoder())
-                        .addLast(new LineAppender("\n"));
-            }
-        };
-        bootstrap.group(acceptGroup, serviceGroup)
+        bootstrap.group(bossGroup, childGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(channelInitializer);
-    }
-
-    @Override
-    public Future<Boolean> shutdownGracefully() {
-        Supplier<io.netty.util.concurrent.Future<?>> acceptShutdownSupplier = () -> bootstrap.config().group().shutdownGracefully();
-        Supplier<io.netty.util.concurrent.Future<?>> clientsShutdownSupplier = () -> bootstrap.config().childGroup().shutdownGracefully();
-        return CompletableFuture.supplyAsync(acceptShutdownSupplier)
-                .thenCombine(CompletableFuture.supplyAsync(clientsShutdownSupplier),
-                        (acceptShutdown, clientsShutdown) -> acceptShutdown.isSuccess() && clientsShutdown.isSuccess());
-
+                .childHandler(new ChannelInitializer<>() {
+                    @Override
+                    protected void initChannel(Channel ch) {
+                        childHandlers.forEach(supplier -> {
+                            ch.pipeline().addLast(supplier.get());
+                        });
+                    }
+                });
     }
 
     @Override
