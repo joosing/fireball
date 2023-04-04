@@ -4,6 +4,7 @@ import io.netty.channel.DefaultEventLoopGroup;
 import org.junit.jupiter.api.Test;
 import practice.netty.handler.outbound.OutboundBlockingHandler;
 import practice.netty.helper.TcpLoopbackSingleClientHelper;
+import practice.netty.helper.TcpLoopbackTestSetting;
 import practice.netty.tcp.client.CustomClientType;
 import practice.netty.tcp.server.CustomServerType;
 
@@ -14,7 +15,12 @@ import static org.awaitility.Awaitility.await;
 
 public class BlockingHandlerTest extends TcpLoopbackSingleClientHelper {
     public BlockingHandlerTest() {
-        super(12345, CustomServerType.LINE_BASED, CustomClientType.LINE_BASED);
+        super(TcpLoopbackTestSetting.builder()
+                .serverPort(12345)
+                .nClient(1)
+                .serverType(CustomServerType.LINE_BASED)
+                .clientType(CustomClientType.LINE_BASED)
+                .build());
     }
 
     @Test

@@ -2,14 +2,12 @@ package practice.netty.helper;
 
 import org.junit.jupiter.api.BeforeEach;
 import practice.netty.tcp.client.CustomClient;
-import practice.netty.tcp.client.CustomClientType;
-import practice.netty.tcp.server.CustomServerType;
 
 public class TcpLoopbackSingleClientHelper extends TcpLoopBackTestHelper {
     protected CustomClient client;
 
-    public TcpLoopbackSingleClientHelper(int serverPort, CustomServerType serverType, CustomClientType clientType) {
-        super(serverPort, 1, serverType, clientType);
+    public TcpLoopbackSingleClientHelper(TcpLoopbackTestSetting setting) {
+        super(setting);
     }
 
     @Override

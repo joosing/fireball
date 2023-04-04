@@ -4,6 +4,7 @@ import io.netty.channel.DefaultFileRegion;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import practice.netty.helper.TcpLoopbackSingleClientHelper;
+import practice.netty.helper.TcpLoopbackTestSetting;
 import practice.netty.tcp.client.CustomClientType;
 import practice.netty.tcp.server.CustomServerType;
 
@@ -17,7 +18,12 @@ import static org.awaitility.Awaitility.await;
 @Slf4j
 public class FileRegionTest extends TcpLoopbackSingleClientHelper {
     public FileRegionTest() {
-        super(12345, CustomServerType.LINE_BASED, CustomClientType.DEFAULT);
+        super(TcpLoopbackTestSetting.builder()
+                .serverPort(12345)
+                .nClient(1)
+                .serverType(CustomServerType.LINE_BASED)
+                .clientType(CustomClientType.DEFAULT)
+                .build());
     }
 
     @Test
@@ -29,6 +35,7 @@ public class FileRegionTest extends TcpLoopbackSingleClientHelper {
         DefaultFileRegion fileRegion = new DefaultFileRegion(file, 0, file.length());
 
         // When: 빈 파이프라인으로 DefaultFileRegion 타입 객체 전송 요청
+        client.send(file.length());
         client.send(fileRegion);
 
         // 서버에서 파일 내용을 메시지로 수신

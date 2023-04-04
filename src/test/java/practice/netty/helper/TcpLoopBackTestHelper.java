@@ -2,16 +2,13 @@ package practice.netty.helper;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import lombok.RequiredArgsConstructor;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import practice.netty.tcp.client.CustomClient;
 import practice.netty.tcp.client.CustomClientFactor;
-import practice.netty.tcp.client.CustomClientType;
 import practice.netty.tcp.server.CustomServer;
 import practice.netty.tcp.server.CustomServerFactory;
-import practice.netty.tcp.server.CustomServerType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,47 +17,36 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
-@RequiredArgsConstructor
 public class TcpLoopBackTestHelper {
-    // 서버 포트
-    private final int serverPort;
-    // 클라이언트 수
-    private final int nClient;
-    // 클라이언트 팩토리 타입
-    private final CustomServerType serverType;
-    // 클라이언트 팩토리 타입
-    private final CustomClientType clientType;
+    // 설정
+    private final TcpLoopbackTestSetting setting;
     // 서버
     protected CustomServer server;
-    // 클라이언트 목록
+    private EventLoopGroup serverBossEventLoopGroup;
+    private EventLoopGroup serverChildEventLoopGroup;
+    // 클라이언트
     protected List<CustomClient> clients;
-    // 이벤트 루프 그룹
-    EventLoopGroup clientEventLoopGroup;
-    EventLoopGroup serverBossEventLoopGroup;
-    EventLoopGroup serverChildEventLoopGroup;
+    private EventLoopGroup clientEventLoopGroup;
 
-    // 비동기 테스트 프레임워크 설정
-    private static void setUpAwaitility() {
-        Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
+    public TcpLoopBackTestHelper(TcpLoopbackTestSetting setting) {
+        this.setting = setting;
     }
 
     @BeforeEach
     protected void setUp() throws Exception {
         // 비동기 테스트 프레임워크 설정
-        setUpAwaitility();
+        Awaitility.setDefaultPollInterval(10, TimeUnit.MILLISECONDS); // 폴링 간격
 
         // 서버 생성
         serverBossEventLoopGroup = new NioEventLoopGroup();
         serverChildEventLoopGroup = new NioEventLoopGroup();
-        server = CustomServerFactory.newServer(serverType, 12345, serverBossEventLoopGroup, serverChildEventLoopGroup);
-
-        // 클라이언트 이벤트 루프 그룹
-        clientEventLoopGroup = new NioEventLoopGroup();
+        server = CustomServerFactory.newServer(setting.getServerType(), setting.getServerPort(), serverBossEventLoopGroup, serverChildEventLoopGroup);
 
         // N개 클라이언트 연결 생성
+        clientEventLoopGroup = new NioEventLoopGroup();
         clients = new ArrayList<>();
-        for (int i = 0; i < nClient; i++) {
-            CustomClient client = CustomClientFactor.newConnection(clientType, "localhost", serverPort, clientEventLoopGroup);
+        for (int i = 0; i < setting.getNClient(); i++) {
+            CustomClient client = CustomClientFactor.newConnection(setting.getClientType(), "localhost", setting.getServerPort(), clientEventLoopGroup);
             clients.add(client);
         }
 

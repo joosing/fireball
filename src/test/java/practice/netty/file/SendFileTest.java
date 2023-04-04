@@ -4,6 +4,7 @@ import io.netty.channel.DefaultFileRegion;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import practice.netty.helper.TcpLoopbackSingleClientHelper;
+import practice.netty.helper.TcpLoopbackTestSetting;
 import practice.netty.tcp.client.CustomClientType;
 import practice.netty.tcp.server.CustomServerType;
 
@@ -17,7 +18,12 @@ import static org.awaitility.Awaitility.await;
 @Slf4j
 public class SendFileTest extends TcpLoopbackSingleClientHelper {
     public SendFileTest() {
-        super(12345, CustomServerType.LINE_BASED, CustomClientType.DEFAULT);
+        super(TcpLoopbackTestSetting.builder()
+                .serverPort(12345)
+                .nClient(1)
+                .serverType(CustomServerType.LINE_BASED)
+                .clientType(CustomClientType.DEFAULT)
+                .build());
     }
 
     @Test
