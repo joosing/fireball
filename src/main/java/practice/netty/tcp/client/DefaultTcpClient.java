@@ -4,14 +4,15 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.springframework.lang.Nullable;
-import practice.netty.tcp.handler.inbound.ReadDataUpdater;
-import practice.netty.tcp.util.ChannelAccessUtil;
+import practice.netty.handler.inbound.ReadDataUpdater;
+import practice.netty.tcp.common.Handler;
+import practice.netty.util.ChannelAccessUtils;
 
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static practice.netty.tcp.util.PropagateChannelFuture.propagateChannelFuture;
+import static practice.netty.util.PropagateChannelFuture.propagateChannelFuture;
 
 public class DefaultTcpClient implements TcpClient {
     private Bootstrap bootstrap;
@@ -19,12 +20,12 @@ public class DefaultTcpClient implements TcpClient {
     private volatile BlockingQueue<Object> readQueue;
 
     @Override
-    public void init(EventLoopGroup eventLoopGroup, List<ChannelHandler> handlers) {
+    public void init(EventLoopGroup eventLoopGroup, List<Handler> handlers) {
         // 읽기 큐
         readQueue = new LinkedBlockingQueue<>();
 
         // 자신에게 수신 메시지를 전달해 줄 핸들러 추가
-        handlers.add(new ReadDataUpdater(this));
+        handlers.add(Handler.of(new ReadDataUpdater(this)));
 
         // 부트스트랩
         bootstrap = new Bootstrap();
@@ -35,7 +36,7 @@ public class DefaultTcpClient implements TcpClient {
                 .handler(new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        ch.pipeline().addLast(handlers.toArray(ChannelHandler[]::new));
+                        handlers.forEach(config -> ch.pipeline().addLast(config.workGroup(), config.handler()));
                     }
                 });
     }
@@ -113,7 +114,7 @@ public class DefaultTcpClient implements TcpClient {
 
     @Override
     public ChannelPipeline pipeline() {
-        return ChannelAccessUtil.pipeline(channel);
+        return ChannelAccessUtils.pipeline(channel);
     }
 
     @Override
@@ -123,11 +124,11 @@ public class DefaultTcpClient implements TcpClient {
 
     @Override
     public EventLoop eventLoop() {
-        return ChannelAccessUtil.eventLoop(channel);
+        return ChannelAccessUtils.eventLoop(channel);
     }
 
     @Override
     public Thread eventLoopThread() throws ExecutionException, InterruptedException {
-        return ChannelAccessUtil.eventLoopThread(channel);
+        return ChannelAccessUtils.eventLoopThread(channel);
     }
 }

@@ -4,30 +4,30 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.springframework.lang.Nullable;
-import practice.netty.tcp.handler.inbound.ClientActiveNotifier;
-import practice.netty.tcp.handler.inbound.ReadDataUpdater;
-import practice.netty.tcp.util.ChannelAccessUtil;
+import practice.netty.handler.inbound.ClientActiveNotifier;
+import practice.netty.handler.inbound.ReadDataUpdater;
+import practice.netty.tcp.common.Handler;
+import practice.netty.util.ChannelAccessUtils;
 
 import java.net.SocketAddress;
 import java.nio.channels.NotYetConnectedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.function.Supplier;
 
-import static practice.netty.tcp.util.PropagateChannelFuture.propagateChannelFuture;
+import static practice.netty.util.PropagateChannelFuture.propagateChannelFuture;
 
 public class DefaultTcpServer implements TcpServer {
     private ServerBootstrap bootstrap;
     private ConcurrentHashMap<SocketAddress, ActiveChannel> activeChannels;
 
     @Override
-    public void init(EventLoopGroup bossGroup, EventLoopGroup childGroup, List<Supplier<ChannelHandler>> childHandlers) {
+    public void init(EventLoopGroup bossGroup, EventLoopGroup childGroup, List<Handler> childHandlers) {
 
-        // 자신에게 클라이언트 접속을 알리도록 알림 핸들러를 추가
-        childHandlers.add(() -> new ClientActiveNotifier(this));
-        // 자신에게 클라이언트로부터 데이터를 읽었음을 알리도록 알림 핸들러를 추가
-        childHandlers.add(() -> new ReadDataUpdater(this));
+        // 접속 알림 핸들러
+        childHandlers.add(Handler.of(new ClientActiveNotifier(this)));
+        // 데이터 수신 알림 핸들러
+        childHandlers.add(Handler.of(new ReadDataUpdater(this)));
 
         bootstrap = new ServerBootstrap();
         activeChannels = new ConcurrentHashMap<>();
@@ -36,8 +36,8 @@ public class DefaultTcpServer implements TcpServer {
                 .childHandler(new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        childHandlers.forEach(supplier -> {
-                            ch.pipeline().addLast(supplier.get());
+                        childHandlers.forEach(config -> {
+                            ch.pipeline().addLast(config.workGroup(), config.handler());
                         });
                     }
                 });
@@ -122,7 +122,7 @@ public class DefaultTcpServer implements TcpServer {
     @Override
     public ChannelPipeline pipeline(SocketAddress remoteAddress) {
         ActiveChannel activeChannel = getActiveChannel(remoteAddress);
-        return ChannelAccessUtil.pipeline(activeChannel.channel());
+        return ChannelAccessUtils.pipeline(activeChannel.channel());
     }
 
     @Override
@@ -134,13 +134,13 @@ public class DefaultTcpServer implements TcpServer {
     @Override
     public EventLoop eventLoop(SocketAddress remoteAddress) {
         ActiveChannel activeChannel = getActiveChannel(remoteAddress);
-        return ChannelAccessUtil.eventLoop(activeChannel.channel());
+        return ChannelAccessUtils.eventLoop(activeChannel.channel());
     }
 
     @Override
     public Thread eventLoopThread(SocketAddress remoteAddress) throws ExecutionException, InterruptedException {
         ActiveChannel channel = getActiveChannel(remoteAddress);
-        return ChannelAccessUtil.eventLoopThread(channel.channel());
+        return ChannelAccessUtils.eventLoopThread(channel.channel());
     }
 
     private ActiveChannel getActiveChannel(SocketAddress remoteAddress) {

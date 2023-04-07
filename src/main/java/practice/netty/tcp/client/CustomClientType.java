@@ -4,5 +4,5 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum CustomClientType {
-    DEFAULT, LINE_BASED,
+    DEFAULT, LINE_BASED
 }

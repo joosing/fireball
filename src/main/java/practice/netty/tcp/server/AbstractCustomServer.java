@@ -1,14 +1,17 @@
 package practice.netty.tcp.server;
 
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import org.springframework.lang.Nullable;
+import practice.netty.tcp.common.Handler;
 
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 public abstract class AbstractCustomServer implements CustomServer {
     private TcpServer server;
@@ -16,14 +19,14 @@ public abstract class AbstractCustomServer implements CustomServer {
     @Override
     public void init(EventLoopGroup bossGroup, EventLoopGroup workGroup) {
         // 채널 파이프라인 생성
-        List<Supplier<ChannelHandler>> suppliers = configChildHandlers();
+        List<Handler> childHandlerSupplier = configChildHandlers();
 
         // Tcp 서버 생성 및 초기화
         server = new DefaultTcpServer();
-        server.init(bossGroup, workGroup, suppliers);
+        server.init(bossGroup, workGroup, childHandlerSupplier);
     }
 
-    protected abstract List<Supplier<ChannelHandler>> configChildHandlers();
+    protected abstract List<Handler> configChildHandlers();
 
     @Override
     public Future<Boolean> start(int bindPort) {

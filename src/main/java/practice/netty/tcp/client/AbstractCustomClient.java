@@ -1,9 +1,14 @@
 package practice.netty.tcp.client;
 
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import org.springframework.lang.Nullable;
+import practice.netty.tcp.common.Handler;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -19,14 +24,15 @@ public abstract class AbstractCustomClient implements CustomClient {
     @Override
     public void init(EventLoopGroup eventLoopGroup) {
         // 채널 파이프라인 생성
-        List<ChannelHandler> handlers = configHandlers();
+        List<Handler> handlers = new ArrayList<>();
+        configHandlers(handlers);
 
         // TcpClient 생성 및 초기화
         client = new DefaultTcpClient();
         client.init(eventLoopGroup, handlers);
     }
 
-    protected abstract List<ChannelHandler> configHandlers();
+    protected abstract void configHandlers(List<Handler> handlers);
 
     @Override
     public Future<Boolean> connect(String ip, int port) {
