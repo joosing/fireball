@@ -6,7 +6,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import practice.netty.message.FileFetchResponse;
 
 import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 
 
 /**
@@ -47,9 +47,15 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRespo
         }
 
         // 파일에 저장
-        try(OutputStream outputStream = new FileOutputStream(storePath)) {
+        try(FileOutputStream outputStream = new FileOutputStream(storePath)) {
             ByteBuf fileContents = response.getFileContents();
-            fileContents.readBytes(outputStream, fileContents.readableBytes());
+            FileChannel channel = outputStream.getChannel();
+            int requestRead = fileContents.readableBytes();
+            int actualRead = fileContents.readBytes(channel, 0, requestRead);
+            // 파일 쓰기 실패
+            if (requestRead != actualRead) {
+                throw new IllegalStateException("fileContents.readBytes() return " + actualRead + " but " + requestRead + " is expected.");
+            }
         }
 
         // 저장 완료 알림
