@@ -4,6 +4,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
 import practice.netty.handler.inbound.FileResponsor;
 import practice.netty.handler.inbound.FileServiceDecoder;
+import practice.netty.handler.inbound.InboundMessageValidator;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.specification.FileServiceChannelSpecProvider;
@@ -26,6 +27,7 @@ public class TcpFileServer extends AbstractCustomServer {
         // childHandlers.add(Handler.of(new LoggingHandler(LogLevel.INFO))); // for debugging
         childHandlers.add(Handler.of(new LengthFieldBasedFrameDecoder(256, 0, 4, 0, 4)));
         childHandlers.add(Handler.of(new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())));
+        childHandlers.add(Handler.of(new InboundMessageValidator()));
         // Outbound
         childHandlers.add(Handler.of(new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())));
         childHandlers.add(Handler.of(new OutboundMessageValidator()));

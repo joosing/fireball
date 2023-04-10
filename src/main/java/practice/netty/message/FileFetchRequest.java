@@ -22,4 +22,9 @@ public class FileFetchRequest implements Message {
         buffer.writeCharSequence(remoteFilePath, StandardCharsets.UTF_8);
         return List.of(new EncodedMessage(buffer, remoteFilePath.length()));
     }
+
+    @Override
+    public void validate() throws Exception {
+        // TODO: 입력된 경로의 포멧을 검증하는 로직을 추가 해야합니다.
+    }
 }

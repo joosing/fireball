@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreCompleteListener;
 import practice.netty.handler.inbound.FileStoreHandler;
+import practice.netty.handler.inbound.InboundMessageValidator;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.message.FileFetchRequest;
@@ -32,6 +33,7 @@ public class TcpFileClient extends AbstractCustomClient {
         // handlers.add(Handler.of(new LoggingHandler(LogLevel.INFO))); // for debugging
         handlers.add(Handler.of(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)));
         handlers.add(Handler.of(new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())));
+        handlers.add(Handler.of(new InboundMessageValidator()));
         handlers.add(Handler.of(fileIoGroup, fileStoreHandler));
         // Outbound
         handlers.add(Handler.of(new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())));
