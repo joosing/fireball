@@ -6,9 +6,7 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import practice.netty.tcp.client.CustomClient;
-import practice.netty.tcp.client.CustomClientFactor;
 import practice.netty.tcp.server.CustomServer;
-import practice.netty.tcp.server.CustomServerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +38,13 @@ public class TcpLoopBackTestHelper {
         // 서버 생성
         serverBossEventLoopGroup = new NioEventLoopGroup();
         serverChildEventLoopGroup = new NioEventLoopGroup();
-        server = CustomServerFactory.newServer(setting.getServerType(), setting.getServerPort(), serverBossEventLoopGroup, serverChildEventLoopGroup);
+        server = CustomServer.of(setting.getServerType(), setting.getServerPort(), serverBossEventLoopGroup, serverChildEventLoopGroup);
 
         // N개 클라이언트 연결 생성
         clientEventLoopGroup = new NioEventLoopGroup();
         clients = new ArrayList<>();
         for (int i = 0; i < setting.getNClient(); i++) {
-            CustomClient client = CustomClientFactor.newConnection(setting.getClientType(), "localhost", setting.getServerPort(), clientEventLoopGroup);
+            CustomClient client = CustomClient.of(setting.getClientType(), "localhost", setting.getServerPort(), clientEventLoopGroup);
             clients.add(client);
         }
 
