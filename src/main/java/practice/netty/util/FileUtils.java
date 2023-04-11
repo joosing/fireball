@@ -1,12 +1,12 @@
 package practice.netty.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.io.*;
 import java.util.Random;
 
+@UtilityClass
 public final class FileUtils {
-    private FileUtils() {
-    }
-
     /**
      * 사용자가 요청한 컨텐츠를 가진 파일을 생성합니다.
      * @param path 파일 경로

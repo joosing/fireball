@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static practice.netty.util.FileSizeUtils.megaToByte;
 
 public class FileServerTest extends FileServiceTestHelper {
     String localFilePath = "local.txt";
@@ -38,9 +39,8 @@ public class FileServerTest extends FileServiceTestHelper {
     @Test
     void serviceFile() throws Exception {
         // Given: 서버 측, 서비스 파일 생성
-        int sizeInMb = 5;
-        int fileSize = 1024 * 1024 * sizeInMb;
-        File remoteFile = FileUtils.newRandomContentsFile(remoteFilePath, fileSize);
+        int megaBytes = 100;
+        File remoteFile = FileUtils.newRandomContentsFile(remoteFilePath, megaToByte(megaBytes));
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -50,7 +50,7 @@ public class FileServerTest extends FileServiceTestHelper {
                 .local(localFilePath)
                 .fetch().addListener(future -> {
                     stopWatch.stop();
-                    System.out.printf("File(%,d MB)fetch time: %.3f sec\n", sizeInMb, stopWatch.getTotalTimeSeconds());
+                    System.out.printf("File(%,d MB)fetch time: %.3f sec\n", megaBytes, stopWatch.getTotalTimeSeconds());
                 }).sync();
 
         // Then: 패치된 파일이 서버 측 파일과 일치하는지 확인
