@@ -37,7 +37,7 @@ public class FileServerTest extends FileServiceTestHelper {
     @Test
     void serviceFile() throws Exception {
         // Given: 서버 측, 서비스 파일 생성
-        File remoteFile = FileUtils.newFile(remoteFilePath, "hello server!");
+        File remoteFile = FileUtils.newTextFile(remoteFilePath, "hello server!");
 
         // When: 클라이언트 측, 파일 패치 요청
         client.remoteFileAccessor()
