@@ -20,9 +20,11 @@ public class FileFetchResponse implements Message, ReferenceCounted {
 
     @Override
     public List<EncodedMessage> encode(ByteBufAllocator allocator) {
-        // 서버에서 FileFetchRequest 응답은 FileFetchRegionResponse를 사용해서 전송합니다. (FileRegion 특징 사용을 위해)
-        // 따라서 인코딩 시도 시 예외를 던짐으로 서버에서 FileFetchResponse를 실수로 사용하는 것을 방지합니다.
-        throw new IllegalStateException("The FileFetchResponse is only used for decoding by the client");
+        var encodedMessage = EncodedMessage.builder()
+                .message(fileContents)
+                .length(fileContents.readableBytes())
+                .build();
+        return List.of(encodedMessage);
     }
 
     @Override
