@@ -1,6 +1,6 @@
 package practice.netty.message;
 
-import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.DefaultFileRegion;
 import lombok.Builder;
 
@@ -12,7 +12,7 @@ public class FileFetchRegionResponse implements Message {
     private final String filePath;
 
     @Override
-    public List<EncodedMessage> encode(ByteBuf buffer) {
+    public List<EncodedMessage> encode(ByteBufAllocator allocator) {
         File file = new File(filePath);
         var encodedMessage = EncodedMessage.builder()
                 .message(new DefaultFileRegion(file, 0, file.length()))

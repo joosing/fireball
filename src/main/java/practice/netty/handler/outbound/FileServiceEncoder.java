@@ -21,7 +21,7 @@ public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         // Body 생성
         MessageEncodable encodable = (MessageEncodable) msg;
-        List<EncodedMessage> body = encodable.encode(ctx.alloc().buffer());
+        List<EncodedMessage> body = encodable.encode(ctx.alloc());
 
         // Header 생성 및 전송
         ByteBuf header = buildHeader(ctx, body, encodable.getClass());

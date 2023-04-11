@@ -1,10 +1,10 @@
 package practice.netty.message;
 
-import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 
 import java.util.List;
 
 @FunctionalInterface
 public interface MessageEncodable {
-    List<EncodedMessage> encode(ByteBuf buffer);
+    List<EncodedMessage> encode(ByteBufAllocator allocator);
 }

@@ -1,6 +1,7 @@
 package practice.netty.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,7 +19,8 @@ public class FileFetchRequest implements Message {
     }
 
     @Override
-    public List<EncodedMessage> encode(ByteBuf buffer) {
+    public List<EncodedMessage> encode(ByteBufAllocator allocator) {
+        ByteBuf buffer = allocator.buffer();
         buffer.writeCharSequence(remoteFilePath, StandardCharsets.UTF_8);
         return List.of(new EncodedMessage(buffer, remoteFilePath.length()));
     }
