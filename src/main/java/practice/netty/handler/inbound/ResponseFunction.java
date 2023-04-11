@@ -6,6 +6,6 @@ import practice.netty.message.Message;
 import java.util.Optional;
 
 @FunctionalInterface
-public interface ResponseFactory {
+public interface ResponseFunction {
     Optional<Message> response(Message request, ByteBufAllocator allocator) throws Exception;
 }
