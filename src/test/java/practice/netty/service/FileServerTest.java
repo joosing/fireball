@@ -3,6 +3,7 @@ package practice.netty.service;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.StopWatch;
 import practice.netty.helper.FileServiceTestHelper;
 import practice.netty.util.FileUtils;
 
@@ -37,14 +38,20 @@ public class FileServerTest extends FileServiceTestHelper {
     @Test
     void serviceFile() throws Exception {
         // Given: 서버 측, 서비스 파일 생성
-        File remoteFile = FileUtils.newTextFile(remoteFilePath, "hello server!");
+        int sizeInMb = 5;
+        int fileSize = 1024 * 1024 * sizeInMb;
+        File remoteFile = FileUtils.newRandomContentsFile(remoteFilePath, fileSize);
 
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         // When: 클라이언트 측, 파일 패치 요청
         client.remoteFileAccessor()
                 .remote(remoteFilePath)
                 .local(localFilePath)
-                .fetch()
-                .sync();
+                .fetch().addListener(future -> {
+                    stopWatch.stop();
+                    System.out.printf("File(%,d MB)fetch time: %.3f sec\n", sizeInMb, stopWatch.getTotalTimeSeconds());
+                }).sync();
 
         // Then: 패치된 파일이 서버 측 파일과 일치하는지 확인
         File localFile = new File(localFilePath);
