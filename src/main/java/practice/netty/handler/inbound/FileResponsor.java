@@ -9,6 +9,7 @@ import practice.netty.message.FileFetchResponse;
 import practice.netty.message.Message;
 import practice.netty.util.NettyFileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,11 +61,19 @@ public class FileResponsor extends SimpleChannelInboundHandler<Message> {
     @Deprecated
     private Optional<Message> responseFileFetchRequestByDirect(Message request, ByteBufAllocator allocator) throws IOException {
         var fileFetchRequest = (FileFetchRequest) request;
-        var path = rootPath + fileFetchRequest.getRemoteFilePath();
-        var contents = NettyFileUtils.readAllBytes(path, allocator);
+        var file = new File(rootPath + fileFetchRequest.getRemoteFilePath());
+        checkNettyByteBufCapacity(file.length());
+        var contents = allocator.directBuffer((int) file.length());
+        NettyFileUtils.readAllBytes(file, contents);
         var response = FileFetchResponse.builder()
                 .fileContents(contents)
                 .build();
         return Optional.of(response);
+    }
+
+    private static void checkNettyByteBufCapacity(long size) {
+        if (size > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Too large file: " + size + " bytes");
+        }
     }
 }

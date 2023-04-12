@@ -39,7 +39,7 @@ public class FileServerTest extends FileServiceTestHelper {
     @Test
     void serviceFile() throws Exception {
         // Given: 서버 측, 서비스 파일 생성
-        int megaBytes = 100;
+        int megaBytes = 1_000;
         File remoteFile = FileUtils.newRandomContentsFile(remoteFilePath, megaToByte(megaBytes));
 
         StopWatch stopWatch = new StopWatch();
@@ -49,6 +49,7 @@ public class FileServerTest extends FileServiceTestHelper {
                 .remote(remoteFilePath)
                 .local(localFilePath)
                 .fetch().addListener(future -> {
+                    // 파일 패치 시간 측정
                     stopWatch.stop();
                     System.out.printf("File(%,d MB)fetch time: %.3f sec\n", megaBytes, stopWatch.getTotalTimeSeconds());
                 }).sync();
