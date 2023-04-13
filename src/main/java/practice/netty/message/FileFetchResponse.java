@@ -12,18 +12,27 @@ import java.util.List;
 @Getter
 public class FileFetchResponse implements Message, ReferenceCounted {
     private final ByteBuf fileContents;
+    private boolean endOfFile;
 
     public static FileFetchResponse decode(ByteBuf message) {
+        boolean endOfFile = message.readBoolean();
         ByteBuf fileContents = message.readRetainedSlice(message.readableBytes());
-        return builder().fileContents(fileContents).build();
+        return builder()
+                .endOfFile(endOfFile)
+                .fileContents(fileContents)
+                .build();
     }
 
     @Override
     public List<EncodedMessage> encode(ByteBufAllocator allocator) {
+        final ByteBuf encoded = allocator.directBuffer();
+        encoded.writeBoolean(endOfFile);
+        encoded.writeBytes(fileContents);
         var encodedMessage = EncodedMessage.builder()
-                .message(fileContents)
-                .length(fileContents.readableBytes())
+                .message(encoded)
+                .length(1 + fileContents.readableBytes())
                 .build();
+        fileContents.release();
         return List.of(encodedMessage);
     }
 

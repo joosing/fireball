@@ -5,6 +5,7 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StopWatch;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreCompleteListener;
 import practice.netty.handler.inbound.FileStoreHandler;
@@ -55,6 +56,8 @@ public class TcpFileClient extends AbstractCustomClient {
         private String remoteFilePath;
         private String localFilePath;
         private ChannelPromise transferPromise;
+        private StopWatch stopWatch;
+        private String printSpentTimeTag;
 
         public RemoteFileAccessor remote(String filePath) {
             remoteFilePath = filePath;
@@ -63,6 +66,13 @@ public class TcpFileClient extends AbstractCustomClient {
 
         public RemoteFileAccessor local(String filePath) {
             localFilePath = filePath;
+            return this;
+        }
+
+        // 소요 시간 측정
+        public RemoteFileAccessor printSpentTime(String tag) {
+            stopWatch = new StopWatch();
+            printSpentTimeTag = tag;
             return this;
         }
 
@@ -78,6 +88,10 @@ public class TcpFileClient extends AbstractCustomClient {
             FileFetchRequest request = FileFetchRequest.builder()
                     .remoteFilePath(remoteFilePath)
                     .build();
+            if (stopWatch != null) {
+                System.out.println("Start file fetch");
+                stopWatch.start();
+            }
             channel().writeAndFlush(request);
             return transferPromise;
         }
@@ -88,6 +102,11 @@ public class TcpFileClient extends AbstractCustomClient {
         @Override
         public void fileStoreComplete(String localFilePath) {
             transferPromise.setSuccess();
+            if (stopWatch != null) {
+                stopWatch.stop();
+                System.out.println(printSpentTimeTag + stopWatch.getTotalTimeSeconds());
+                stopWatch = null;
+            }
         }
     }
 }

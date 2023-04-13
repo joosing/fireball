@@ -26,7 +26,6 @@ public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
         // Header 생성 및 전송
         ByteBuf header = buildHeader(ctx, body, encodable.getClass());
         ctx.write(header);
-
         // Body 전송
         if (body.size() != 1){
             for (int i = 0; i < body.size() - 1; i++) {
@@ -41,7 +40,7 @@ public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
         // 헤더 버퍼
         var header = ctx.alloc().buffer();
         // 필드 값 획득
-        var length = messages.stream().mapToLong(EncodedMessage::getLength).sum() + 4;
+        var length = messages.stream().mapToLong(EncodedMessage::getLength).sum() + headerSpecProvider.id().length();
         var id = idProvider.getId(clazz);
         // 버퍼에 필드 값 쓰기
         headerSpecProvider.length().write(header, (int) length);

@@ -25,6 +25,9 @@ public class FileServiceChannelSpecProvider {
         // 아이디 필드 스펙
         public static class IdSpec {
             private static final int length = 4;
+            public int length() {
+                return length;
+            }
             public int read(ByteBuf buf) {
                 return buf.readInt();
             }
@@ -35,6 +38,9 @@ public class FileServiceChannelSpecProvider {
         // 길이 필드 스펙
         public static class LengthSpec {
             private static final int length = 4;
+            public int length() {
+                return length;
+            }
             public int read(ByteBuf buf) {
                 return buf.readInt();
             }

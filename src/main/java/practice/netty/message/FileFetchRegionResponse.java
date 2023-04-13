@@ -1,5 +1,6 @@
 package practice.netty.message;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.DefaultFileRegion;
 import lombok.Builder;
@@ -9,16 +10,27 @@ import java.util.List;
 
 @Builder
 public class FileFetchRegionResponse implements Message {
+    private final boolean endOfFile;
+    private final long start;
+    private final long length;
     private final String filePath;
 
     @Override
     public List<EncodedMessage> encode(ByteBufAllocator allocator) {
-        File file = new File(filePath);
-        var encodedMessage = EncodedMessage.builder()
-                .message(new DefaultFileRegion(file, 0, file.length()))
-                .length(file.length())
+        // EndOfFile
+        final ByteBuf endOfFileBuf = allocator.buffer();
+        endOfFileBuf.writeBoolean(endOfFile);
+        var endOfFileMessage = EncodedMessage.builder()
+                .message(endOfFileBuf)
+                .length(1)
                 .build();
-        return List.of(encodedMessage);
+        // FileRegion
+        File file = new File(filePath);
+        var fileRegion = EncodedMessage.builder()
+                .message(new DefaultFileRegion(file, start, length))
+                .length(length)
+                .build();
+        return List.of(endOfFileMessage, fileRegion);
     }
 
     @Override

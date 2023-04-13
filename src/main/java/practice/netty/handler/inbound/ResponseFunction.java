@@ -3,9 +3,9 @@ package practice.netty.handler.inbound;
 import io.netty.buffer.ByteBufAllocator;
 import practice.netty.message.Message;
 
-import java.util.Optional;
+import java.util.List;
 
 @FunctionalInterface
 public interface ResponseFunction {
-    Optional<Message> response(Message request, ByteBufAllocator allocator) throws Exception;
+    List<Message> response(Message request, ByteBufAllocator allocator) throws Exception;
 }

@@ -17,4 +17,12 @@ public class NettyFileUtils {
             dstBuffer.writeBytes(inputStream, (int) srcFile.length());
         }
     }
+
+    public static void readRandomAccess(File srcFile, long start, int length, ByteBuf dstBuffer) throws IOException {
+        final RandomAccessFile raf = new RandomAccessFile(srcFile, "r");
+        raf.seek(start);
+        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(raf.getFD()))) {
+            dstBuffer.writeBytes(inputStream, length);
+        }
+    }
 }

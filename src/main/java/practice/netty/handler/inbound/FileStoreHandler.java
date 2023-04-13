@@ -5,8 +5,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import practice.netty.message.FileFetchResponse;
 
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
-import java.nio.channels.FileChannel;
+import java.io.OutputStream;
 
 
 /**
@@ -47,19 +48,23 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRespo
         }
 
         // 파일에 저장
-        try(FileOutputStream outputStream = new FileOutputStream(storePath)) {
-            ByteBuf fileContents = response.getFileContents();
-            FileChannel channel = outputStream.getChannel();
-            int requestRead = fileContents.readableBytes();
-            int actualRead = fileContents.readBytes(channel, 0, requestRead);
-            // 파일 쓰기 실패
+        try(OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(storePath, true))) {
+
+            final ByteBuf fileContents = response.getFileContents();
+            final int requestRead = fileContents.readableBytes();
+
+            fileContents.readBytes(outputStream, requestRead);
+/*            // 파일 쓰기 실패
             if (requestRead != actualRead) {
-                throw new IllegalStateException("fileContents.readBytes() return " + actualRead + " but " + requestRead + " is expected.");
-            }
+                throw new IllegalStateException("fileContents.readBytes() return " + actualRead + " but " +
+                requestRead + " is expected.");
+            }*/
         }
 
-        // 저장 완료 알림
-        storeCompleteListener.fileStoreComplete(storePath);
-        clearRequest();
+        if (response.isEndOfFile()) {
+            // 저장 완료 알림
+            storeCompleteListener.fileStoreComplete(storePath);
+            clearRequest();
+        }
     }
 }

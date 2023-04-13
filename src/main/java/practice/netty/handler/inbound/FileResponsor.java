@@ -7,13 +7,13 @@ import practice.netty.message.FileFetchRegionResponse;
 import practice.netty.message.FileFetchRequest;
 import practice.netty.message.FileFetchResponse;
 import practice.netty.message.Message;
-import practice.netty.util.NettyFileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
+import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
 
 public class FileResponsor extends SimpleChannelInboundHandler<Message> {
     private final String rootPath;
@@ -31,9 +31,31 @@ public class FileResponsor extends SimpleChannelInboundHandler<Message> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message message) throws Exception {
-        responseFunctionMap.get(message.getClass())
+/*        responseFunctionMap.get(message.getClass())
                 .response(message, ctx.alloc())
-                .ifPresent(response -> ctx.writeAndFlush(response));
+                .forEach(ctx::writeAndFlush);*/
+        final int chunkSize = 1024 * 1024 * 5;
+        var fileFetchRequest = (FileFetchRequest) message;
+        var file = new File(rootPath + fileFetchRequest.getRemoteFilePath());
+        long remainBytes = file.length();
+        long start = 0;
+        while(remainBytes > 0 ) {
+            var readBytes = (int) Math.min(remainBytes, chunkSize);
+            var chunk = FileFetchRegionResponse.builder()
+                    .endOfFile(false)
+                    .filePath(file.getPath())
+                    .start(start)
+                    .length(readBytes)
+                    .build();
+            ctx.writeAndFlush(chunk);
+            remainBytes -= readBytes;
+            start += readBytes;
+        }
+        var chunk = FileFetchResponse.builder()
+                .endOfFile(true)
+                .fileContents(EMPTY_BUFFER)
+                .build();
+        ctx.writeAndFlush(chunk);
     }
 
     /**
@@ -42,13 +64,13 @@ public class FileResponsor extends SimpleChannelInboundHandler<Message> {
      * @param allocator ByteBuf 할당자
      * @return FileRegion을 담은 응답
      */
-    private Optional<Message> responseFileFetchRequest(Message request, ByteBufAllocator allocator) {
+    private List<Message> responseFileFetchRequest(Message request, ByteBufAllocator allocator) {
         var fileFetchRequest = (FileFetchRequest) request;
         var actualPath = rootPath + fileFetchRequest.getRemoteFilePath();
         var response = FileFetchRegionResponse.builder()
                 .filePath(actualPath)
                 .build();
-        return Optional.of(response);
+        return List.of(response);
     }
 
     /**
@@ -58,18 +80,28 @@ public class FileResponsor extends SimpleChannelInboundHandler<Message> {
      * @param allocator ByteBuf 할당자
      * @return 파일 컨텐츠를 담은 응답
      */
-    @Deprecated
-    private Optional<Message> responseFileFetchRequestByDirect(Message request, ByteBufAllocator allocator) throws IOException {
+/*    @Deprecated
+
+    private List<Message> responseFileFetchRequestByDirect(ChannelHandlerContext ctx, Message request, ByteBufAllocator allocator) throws IOException {
+        final int chunkSize = 1024 * 5;
         var fileFetchRequest = (FileFetchRequest) request;
+        var chunks = new ArrayList<Message>();
         var file = new File(rootPath + fileFetchRequest.getRemoteFilePath());
-        checkNettyByteBufCapacity(file.length());
-        var contents = allocator.directBuffer((int) file.length());
-        NettyFileUtils.readAllBytes(file, contents);
-        var response = FileFetchResponse.builder()
-                .fileContents(contents)
-                .build();
-        return Optional.of(response);
+        long remainBytes = file.length();
+        long start = 0;
+        while(remainBytes > 0 ) {
+            var contents = allocator.directBuffer(chunkSize);
+            NettyFileUtils.readRandomAccess(file, start, chunkSize, contents);
+            var chunk = FileFetchResponse.builder()
+                    .fileContents(contents)
+                    .build();
+            ctx.writeAndFlush(chunk);
+            remainBytes -= chunkSize;
+            start += chunkSize;
+        }
+        return chunks;
     }
+*/
 
     private static void checkNettyByteBufCapacity(long size) {
         if (size > Integer.MAX_VALUE) {
