@@ -1,10 +1,11 @@
 package practice.netty.service;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import practice.netty.helper.FileServiceTestHelper;
-import practice.netty.util.FileUtils;
+import practice.netty.util.AdvancedFileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class FileServerTest extends FileServiceTestHelper {
     void serviceFile() throws Exception {
         // Given: 서버 측, 서비스 파일 생성
         int megaBytes = 1_000;
-        File remoteFile = FileUtils.newRandomContentsFile(remoteFilePath, megaToByte(megaBytes));
+        File remoteFile = AdvancedFileUtils.newRandomContentsFile(remoteFilePath, megaToByte(megaBytes));
 
         // When: 클라이언트 측, 파일 패치 요청
         client.remoteFileAccessor()
@@ -50,6 +51,6 @@ public class FileServerTest extends FileServiceTestHelper {
 
         // Then: 패치된 파일이 서버 측 파일과 일치하는지 확인
         File localFile = new File(localFilePath);
-        assertTrue(org.apache.commons.io.FileUtils.contentEquals(remoteFile, localFile));
+        assertTrue(FileUtils.contentEquals(remoteFile, localFile));
     }
 }

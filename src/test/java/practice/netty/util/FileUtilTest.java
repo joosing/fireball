@@ -11,7 +11,7 @@ public class FileUtilTest {
     @Test
     void newRandomContentsFile() throws Exception {
         int size = 1024 * 1024 * 5; // 5MB
-        File file = FileUtils.newRandomContentsFile("sample.dat", size);
+        File file = AdvancedFileUtils.newRandomContentsFile("sample.dat", size);
         assertEquals(size, file.length());
         assertTrue(file.delete());
     }
