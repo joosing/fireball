@@ -14,7 +14,7 @@ import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.message.FileFetchRequest;
 import practice.netty.specification.FileServiceChannelSpecProvider;
-import practice.netty.specification.MessageSpecProvider;
+import practice.netty.specification.FileServiceMessageSpecProvider;
 import practice.netty.tcp.common.Handler;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TcpFileClient extends AbstractCustomClient {
     private final EventLoopGroup fileIoGroup;
-    private final MessageSpecProvider messageSpecProvider;
+    private final FileServiceMessageSpecProvider messageSpecProvider;
     private final FileServiceChannelSpecProvider channelSpecProvider; // TODO: 인터페이스로 주입 받도록 개선합시다.
     private FileStoreHandler fileStoreHandler;
 
@@ -31,7 +31,6 @@ public class TcpFileClient extends AbstractCustomClient {
         fileStoreHandler = new FileStoreHandler();
 
         // Inbound
-        // handlers.add(Handler.of(new LoggingHandler(LogLevel.INFO))); // for debugging
         handlers.add(Handler.of(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)));
         handlers.add(Handler.of(new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())));
         handlers.add(Handler.of(new InboundMessageValidator()));

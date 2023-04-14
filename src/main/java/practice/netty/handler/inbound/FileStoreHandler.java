@@ -3,7 +3,7 @@ package practice.netty.handler.inbound;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import practice.netty.message.FileFetchResponse;
+import practice.netty.message.FileFetchRxResponse;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -13,7 +13,7 @@ import java.io.OutputStream;
 /**
  * 수신된 파일을 저정하는 인바운드 핸들러입니다. 저장 요청이 존재하는 경우 파일을 저장합니다. 이미 파일이 존재하는 경우 파일을 덮어습니다.
  */
-public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchResponse> {
+public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRxResponse> {
     private volatile FileStoreCompleteListener storeCompleteListener;
     private volatile String storePath;
 
@@ -41,7 +41,7 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRespo
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FileFetchResponse response) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, FileFetchRxResponse response) throws Exception {
         // 파일 저장 요청 없음
         if (storePath == null) {
             throw new IllegalStateException("storePath is null");

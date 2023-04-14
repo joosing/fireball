@@ -3,10 +3,9 @@ package practice.netty.message;
 import lombok.Builder;
 import lombok.Getter;
 
-// TODO: FileRegion을 사용한 zero-copy 전략이 윈도우즈 운영체제에서는 잘 동작하지 않는다는 네티 주석을 봅니다. 테스트 후 대응이 필요합니다.
 @Builder
 @Getter
-public class EncodedMessage {
+public class EncodedSubMessage {
     /**
      * 인코딩되어 전송될 메시지 내용을 저장합니다. contents는 ByteBuf 또는 FileRegion 타입만 네티 채널에 의해 전송될 수 있습니다.
      */

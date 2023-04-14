@@ -8,13 +8,16 @@ import lombok.Getter;
 
 import java.util.List;
 
+/**
+ * 파일 패치 요청에 대한 응답 메시지입니다. 이 클래스는 클라이언트 측에서 응답을 수신하여 처리하기 위한 정보를 담고 있습니다.
+ */
 @Builder
 @Getter
-public class FileFetchResponse implements Message, ReferenceCounted {
-    private final ByteBuf fileContents;
+public class FileFetchRxResponse implements Message, ReferenceCounted {
     private boolean endOfFile;
+    private ByteBuf fileContents;
 
-    public static FileFetchResponse decode(ByteBuf message) {
+    public static FileFetchRxResponse decode(ByteBuf message) {
         boolean endOfFile = message.readBoolean();
         ByteBuf fileContents = message.readRetainedSlice(message.readableBytes());
         return builder()
@@ -24,13 +27,13 @@ public class FileFetchResponse implements Message, ReferenceCounted {
     }
 
     @Override
-    public List<EncodedMessage> encode(ByteBufAllocator allocator) {
-        final ByteBuf encoded = allocator.directBuffer();
-        encoded.writeBoolean(endOfFile);
-        encoded.writeBytes(fileContents);
-        var encodedMessage = EncodedMessage.builder()
-                .message(encoded)
-                .length(1 + fileContents.readableBytes())
+    public List<EncodedSubMessage> encode(ByteBufAllocator allocator) {
+        final ByteBuf buffer = allocator.directBuffer();
+        buffer.writeBoolean(endOfFile);
+        buffer.writeBytes(fileContents);
+        var encodedMessage = EncodedSubMessage.builder()
+                .message(buffer)
+                .length(1 + fileContents.readableBytes()) // endOfFile size + fileContents size
                 .build();
         fileContents.release();
         return List.of(encodedMessage);

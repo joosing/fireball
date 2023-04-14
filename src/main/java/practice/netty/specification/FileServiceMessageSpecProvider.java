@@ -1,21 +1,55 @@
 package practice.netty.specification;
 
-import practice.netty.message.FileFetchRegionResponse;
-import practice.netty.message.FileFetchRequest;
-import practice.netty.message.FileFetchResponse;
+import practice.netty.message.*;
+import practice.netty.processor.FileFetchRequestProcessor;
+import practice.netty.processor.RequestProcessor;
 
-public class FileServiceMessageSpecProvider extends MessageSpecProvider {
+public class FileServiceMessageSpecProvider implements EncodingIdProvider, MessageDecoderProvider, RequestProcessorProvider {
+    private final FileServiceChannelSpecProvider channelSpec;
+    private final EncodingIdManager encodingIdManager;
+    private final MessageDecoderManager messageDecoderManager;
+    private final RequestProcessorManager requestProcessorManager;
 
-    @Override
-    protected void configClassToIdMap() {
-        classToIdMap.put(FileFetchRequest.class, 1001);
-        classToIdMap.put(FileFetchResponse.class, 2001);
-        classToIdMap.put(FileFetchRegionResponse.class, 2001);
+    public FileServiceMessageSpecProvider(FileServiceChannelSpecProvider channelSpec) {
+        this.channelSpec = channelSpec;
+        encodingIdManager = new EncodingIdManager();
+        messageDecoderManager = new MessageDecoderManager();
+        requestProcessorManager = new RequestProcessorManager();
+        configEncodingIdManager();
+        configMessageDecoderManager();
+        configRequestProcessorManager();
+    }
+
+    private void configEncodingIdManager() {
+        encodingIdManager.putId(FileFetchRequest.class, 1001);
+        encodingIdManager.putId(FileFetchRxResponse.class, 2001);
+        encodingIdManager.putId(FileChunkTxResponse.class, 2001);
+    }
+    private void configMessageDecoderManager() {
+        messageDecoderManager.putDecoder(1001, FileFetchRequest::decode);
+        messageDecoderManager.putDecoder(2001, FileFetchRxResponse::decode);
+    }
+
+    private void configRequestProcessorManager() {
+        var fileFetchRequestProcessor = FileFetchRequestProcessor.builder()
+                .chunkSize(channelSpec.fileFetch().getChunkSize())
+                .rootPath(channelSpec.fileFetch().getRootPath())
+                .build();
+        requestProcessorManager.putRequestProcessor(FileFetchRequest.class, fileFetchRequestProcessor);
     }
 
     @Override
-    protected void configIdToDecoderMap() {
-        idToDecoderMap.put(1001, FileFetchRequest::decode);
-        idToDecoderMap.put(2001, FileFetchResponse::decode);
+    public int getId(Class<? extends MessageEncodable> clazz) {
+        return encodingIdManager.getId(clazz);
+    }
+
+    @Override
+    public DecodeFunction getDecoder(int id) {
+        return messageDecoderManager.getDecoder(id);
+    }
+
+    @Override
+    public RequestProcessor getRequestProcessor(Class<? extends Message> clazz) {
+        return requestProcessorManager.getRequestProcessor(clazz);
     }
 }

@@ -28,14 +28,14 @@ public class FileServiceTestHelper {
 
     @BeforeEach
     protected void setUp() throws ExecutionException, InterruptedException, IOException {
-        // 메시지
-        FileServiceMessageSpecProvider messageSpec = new FileServiceMessageSpecProvider();
+        // 스펙
         FileServiceChannelSpecProvider channelSpecProvider = new FileServiceChannelSpecProvider();
+        FileServiceMessageSpecProvider messageSpec = new FileServiceMessageSpecProvider(channelSpecProvider);
 
         // 서버 시작
         serverWorkGroup = new NioEventLoopGroup();
         serverAcceptGroup = new NioEventLoopGroup();
-        server = new TcpFileServer("./", messageSpec, channelSpecProvider);
+        server = new TcpFileServer(messageSpec, channelSpecProvider);
         server.init(serverAcceptGroup, serverWorkGroup);
         server.start(12345).get();
 

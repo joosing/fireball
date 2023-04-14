@@ -19,10 +19,10 @@ public class FileFetchRequest implements Message {
     }
 
     @Override
-    public List<EncodedMessage> encode(ByteBufAllocator allocator) {
+    public List<EncodedSubMessage> encode(ByteBufAllocator allocator) {
         ByteBuf buffer = allocator.buffer();
         buffer.writeCharSequence(remoteFilePath, StandardCharsets.UTF_8);
-        return List.of(new EncodedMessage(buffer, remoteFilePath.length()));
+        return List.of(new EncodedSubMessage(buffer, remoteFilePath.length()));
     }
 
     @Override

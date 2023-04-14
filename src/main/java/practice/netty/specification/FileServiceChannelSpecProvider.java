@@ -1,12 +1,25 @@
 package practice.netty.specification;
 
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
 
+@SuppressWarnings("ALL")
 public class FileServiceChannelSpecProvider {
+    private final FileFetchSpec fileFetch = new FileFetchSpec();
     private final HeaderSpec header = new HeaderSpec();
 
     public HeaderSpec header() {
         return header;
+    }
+
+    public FileFetchSpec fileFetch() {
+        return fileFetch;
+    }
+
+    @Getter
+    public static class FileFetchSpec {
+        private final int chunkSize = 1024 * 1024 * 5;
+        private final String rootPath = "./";
     }
 
     /**

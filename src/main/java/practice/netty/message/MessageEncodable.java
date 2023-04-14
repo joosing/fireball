@@ -6,5 +6,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface MessageEncodable {
-    List<EncodedMessage> encode(ByteBufAllocator allocator);
+    List<EncodedSubMessage> encode(ByteBufAllocator allocator);
 }
