@@ -50,18 +50,13 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRxRes
         // 파일에 저장
         try(OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(storePath, true))) {
 
-            final ByteBuf fileContents = response.getFileContents();
+            final ByteBuf fileContents = response.fileContents();
             final int requestRead = fileContents.readableBytes();
 
             fileContents.readBytes(outputStream, requestRead);
-/*            // 파일 쓰기 실패
-            if (requestRead != actualRead) {
-                throw new IllegalStateException("fileContents.readBytes() return " + actualRead + " but " +
-                requestRead + " is expected.");
-            }*/
         }
 
-        if (response.isEndOfFile()) {
+        if (response.endOfFile()) {
             // 저장 완료 알림
             storeCompleteListener.fileStoreComplete(storePath);
             clearRequest();

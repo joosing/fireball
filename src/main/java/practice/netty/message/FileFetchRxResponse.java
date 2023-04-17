@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ReferenceCounted;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  */
 @Builder
 @Getter
+@Accessors(fluent = true)
 public class FileFetchRxResponse implements Message, ReferenceCounted {
     private boolean endOfFile;
     private ByteBuf fileContents;

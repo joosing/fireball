@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import lombok.RequiredArgsConstructor;
-import practice.netty.message.EncodedSubMessage;
 import practice.netty.message.MessageEncodable;
 import practice.netty.specification.EncodingIdProvider;
 import practice.netty.specification.FileServiceChannelSpecProvider;
@@ -29,10 +28,10 @@ public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
         // Body 전송
         if (body.size() != 1){
             for (int i = 0; i < body.size() - 1; i++) {
-                ctx.write(body.get(i).getMessage());
+                ctx.write(body.get(i).subMessage());
             }
         }
-        ctx.write(body.get(body.size() - 1).getMessage(), promise);
+        ctx.write(body.get(body.size() - 1).subMessage(), promise);
     }
 
     private ByteBuf buildHeader(ChannelHandlerContext ctx,
@@ -40,7 +39,7 @@ public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
         // 헤더 버퍼
         var header = ctx.alloc().buffer();
         // 필드 값 획득
-        var length = messages.stream().mapToLong(EncodedSubMessage::getLength).sum() + headerSpecProvider.id().length();
+        var length = messages.stream().mapToLong(EncodedSubMessage::length).sum() + headerSpecProvider.id().length();
         var id = idProvider.getId(clazz);
         // 버퍼에 필드 값 쓰기
         headerSpecProvider.length().write(header, (int) length);

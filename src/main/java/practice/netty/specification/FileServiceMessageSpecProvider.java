@@ -32,8 +32,8 @@ public class FileServiceMessageSpecProvider implements EncodingIdProvider, Messa
 
     private void configRequestProcessorManager() {
         var fileFetchRequestProcessor = FileFetchRequestProcessor.builder()
-                .chunkSize(channelSpec.fileFetch().getChunkSize())
-                .rootPath(channelSpec.fileFetch().getRootPath())
+                .chunkSize(channelSpec.fileFetch().chunkSize())
+                .rootPath(channelSpec.fileFetch().rootPath())
                 .build();
         requestProcessorManager.putRequestProcessor(FileFetchRequest.class, fileFetchRequestProcessor);
     }
