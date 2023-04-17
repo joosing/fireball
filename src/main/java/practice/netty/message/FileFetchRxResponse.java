@@ -53,11 +53,19 @@ public class FileFetchRxResponse implements Message, ReferenceCounted {
         return fileContents.retain(increment);
     }
 
+    /**
+     * 네티 채널 파이프라인에서 ReferenceCounted 인터페이스를 구현한 객체를 다루는 경우 항상 touch()를 통해 반환된 객체를 사용합니다.
+     * 따라서 여기서 this를 반환해야 하며 fileContents를 반환하면 파이프라인 처리에 오류가 발생합니다.
+     */
     @Override
     public ReferenceCounted touch() {
         return this;
     }
 
+    /**
+     * 네티 채널 파이프라인에서 ReferenceCounted 인터페이스를 구현한 객체를 다루는 경우 항상 touch()를 통해 반환된 객체를 사용합니다.
+     * 따라서 여기서 this를 반환해야 하며 fileContents를 반환하면 파이프라인 처리에 오류가 발생합니다.
+     */
     @Override
     public ReferenceCounted touch(Object hint) {
         return this;
