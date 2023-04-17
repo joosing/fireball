@@ -33,10 +33,7 @@ public class FileFetchRxResponse implements Message, ReferenceCounted {
         final ByteBuf buffer = allocator.directBuffer();
         buffer.writeBoolean(endOfFile);
         buffer.writeBytes(fileContents);
-        var encodedMessage = EncodedSubMessage.builder()
-                .message(buffer)
-                .length(1 + fileContents.readableBytes()) // endOfFile size + fileContents size
-                .build();
+        var encodedMessage = new EncodedSubMessage(buffer, 1 + fileContents.readableBytes());
         fileContents.release();
         return List.of(encodedMessage);
     }

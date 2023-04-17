@@ -26,18 +26,12 @@ public class FileChunkTxResponse implements Message {
     private EncodedSubMessage encodeEndOfFile(ByteBufAllocator allocator) {
         final ByteBuf buffer = allocator.buffer();
         buffer.writeBoolean(endOfFile);
-        return EncodedSubMessage.builder()
-                .message(buffer)
-                .length(1)
-                .build();
+        return new EncodedSubMessage(buffer, 1);
     }
 
     private EncodedSubMessage encodeFileRegion(ByteBufAllocator allocator) {
         File file = new File(filePath);
-        return EncodedSubMessage.builder()
-                .message(new DefaultFileRegion(file, start, length))
-                .length(length)
-                .build();
+        return new EncodedSubMessage(new DefaultFileRegion(file, start, length), length);
     }
 
     @Override
