@@ -39,7 +39,7 @@ public class FileServerTest extends FileServiceTestHelper {
     @Test
     void fileFetch() throws Exception {
         // Given: 서버 측, 서비스 파일 생성
-        int megaBytes = 1_024;
+        int megaBytes = 1024;
         File remoteFile = AdvancedFileUtils.newRandomContentsFile(remoteFilePath, megaToByte(megaBytes));
 
         // When: 클라이언트 측, 파일 패치 요청

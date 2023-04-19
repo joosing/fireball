@@ -5,7 +5,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import org.springframework.lang.Nullable;
-import practice.netty.tcp.common.Handler;
+import practice.netty.tcp.common.HandlerWorkerPair;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public abstract class AbstractCustomClient implements CustomClient {
     @Override
     public void init(EventLoopGroup eventLoopGroup) {
         // 채널 파이프라인 생성
-        List<Handler> handlers = new ArrayList<>();
+        List<HandlerWorkerPair> handlers = new ArrayList<>();
         configHandlers(handlers);
 
         // TcpClient 생성 및 초기화
@@ -32,7 +32,7 @@ public abstract class AbstractCustomClient implements CustomClient {
         client.init(eventLoopGroup, handlers);
     }
 
-    protected abstract void configHandlers(List<Handler> handlers);
+    protected abstract void configHandlers(List<HandlerWorkerPair> handlers);
 
     @Override
     public Future<Boolean> connect(String ip, int port) {

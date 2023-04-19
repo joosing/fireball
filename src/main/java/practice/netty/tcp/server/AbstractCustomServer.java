@@ -5,7 +5,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import org.springframework.lang.Nullable;
-import practice.netty.tcp.common.Handler;
+import practice.netty.tcp.common.HandlerWorkerPair;
 
 import java.net.SocketAddress;
 import java.util.List;
@@ -19,14 +19,14 @@ public abstract class AbstractCustomServer implements CustomServer {
     @Override
     public void init(EventLoopGroup bossGroup, EventLoopGroup workGroup) {
         // 채널 파이프라인 생성
-        List<Handler> childHandlerSupplier = configChildHandlers();
+        List<HandlerWorkerPair> childHandlerSupplier = configChildHandlers();
 
         // Tcp 서버 생성 및 초기화
         server = new DefaultTcpServer();
         server.init(bossGroup, workGroup, childHandlerSupplier);
     }
 
-    protected abstract List<Handler> configChildHandlers();
+    protected abstract List<HandlerWorkerPair> configChildHandlers();
 
     @Override
     public Future<Boolean> start(int bindPort) {

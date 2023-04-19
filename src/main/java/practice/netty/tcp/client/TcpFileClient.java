@@ -15,7 +15,7 @@ import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.message.FileFetchRequest;
 import practice.netty.specification.FileServiceChannelSpecProvider;
 import practice.netty.specification.FileServiceMessageSpecProvider;
-import practice.netty.tcp.common.Handler;
+import practice.netty.tcp.common.HandlerWorkerPair;
 
 import java.util.List;
 
@@ -24,20 +24,23 @@ public class TcpFileClient extends AbstractCustomClient {
     private final EventLoopGroup fileIoGroup;
     private final FileServiceMessageSpecProvider messageSpecProvider;
     private final FileServiceChannelSpecProvider channelSpecProvider; // TODO: 인터페이스로 주입 받도록 개선합시다.
-    private FileStoreHandler fileStoreHandler;
 
     @Override
-    protected void configHandlers(List<Handler> handlers) {
-        fileStoreHandler = new FileStoreHandler();
-
+    protected void configHandlers(List<HandlerWorkerPair> handlers) {
         // Inbound
-        handlers.add(Handler.of(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)));
-        handlers.add(Handler.of(new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())));
-        handlers.add(Handler.of(new InboundMessageValidator()));
-        handlers.add(Handler.of(fileIoGroup, fileStoreHandler));
+        handlers.add(
+                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)));
+        handlers.add(
+                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())));
+        handlers.add(
+                HandlerWorkerPair.of(() -> new InboundMessageValidator()));
+        handlers.add(
+                HandlerWorkerPair.of(fileIoGroup, () -> new FileStoreHandler()));
         // Outbound
-        handlers.add(Handler.of(new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())));
-        handlers.add(Handler.of(new OutboundMessageValidator()));
+        handlers.add(
+                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())));
+        handlers.add(
+                HandlerWorkerPair.of(() -> new OutboundMessageValidator()));
     }
 
     /**
@@ -82,9 +85,10 @@ public class TcpFileClient extends AbstractCustomClient {
             // 파일 수신 완료 프로미스 생성
             transferPromise = channel().newPromise();
             // 파일 수신 완료 이벤트 리스너 등록
+            var fileStoreHandler = channel().pipeline().get(FileStoreHandler.class);
             fileStoreHandler.requestStore(localFilePath, this);
             // 파일 전송 요청
-            FileFetchRequest request = FileFetchRequest.builder()
+            var request = FileFetchRequest.builder()
                     .remoteFilePath(remoteFilePath)
                     .build();
             if (stopWatch != null) {
