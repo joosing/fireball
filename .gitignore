@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+/local.dat
+/local-file.dat
+/remote.dat
+/remote-10.dat
+/remote-100.dat
