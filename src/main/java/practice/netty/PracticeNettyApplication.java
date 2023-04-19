@@ -9,5 +9,4 @@ public class PracticeNettyApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PracticeNettyApplication.class, args);
 	}
-
 }
