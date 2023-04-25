@@ -1,7 +1,5 @@
 package practice.netty.tcp.client;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +16,7 @@ import practice.netty.specification.FileServiceMessageSpecProvider;
 import practice.netty.tcp.common.HandlerWorkerPair;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 public class TcpFileClient extends AbstractCustomClient {
@@ -57,7 +56,7 @@ public class TcpFileClient extends AbstractCustomClient {
     public class RemoteFileAccessor implements FileStoreCompleteListener {
         private String remoteFilePath;
         private String localFilePath;
-        private ChannelPromise transferPromise;
+        private CompletableFuture<Void> transferCompletable;
         private StopWatch stopWatch;
         private String printSpentTimeTag;
 
@@ -78,12 +77,12 @@ public class TcpFileClient extends AbstractCustomClient {
             return this;
         }
 
-        public ChannelFuture fetch() {
+        public CompletableFuture<Void> fetch() {
             if (remoteFilePath == null || localFilePath == null) {
                 throw new IllegalArgumentException("remoteFilePath or localFilePath is null");
             }
             // 파일 수신 완료 프로미스 생성
-            transferPromise = channel().newPromise();
+            transferCompletable = new CompletableFuture<>();
             // 파일 수신 완료 이벤트 리스너 등록
             var fileStoreHandler = channel().pipeline().get(FileStoreHandler.class);
             fileStoreHandler.requestStore(localFilePath, this);
@@ -92,11 +91,10 @@ public class TcpFileClient extends AbstractCustomClient {
                     .remoteFilePath(remoteFilePath)
                     .build();
             if (stopWatch != null) {
-                System.out.println("Start file fetch");
                 stopWatch.start();
             }
             channel().writeAndFlush(request);
-            return transferPromise;
+            return transferCompletable;
         }
 
         /**
@@ -104,7 +102,8 @@ public class TcpFileClient extends AbstractCustomClient {
          */
         @Override
         public void fileStoreComplete(String localFilePath) {
-            transferPromise.setSuccess();
+            transferCompletable.complete(null);
+            transferCompletable = null;
             if (stopWatch != null) {
                 stopWatch.stop();
                 System.out.println(printSpentTimeTag + stopWatch.getTotalTimeSeconds());
