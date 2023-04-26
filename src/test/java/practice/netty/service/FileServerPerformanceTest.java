@@ -10,14 +10,12 @@ import practice.netty.util.AdvancedFileUtils;
 import practice.netty.util.StopWatchUtils;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static practice.netty.util.FileSizeUtils.megaToByte;
 
 @Slf4j
 public class FileServerPerformanceTest {
@@ -30,7 +28,8 @@ public class FileServerPerformanceTest {
     @BeforeEach
     void setUp() throws ExecutionException, InterruptedException, IOException {
         helper.setUp(nClients);
-        deleteLocalFiles();
+        FileServerTestUtils testUtils = new FileServerTestUtils();
+        testUtils.deleteLocalFiles();
     }
 
     @AfterEach
@@ -60,27 +59,6 @@ public class FileServerPerformanceTest {
         IntStream.range(0, nClients).parallel().forEach(i -> {
             var result = AdvancedFileUtils.contentEquals(localFileFormat.formatted(i), remoteFileFormat.formatted(i));
             assertTrue(result);
-        });
-    }
-
-    @Test
-    void newRemoteFiles() throws IOException {
-        IntStream.range(0, nClients).parallel().forEach(i -> {
-            AdvancedFileUtils.newRandomContentsFile(remoteFileFormat.formatted(i), megaToByte(megaBytes));
-        });
-    }
-
-    @Test
-    void deleteRemoteFiles() throws IOException {
-        IntStream.range(0, nClients).parallel().forEach(i -> {
-            AdvancedFileUtils.deleteIfExists(Path.of(remoteFileFormat.formatted(i)));
-        });
-    }
-
-    @Test
-    void deleteLocalFiles() throws IOException {
-        IntStream.range(0, nClients).parallel().forEach(i -> {
-            AdvancedFileUtils.deleteIfExists(Path.of(localFileFormat.formatted(i)));
         });
     }
 }
