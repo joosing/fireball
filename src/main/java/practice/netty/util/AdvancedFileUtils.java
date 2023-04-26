@@ -56,6 +56,15 @@ public final class AdvancedFileUtils {
         }
     }
 
+    /**
+     * Compare if the two files are the same length.
+     */
+    public static boolean lengthEquals(String filePath1, String filePath2) {
+        File file1 = new File(filePath1);
+        File file2 = new File(filePath2);
+        return FileUtils.sizeOf(file1) == FileUtils.sizeOf(file2);
+    }
+
     public static boolean deleteIfExists(Path path) {
         try {
             return Files.deleteIfExists(path);
