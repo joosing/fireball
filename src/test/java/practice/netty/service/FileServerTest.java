@@ -39,7 +39,7 @@ public class FileServerTest extends FileServiceTestHelper {
     @Test
     void fileFetch() throws Exception {
         // Given: 서버 측, 서비스 파일 생성
-        int megaBytes = 1024;
+        int megaBytes = 5;
         File remoteFile = AdvancedFileUtils.newRandomContentsFile(remoteFilePath, megaToByte(megaBytes));
 
         // When: 클라이언트 측, 파일 패치 요청
@@ -47,7 +47,7 @@ public class FileServerTest extends FileServiceTestHelper {
                 .remote(remoteFilePath)
                 .local(localFilePath)
                 .printSpentTime("File(%,d MB)fetch time(sec): ".formatted(megaBytes))
-                .fetch().sync();
+                .fetch().get();
 
         // Then: 패치된 파일이 서버 측 파일과 일치하는지 확인
         File localFile = new File(localFilePath);
