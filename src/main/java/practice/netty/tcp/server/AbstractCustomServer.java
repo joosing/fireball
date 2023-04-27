@@ -8,6 +8,7 @@ import org.springframework.lang.Nullable;
 import practice.netty.tcp.common.HandlerWorkerPair;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -19,14 +20,15 @@ public abstract class AbstractCustomServer implements CustomServer {
     @Override
     public void init(EventLoopGroup bossGroup, EventLoopGroup workGroup) {
         // 채널 파이프라인 생성
-        List<HandlerWorkerPair> childHandlerSupplier = configChildHandlers();
+        List<HandlerWorkerPair> childHandlerSupplier = new ArrayList<>();
+        configChildHandlers(childHandlerSupplier);
 
         // Tcp 서버 생성 및 초기화
         server = new DefaultTcpServer();
         server.init(bossGroup, workGroup, childHandlerSupplier);
     }
 
-    protected abstract List<HandlerWorkerPair> configChildHandlers();
+    protected abstract void configChildHandlers(List<HandlerWorkerPair> childHandlers);
 
     @Override
     public Future<Boolean> start(int bindPort) {

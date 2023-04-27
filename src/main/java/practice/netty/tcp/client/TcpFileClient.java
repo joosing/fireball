@@ -26,20 +26,19 @@ public class TcpFileClient extends AbstractCustomClient {
 
     @Override
     protected void configHandlers(List<HandlerWorkerPair> handlers) {
-        // Inbound
-        handlers.add(
-                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)));
-        handlers.add(
-                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())));
-        handlers.add(
-                HandlerWorkerPair.of(() -> new InboundMessageValidator()));
-        handlers.add(
-                HandlerWorkerPair.of(fileIoGroup, () -> new FileStoreHandler()));
-        // Outbound
-        handlers.add(
-                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())));
-        handlers.add(
+        // Build up
+        List<HandlerWorkerPair> handlerWorkerPairs = List.of(
+                // Inbound
+                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
+                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerWorkerPair.of(() -> new InboundMessageValidator()),
+                HandlerWorkerPair.of(fileIoGroup, () -> new FileStoreHandler()), // Dedicated EventLoopGroup
+                // Outbound
+                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
                 HandlerWorkerPair.of(() -> new OutboundMessageValidator()));
+
+        // Add
+        handlers.addAll(handlerWorkerPairs);
     }
 
     /**
