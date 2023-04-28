@@ -3,8 +3,8 @@ package practice.netty.dto;
 import lombok.Value;
 
 @Value
-public class RemoteFileDto {
+public class RemoteFile {
     String ip;
     int port;
-    String filePath;
+    String path;
 }

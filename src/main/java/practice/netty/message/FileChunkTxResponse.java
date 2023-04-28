@@ -16,7 +16,7 @@ import java.util.List;
 public class FileChunkTxResponse implements Message {
     private final boolean endOfFile;
     private final long start;
-    private final long length;
+    private final int length;
     private final String filePath;
 
     @Override

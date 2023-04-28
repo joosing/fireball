@@ -8,13 +8,13 @@ class QuickstartUser(HttpUser):
 
     @task
     def download_file(self):
-        self.client.post("/files/local/local-100.dat",
-                         json={"ip": "127.0.0.1", "port": "12345", "filePath": "remote-100.dat"})
+        self.client.post("/files/local/local-5.dat",
+                         json={"ip": "127.0.0.1", "port": "12345", "path": "remote-5.dat"})
 
-    @task
-    def upload_file(self):
-        self.client.post("/files/remote/127.0.0.1/12345/remote-100.dat",
-                         json={"filePath": "local-100.dat"})
+    # @task
+    # def upload_file(self):
+    #     self.client.post("/files/remote/127.0.0.1/12345/remote-100.dat",
+    #                      json={"path": "local-100.dat"})
 
     # @task(3)
     # def view_items(self):

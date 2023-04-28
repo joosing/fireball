@@ -7,14 +7,15 @@ import io.netty.channel.ChannelPromise;
 import lombok.RequiredArgsConstructor;
 import practice.netty.message.MessageEncodable;
 import practice.netty.specification.EncodingIdProvider;
-import practice.netty.specification.FileServiceChannelSpecProvider;
+import practice.netty.specification.HeaderSpecProvider;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
     private final EncodingIdProvider idProvider;
-    private final FileServiceChannelSpecProvider.HeaderSpec headerSpecProvider;
+    private final HeaderSpecProvider headerSpecProvider;
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
@@ -22,28 +23,33 @@ public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
         MessageEncodable encodable = (MessageEncodable) msg;
         List<EncodedSubMessage> body = encodable.encode(ctx.alloc());
 
-        // Header 생성 및 전송
-        ByteBuf header = buildHeader(ctx, body, encodable.getClass());
+        // Header 생성과 전송
+        ByteBuf header = buildHeader(ctx.alloc().buffer(), body, encodable.getClass());
         ctx.write(header);
+
         // Body 전송
-        if (body.size() != 1){
-            for (int i = 0; i < body.size() - 1; i++) {
-                ctx.write(body.get(i).subMessage());
-            }
+        if (composedBody(body)){
+            IntStream.rangeClosed(0, lastIndex(body) - 1)
+                    .forEach(i -> ctx.write(body.get(i).subMessage()));
         }
-        ctx.write(body.get(body.size() - 1).subMessage(), promise);
+        ctx.write(body.get(lastIndex(body)).subMessage(), promise);
     }
 
-    private ByteBuf buildHeader(ChannelHandlerContext ctx,
-                                List<EncodedSubMessage> messages, Class<? extends MessageEncodable> clazz) {
-        // 헤더 버퍼
-        var header = ctx.alloc().buffer();
+    private ByteBuf buildHeader(ByteBuf header, List<EncodedSubMessage> messages, Class<? extends MessageEncodable> clazz) {
         // 필드 값 획득
-        var length = messages.stream().mapToLong(EncodedSubMessage::length).sum() + headerSpecProvider.id().length();
+        var length = messages.stream().mapToInt(EncodedSubMessage::length).sum() + headerSpecProvider.id().length();
         var id = idProvider.getId(clazz);
         // 버퍼에 필드 값 쓰기
-        headerSpecProvider.length().write(header, (int) length);
-        headerSpecProvider.id().write(header, id);
+        headerSpecProvider.length().writeFunc(header, length);
+        headerSpecProvider.id().writeFunc(header, id);
         return header;
+    }
+
+    private static int lastIndex(List<EncodedSubMessage> body) {
+        return body.size() - 1;
+    }
+
+    private static boolean composedBody(List<EncodedSubMessage> body) {
+        return body.size() > 1;
     }
 }

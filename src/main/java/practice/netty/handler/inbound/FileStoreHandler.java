@@ -3,31 +3,17 @@ package practice.netty.handler.inbound;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.RequiredArgsConstructor;
 import practice.netty.message.FileFetchRxResponse;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-
-/**
- * 수신된 파일을 저정하는 인바운드 핸들러입니다. 저장 요청이 존재하는 경우 파일을 저장합니다. 이미 파일이 존재하는 경우 파일을 덮어습니다.
- */
+@RequiredArgsConstructor
 public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRxResponse> {
-    private volatile FileStoreCompleteListener storeCompleteListener;
-    private volatile String storePath;
-
-    // 파일 저장 및 알림 요청 (외부 사용자의 요청)
-    public void requestStore(String storePath, FileStoreCompleteListener listener) {
-        this.storePath = storePath;
-        this.storeCompleteListener = listener;
-    }
-
-    // 사용자의 요청 정리 (내부적으로 처리)
-    private void clearRequest() {
-        storeCompleteListener = null;
-        storePath = null;
-    }
+    private final String storePath;
+    private final FileDownloadCompleteListener storeCompleteListener;
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -42,11 +28,6 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRxRes
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FileFetchRxResponse response) throws Exception {
-        // 파일 저장 요청 없음
-        if (storePath == null) {
-            throw new IllegalStateException("storePath is null");
-        }
-
         // 파일에 저장
         try(OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(storePath, true))) {
 
@@ -58,8 +39,7 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRxRes
 
         if (response.endOfFile()) {
             // 저장 완료 알림
-            storeCompleteListener.fileStoreComplete(storePath);
-            clearRequest();
+            storeCompleteListener.fileDownloadComplete(storePath);
         }
     }
 }

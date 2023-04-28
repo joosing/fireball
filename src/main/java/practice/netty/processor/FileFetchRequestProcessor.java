@@ -2,7 +2,7 @@ package practice.netty.processor;
 
 import lombok.Builder;
 import practice.netty.message.FileChunkTxResponse;
-import practice.netty.message.FileFetchRequest;
+import practice.netty.message.FileDownloadRequest;
 import practice.netty.message.Message;
 
 import java.io.File;
@@ -16,7 +16,7 @@ public class FileFetchRequestProcessor implements RequestProcessor {
 
     @Override
     public List<Message> process(Message message) {
-        var fileFetchRequest = (FileFetchRequest) message;
+        var fileFetchRequest = (FileDownloadRequest) message;
         var file = new File(rootPath + fileFetchRequest.getRemoteFilePath());
         var responses = new ArrayList<Message>();
 

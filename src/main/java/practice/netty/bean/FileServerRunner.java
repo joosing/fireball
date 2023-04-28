@@ -5,8 +5,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import practice.netty.specification.FileServiceChannelSpecProvider;
-import practice.netty.specification.FileServiceMessageSpecProvider;
+import practice.netty.specification.ChannelSpecProvider;
+import practice.netty.specification.MessageSpecProvider;
 import practice.netty.tcp.server.TcpFileServer;
 
 import javax.annotation.PostConstruct;
@@ -27,8 +27,8 @@ public class FileServerRunner {
     @PostConstruct
     protected void start() throws ExecutionException, InterruptedException, IOException {
         // 스펙
-        FileServiceChannelSpecProvider channelSpecProvider = new FileServiceChannelSpecProvider();
-        FileServiceMessageSpecProvider messageSpec = new FileServiceMessageSpecProvider(channelSpecProvider);
+        ChannelSpecProvider channelSpecProvider = new ChannelSpecProvider();
+        MessageSpecProvider messageSpec = new MessageSpecProvider(channelSpecProvider);
 
         // 서버 시작
         serverWorkGroup = new NioEventLoopGroup();
@@ -36,6 +36,8 @@ public class FileServerRunner {
         server = new TcpFileServer(messageSpec, channelSpecProvider);
         server.init(serverAcceptGroup, serverWorkGroup);
         server.start(PORT).get();
+
+        log.info("File server started on port {}", PORT);
     }
 
     @PreDestroy
