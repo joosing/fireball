@@ -14,7 +14,12 @@ public class FileServerTestUtils {
     static final String localFileFormat = "local%d.dat";
     static final String remoteFileFormat = "remote%d.dat";
     static final int nFile = 1024;
-    static final int megaBytes = 5;
+    static final int megaBytes = 10;
+
+    @Test
+    void newRemoteFile() throws IOException {
+        AdvancedFileUtils.newRandomContentsFile("remote-1000.dat", megaToByte(1024));
+    }
 
     @Test
     void newRemoteFiles() throws IOException {

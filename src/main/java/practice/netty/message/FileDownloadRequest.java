@@ -11,10 +11,10 @@ import java.util.List;
 
 @Builder
 @Getter
-public class FileFetchRequest implements Message {
+public class FileDownloadRequest implements Message {
     private final String remoteFilePath;
 
-    public static FileFetchRequest decode(ByteBuf message) {
+    public static FileDownloadRequest decode(ByteBuf message) {
         String remoteFilePath = message.readSlice(message.readableBytes()).toString(StandardCharsets.UTF_8); // retain() 필요 없음
         return builder().remoteFilePath(remoteFilePath).build();
     }

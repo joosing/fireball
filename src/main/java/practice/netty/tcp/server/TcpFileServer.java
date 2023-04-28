@@ -7,37 +7,32 @@ import practice.netty.handler.inbound.InboundMessageValidator;
 import practice.netty.handler.inbound.RequestProcessHandler;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
-import practice.netty.specification.FileServiceChannelSpecProvider;
-import practice.netty.specification.FileServiceMessageSpecProvider;
+import practice.netty.specification.ChannelSpecProvider;
+import practice.netty.specification.MessageSpecProvider;
 import practice.netty.tcp.common.HandlerWorkerPair;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class TcpFileServer extends AbstractCustomServer {
-    private final FileServiceMessageSpecProvider messageSpecProvider;
-    private final FileServiceChannelSpecProvider channelSpecProvider; // TODO: 인터페이스로 주입 받도록 개선합시다.
+    private final MessageSpecProvider messageSpecProvider;
+    private final ChannelSpecProvider channelSpecProvider;
 
     @Override
-    protected List<HandlerWorkerPair> configChildHandlers() {
-        List<HandlerWorkerPair> childHandlers = new ArrayList<>();
-        // Inbound
-        childHandlers.add(
-                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(256, 0, 4, 0, 4)));
-        childHandlers.add(
-                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())));
-        childHandlers.add(
-                HandlerWorkerPair.of(() -> new InboundMessageValidator()));
-        // Outbound
-        childHandlers.add(
-                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())));
-        childHandlers.add(
-                HandlerWorkerPair.of(() -> new OutboundMessageValidator()));
-        // Inbound (but it makes outbound response messages)
-        childHandlers.add(
+    protected void configChildHandlers(List<HandlerWorkerPair> childHandlers) {
+        // Build up
+        List<HandlerWorkerPair> handlerWorkerPairs = List.of(
+                // Inbound
+                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(256, 0, 4, 0, 4)),
+                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.headerSpec())),
+                HandlerWorkerPair.of(() -> new InboundMessageValidator()),
+                // Outbound
+                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.headerSpec())),
+                HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
+                // Inbound (but it makes outbound response messages)
                 HandlerWorkerPair.of(() -> new RequestProcessHandler(messageSpecProvider)));
 
-        return childHandlers;
+        // Add
+        childHandlers.addAll(handlerWorkerPairs);
     }
 }

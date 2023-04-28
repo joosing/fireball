@@ -15,9 +15,9 @@ public class EncodedSubMessage {
     /**
      * contents의 길이를 명시합니다. 만약 contents가 FileRigion 타입인 경우 최종적으로 전송될 파일의 크기를 length 필드에 저장해야 합니다.
      */
-    private final long length;
+    private final int length;
 
-    public EncodedSubMessage(Object subMessage, long length) {
+    public EncodedSubMessage(Object subMessage, int length) {
         if (!(subMessage instanceof ByteBuf || subMessage instanceof FileRegion)) {
             throw new IllegalArgumentException("message must be ByteBuf or FileRegion");
         }
