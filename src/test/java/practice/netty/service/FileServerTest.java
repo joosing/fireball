@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static practice.netty.util.FileSizeUtils.megaToByte;
 
-@SpringBootTest( webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT) // application.properties: server.port={defined-port}
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT) // application.properties: server.port={defined-port}
 @Slf4j
 public class FileServerTest {
     static final String LOCAL_FILE_PATH = "local.dat";

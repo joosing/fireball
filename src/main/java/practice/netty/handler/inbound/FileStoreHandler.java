@@ -22,7 +22,6 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRxRes
          * 만일 그렇지 않으면 파일 쓰기 수행 중 채널의 모든 I/O 동작이 블락킹됩니다.
          */
         assert ctx.executor() != ctx.channel().eventLoop();
-        System.out.println(ctx.executor() + " compare to " + ctx.channel().eventLoop());
         super.channelRegistered(ctx);
     }
 
