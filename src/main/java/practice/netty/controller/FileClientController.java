@@ -25,8 +25,8 @@ public class FileClientController {
     public ResponseEntity<Void> downloadFile(@PathVariable String filePath,
                                              @RequestBody RemoteFile remoteFile) throws ExecutionException,
             InterruptedException {
-        log.info("filePath: {}", filePath);
-        log.info("remoteFileDto: {}", remoteFile);
+//        log.info("filePath: {}", filePath);
+//        log.info("remoteFileDto: {}", remoteFile);
         fileClientService.downloadFile(remoteFile, new LocalFile(filePath));
         return ResponseEntity.ok().build();
     }
@@ -36,10 +36,10 @@ public class FileClientController {
                                            @PathVariable int port,
                                            @PathVariable String filePath,
                                            @RequestBody LocalFile localFile) {
-        log.info("ip: {}", ip);
-        log.info("port: {}", port);
-        log.info("filePath: {}", filePath);
-        log.info("localFileDto: {}", localFile);
+//        log.info("ip: {}", ip);
+//        log.info("port: {}", port);
+//        log.info("filePath: {}", filePath);
+//        log.info("localFileDto: {}", localFile);
         fileClientService.uploadFile(localFile, new RemoteFile(ip, port, filePath));
         return ResponseEntity.ok().build();
     }
