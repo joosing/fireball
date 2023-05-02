@@ -1,4 +1,4 @@
-package practice.netty.bean;
+package practice.netty.runner;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
