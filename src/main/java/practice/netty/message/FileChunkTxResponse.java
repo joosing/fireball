@@ -27,7 +27,7 @@ public class FileChunkTxResponse implements Message {
     private EncodedSubMessage encodeChunkType(ByteBufAllocator allocator) {
         final ByteBuf buffer = allocator.buffer();
         buffer.writeInt(chunkType.value());
-        return new EncodedSubMessage(buffer, 1);
+        return new EncodedSubMessage(buffer, buffer.readableBytes());
     }
 
     private EncodedSubMessage encodeFileRegion(ByteBufAllocator allocator) {
