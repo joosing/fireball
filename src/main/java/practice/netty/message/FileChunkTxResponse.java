@@ -14,19 +14,19 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public class FileChunkTxResponse implements Message {
-    private final boolean endOfFile;
+    private final ChunkType chunkType;
     private final long start;
     private final int length;
     private final String filePath;
 
     @Override
     public List<EncodedSubMessage> encode(ByteBufAllocator allocator) {
-        return List.of(encodeEndOfFile(allocator), encodeFileRegion(allocator));
+        return List.of(encodeChunkType(allocator), encodeFileRegion(allocator));
     }
 
-    private EncodedSubMessage encodeEndOfFile(ByteBufAllocator allocator) {
+    private EncodedSubMessage encodeChunkType(ByteBufAllocator allocator) {
         final ByteBuf buffer = allocator.buffer();
-        buffer.writeBoolean(endOfFile);
+        buffer.writeInt(chunkType.value());
         return new EncodedSubMessage(buffer, 1);
     }
 

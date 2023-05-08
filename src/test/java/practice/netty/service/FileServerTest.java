@@ -31,7 +31,6 @@ public class FileServerTest {
         RestAssured.baseURI = BASE_URI;
         RestAssured.port = definedPort;
 
-        deleteIfExists(LOCAL_FILE_PATH);
         deleteIfExists(REMOTE_FILE_PATH);
     }
 
