@@ -17,14 +17,14 @@ import java.util.List;
 @Getter
 @Accessors(fluent = true)
 public class FileFetchRxResponse implements Message, ReferenceCounted {
-    private boolean endOfFile;
+    private final ChunkType chunkType;
     private ByteBuf fileContents;
 
     public static FileFetchRxResponse decode(ByteBuf message) {
-        boolean endOfFile = message.readBoolean();
+        int chunkType = message.readInt();
         ByteBuf fileContents = message.readRetainedSlice(message.readableBytes());
         return builder()
-                .endOfFile(endOfFile)
+                .chunkType(ChunkType.of(chunkType))
                 .fileContents(fileContents)
                 .build();
     }
@@ -32,9 +32,9 @@ public class FileFetchRxResponse implements Message, ReferenceCounted {
     @Override
     public List<EncodedSubMessage> encode(ByteBufAllocator allocator) {
         final ByteBuf buffer = allocator.directBuffer();
-        buffer.writeBoolean(endOfFile);
+        buffer.writeInt(chunkType.value());
         buffer.writeBytes(fileContents);
-        var encodedMessage = new EncodedSubMessage(buffer, 1 + fileContents.readableBytes());
+        var encodedMessage = new EncodedSubMessage(buffer, buffer.readableBytes());
         fileContents.release();
         return List.of(encodedMessage);
     }

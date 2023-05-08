@@ -3,11 +3,7 @@ package practice.netty.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import practice.netty.dto.LocalFile;
 import practice.netty.dto.RemoteFile;
 import practice.netty.service.FileClientService;
@@ -15,7 +11,7 @@ import practice.netty.service.FileClientService;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/files")
 @RequiredArgsConstructor
 public class FileClientController {

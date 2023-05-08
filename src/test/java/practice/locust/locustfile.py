@@ -1,4 +1,4 @@
-import time
+import uuid
 from locust import HttpUser, task, between
 
 
@@ -8,8 +8,8 @@ class QuickstartUser(HttpUser):
 
     @task
     def download_file(self):
-        self.client.post("/files/local/local-5.dat",
-                         json={"ip": "127.0.0.1", "port": "12345", "path": "remote-5.dat"})
+        filename = "/files/local/" + str(uuid.uuid4()) + ".dat"
+        self.client.post(filename, json={"ip": "127.0.0.1", "port": "12345", "path": "remote-5.dat"})
 
     # @task
     # def upload_file(self):

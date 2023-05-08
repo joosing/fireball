@@ -4,7 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
+import practice.netty.message.ChunkType;
 import practice.netty.message.FileFetchRxResponse;
+import practice.netty.util.AdvancedFileUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -27,6 +29,12 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRxRes
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FileFetchRxResponse response) throws Exception {
+
+        // 파일의 시작 부분이면 파일을 새로 생성
+        if (response.chunkType() == ChunkType.START_OF_FILE) {
+            AdvancedFileUtils.deleteIfExists(storePath);
+        }
+
         // 파일에 저장
         try(OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(storePath, true))) {
 
@@ -36,7 +44,8 @@ public class FileStoreHandler extends SimpleChannelInboundHandler<FileFetchRxRes
             fileContents.readBytes(outputStream, requestRead);
         }
 
-        if (response.endOfFile()) {
+        // 파일의 끝 부분이면 저장 완료 알림
+        if (response.chunkType() == ChunkType.END_OF_FILE) {
             // 저장 완료 알림
             storeCompleteListener.fileDownloadComplete(storePath);
         }
