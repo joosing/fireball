@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Chunked Transfer Encoding Example</title>
+  <script>
+    function sendRequest() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload', true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log(xhr.responseText);
+        }
+      };
+      const file = document.getElementById('file').files[0];
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const chunkSize = 65536 * 2;
+        const data = event.target.result;
+        const boundary = "------multipartformboundary" + (new Date).getTime();
+        xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+        const chunks = [];
+        let remained = data.byteLength;
+        let start = 0;
+        while (remained > 0) {
+          const length = Math.min(chunkSize, remained);
+          chunks.push(data.slice(start, start + length));
+          remained -= length;
+          start += length;
+        }
+        const blob = new Blob(chunks);
+        const formData = new FormData();
+        formData.append("file", blob, file.name);
+        xhr.send(formData);
+      }
+      reader.readAsArrayBuffer(file);
+    }
+
+    function sendRequest2() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload', true);
+      const boundary = "------multipartformboundary" + (new Date).getTime();
+      xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log(xhr.responseText);
+        }
+      };
+      const file = document.getElementById('file').files[0];
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const chunkSize = 65536 * 2;
+        const data = event.target.result;
+        const chunks = [];
+        let remained = data.byteLength;
+        let start = 0;
+        while (remained > 0) {
+          const length = Math.min(chunkSize, remained);
+          chunks.push(data.slice(start, start + length));
+          remained -= length;
+          start += length;
+        }
+        xhr.send(new Blob(chunks));
+      }
+      reader.readAsArrayBuffer(file);
+    }
+
+    function uploadFile() {
+      var fileInput = document.getElementById('fileInput');
+      var file = fileInput.files[0];
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'http://localhost:8080/upload');
+      xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log('File uploaded successfully');
+        }
+      };
+
+      var formData = new FormData();
+      formData.append('file', file);
+
+      xhr.send(formData);
+    }
+
+  </script>
+</head>
+<body>
+<h1>Chunked Transfer Encoding Example</h1>
+<form method="post" action="/upload" enctype="multipart/form-data">
+  <input type="file" name="file" />
+  <button onclick="sendRequest2()">Upload</button>
+</form>
+</body>
+</html>
