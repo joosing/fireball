@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import practice.netty.util.AdvancedFileUtils;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.stream.IntStream;
 
 import static practice.netty.util.FileSizeUtils.megaToByte;
@@ -31,14 +30,14 @@ public class FileServerTestUtils {
     @Test
     void deleteRemoteFiles() throws IOException {
         IntStream.range(0, nFile).parallel().forEach(i -> {
-            AdvancedFileUtils.deleteIfExists(Path.of(remoteFileFormat.formatted(i)));
+            AdvancedFileUtils.deleteIfExists(remoteFileFormat.formatted(i));
         });
     }
 
     @Test
     void deleteLocalFiles() throws IOException {
         IntStream.range(0, nFile).parallel().forEach(i -> {
-            AdvancedFileUtils.deleteIfExists(Path.of(localFileFormat.formatted(i)));
+            AdvancedFileUtils.deleteIfExists(localFileFormat.formatted(i));
         });
     }
 }

@@ -6,6 +6,8 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Random;
 
 @UtilityClass
@@ -65,9 +67,25 @@ public final class AdvancedFileUtils {
         return FileUtils.sizeOf(file1) == FileUtils.sizeOf(file2);
     }
 
-    public static boolean deleteIfExists(Path path) {
+    public static boolean deleteIfExists(String path) {
         try {
-            return Files.deleteIfExists(path);
+            return Files.deleteIfExists(Path.of(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 파일의 마지막 수정 시간을 가져옵니다.
+     * @param path 파일 경로
+     * @return 파일의 마지막 수정 시간
+     */
+    public static LocalDateTime getLastModifiedTime(String path) {
+        try {
+            return Files.getLastModifiedTime(Path.of(path))
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
