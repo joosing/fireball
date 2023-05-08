@@ -24,12 +24,12 @@ public class MessageSpecProvider implements EncodingIdProvider, MessageDecoderPr
 
     private void configEncodingIdManager() {
         encodingIdManager.putId(FileDownloadRequest.class, 1001);
-        encodingIdManager.putId(FileFetchRxResponse.class, 2001);
-        encodingIdManager.putId(FileChunkTxResponse.class, 2001);
+        encodingIdManager.putId(FileRxChunk.class, 2001);
+        encodingIdManager.putId(FileTxChunk.class, 2001);
     }
     private void configMessageDecoderManager() {
         messageDecoderManager.putDecoder(1001, FileDownloadRequest::decode);
-        messageDecoderManager.putDecoder(2001, FileFetchRxResponse::decode);
+        messageDecoderManager.putDecoder(2001, FileRxChunk::decode);
     }
 
     private void configRequestProcessorManager() {

@@ -11,16 +11,16 @@ import practice.netty.handler.outbound.EncodedSubMessage;
 import java.util.List;
 
 /**
- * 파일 패치 요청에 대한 응답 메시지입니다. 이 클래스는 클라이언트 측에서 응답을 수신하여 처리하기 위한 정보를 담고 있습니다.
+ * 파일을 청크 단위로 나누어 수신하기 위한 메시지입니다.
  */
 @Builder
 @Getter
 @Accessors(fluent = true)
-public class FileFetchRxResponse implements Message, ReferenceCounted {
+public class FileRxChunk implements Message, ReferenceCounted {
     private final ChunkType chunkType;
     private ByteBuf fileContents;
 
-    public static FileFetchRxResponse decode(ByteBuf message) {
+    public static FileRxChunk decode(ByteBuf message) {
         int chunkType = message.readInt();
         ByteBuf fileContents = message.readRetainedSlice(message.readableBytes());
         return builder()

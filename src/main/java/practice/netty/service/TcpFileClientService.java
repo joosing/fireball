@@ -6,21 +6,18 @@ import practice.netty.client.FileClient;
 import practice.netty.dto.LocalFile;
 import practice.netty.dto.RemoteFile;
 
-import java.util.concurrent.ExecutionException;
-
 @Service
 @RequiredArgsConstructor
 public class TcpFileClientService implements FileClientService {
     private final FileClient fileClient;
 
     @Override
-    public void downloadFile(RemoteFile remoteFile, LocalFile localFilePath) throws ExecutionException,
-            InterruptedException {
+    public void downloadFile(RemoteFile remoteFile, LocalFile localFilePath) throws Exception {
         fileClient.downloadFile(remoteFile, localFilePath).get();
     }
 
     @Override
-    public void uploadFile(LocalFile localFile, RemoteFile remoteFilePath) {
-        fileClient.uploadFile(localFile, remoteFilePath);
+    public void uploadFile(LocalFile localFile, RemoteFile remoteFilePath) throws Exception {
+        fileClient.uploadFile(localFile, remoteFilePath).get();
     }
 }

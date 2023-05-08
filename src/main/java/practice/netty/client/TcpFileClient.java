@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import practice.netty.dto.LocalFile;
 import practice.netty.dto.RemoteFile;
-import practice.netty.handler.inbound.FileDownloadCompleteListener;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreHandler;
 import practice.netty.handler.inbound.InboundMessageValidator;
@@ -18,12 +17,14 @@ import practice.netty.specification.MessageSpecProvider;
 import practice.netty.tcp.client.DefaultTcpClient;
 import practice.netty.tcp.client.TcpClient;
 import practice.netty.tcp.common.HandlerWorkerPair;
+import practice.netty.type.ThrowableRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+@SuppressWarnings("DuplicatedCode")
 @Component
 @RequiredArgsConstructor
 public class TcpFileClient implements FileClient {
@@ -41,7 +42,7 @@ public class TcpFileClient implements FileClient {
 
         // 파일 다운로드 완료 이벤트 처리 준비
         var downloadCompletable = new CompletableFuture<Void>();
-        var fileDownloadCompleteHandler = (FileDownloadCompleteListener) localFilePath -> {
+        var fileDownloadCompleteHandler = (ThrowableRunnable) () -> {
             if (tcpClient.isActive()) {
                 tcpClient.disconnect();
             }

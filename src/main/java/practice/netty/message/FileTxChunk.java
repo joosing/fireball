@@ -10,10 +10,10 @@ import java.io.File;
 import java.util.List;
 
 /**
- * 파일 패치 요청에 대한 응답 메시지입니다. 이 클래스는 서버측에서 응답을 전송하기 위해 필요한 정보를 담고 있습니다.
+ * 파일을 청크 단위로 나누어 전송하기 위한 메시지입니다.
  */
 @RequiredArgsConstructor
-public class FileChunkTxResponse implements Message {
+public class FileTxChunk implements Message {
     private final ChunkType chunkType;
     private final long start;
     private final int length;
