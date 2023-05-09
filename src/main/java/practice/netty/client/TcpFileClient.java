@@ -6,25 +6,29 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import practice.netty.dto.LocalFile;
 import practice.netty.dto.RemoteFile;
+import practice.netty.handler.inbound.FileClientStoreHandler;
 import practice.netty.handler.inbound.FileServiceDecoder;
-import practice.netty.handler.inbound.FileStoreHandler;
 import practice.netty.handler.inbound.InboundMessageValidator;
+import practice.netty.handler.inbound.ResponseSupplier;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
-import practice.netty.message.FileDownloadRequest;
+import practice.netty.handler.outbound.UserRequestProcessHandler;
+import practice.netty.message.FileDownloadProtocolRequest;
+import practice.netty.message.FileUploadUserRequest;
+import practice.netty.message.ResponseMessage;
 import practice.netty.specification.ChannelSpecProvider;
 import practice.netty.specification.MessageSpecProvider;
+import practice.netty.specification.ResponseCode;
 import practice.netty.tcp.client.DefaultTcpClient;
 import practice.netty.tcp.client.TcpClient;
 import practice.netty.tcp.common.HandlerWorkerPair;
-import practice.netty.type.ThrowableRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
-@SuppressWarnings("DuplicatedCode")
 @Component
 @RequiredArgsConstructor
 public class TcpFileClient implements FileClient {
@@ -42,7 +46,7 @@ public class TcpFileClient implements FileClient {
 
         // 파일 다운로드 완료 이벤트 처리 준비
         var downloadCompletable = new CompletableFuture<Void>();
-        var fileDownloadCompleteHandler = (ThrowableRunnable) () -> {
+        var downloadCompleteAction = (Runnable) () -> {
             if (tcpClient.isActive()) {
                 tcpClient.disconnect();
             }
@@ -55,7 +59,7 @@ public class TcpFileClient implements FileClient {
                 HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
                 HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.headerSpec())),
                 HandlerWorkerPair.of(() -> new InboundMessageValidator()),
-                HandlerWorkerPair.of(fileStoreEventLoopGroup, () -> new FileStoreHandler(localFile.getPath(), fileDownloadCompleteHandler)), // Dedicated EventLoopGroup
+                HandlerWorkerPair.of(fileStoreEventLoopGroup, () -> new FileClientStoreHandler(localFile.getPath(), downloadCompleteAction)), // Dedicated EventLoopGroup
                 // Outbound
                 HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.headerSpec())),
                 HandlerWorkerPair.of(() -> new OutboundMessageValidator())));
@@ -65,7 +69,7 @@ public class TcpFileClient implements FileClient {
         tcpClient.connect(remoteFile.getIp(), remoteFile.getPort()).get();
 
         // 파일 다운로드 요청
-        var request = FileDownloadRequest.builder()
+        var request = FileDownloadProtocolRequest.builder()
                 .remoteFilePath(remoteFile.getPath())
                 .build();
         tcpClient.send(request);
@@ -75,7 +79,48 @@ public class TcpFileClient implements FileClient {
     }
 
     @Override
-    public CompletableFuture<Void> uploadFile(LocalFile localFilePath, RemoteFile remoteFile) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public CompletableFuture<Void> uploadFile(LocalFile localFilePath, RemoteFile remoteFile) throws ExecutionException, InterruptedException {
+        // TCP 클라이언트 생성
+        TcpClient tcpClient = new DefaultTcpClient();
+
+        // 파일 업로드 완료 이벤트 처리 준비
+        var uploadCompletable = new CompletableFuture<Void>();
+        var uploadCompleteAction = (Consumer<ResponseMessage>) response -> {
+            if (tcpClient.isActive()) {
+                tcpClient.disconnect();
+            }
+            if (response.responseCode() == ResponseCode.OK) {
+                uploadCompletable.complete(null);
+            } else {
+                var errorMessage = response.responseCode().getMessage();
+                uploadCompletable.completeExceptionally(new RuntimeException(errorMessage));
+            }
+        };
+
+        // 채널 파이프라인 구성
+        var handlers = new ArrayList<>(List.of(
+                // Inbound
+                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
+                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.headerSpec())),
+                HandlerWorkerPair.of(() -> new InboundMessageValidator()),
+                HandlerWorkerPair.of(() -> new ResponseSupplier(uploadCompleteAction)),
+                // Outbound
+                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.headerSpec())),
+                HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
+                HandlerWorkerPair.of(() -> new UserRequestProcessHandler(messageSpecProvider))));
+
+        // TCP 클라이언트 생성 및 연결
+        tcpClient.init(clientEventLoopGroup, handlers);
+        tcpClient.connect(remoteFile.getIp(), remoteFile.getPort()).get();
+
+        // 파일 업로드 요청
+        var request = FileUploadUserRequest.builder()
+                .srcPath(localFilePath.getPath())
+                .dstPath(remoteFile.getPath())
+                .build();
+        tcpClient.send(request);
+
+        // 비동기 결과 반환
+        return uploadCompletable;
     }
 }

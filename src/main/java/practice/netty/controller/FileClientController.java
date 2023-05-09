@@ -1,14 +1,12 @@
 package practice.netty.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import practice.netty.dto.LocalFile;
 import practice.netty.dto.RemoteFile;
 import practice.netty.service.FileClientService;
 
-@Slf4j
 @RestController
 @RequestMapping("/files")
 @RequiredArgsConstructor

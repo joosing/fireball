@@ -12,11 +12,11 @@ class EncodingIdManager {
         classToIdMap = new HashMap<>();
     }
 
-    void putId(Class<? extends MessageEncodable> clazz, int id) {
+    void put(Class<? extends MessageEncodable> clazz, int id) {
         classToIdMap.put(clazz, id);
     }
 
-    int getId(Class<? extends MessageEncodable> clazz) {
+    int get(Class<? extends MessageEncodable> clazz) {
         if (!classToIdMap.containsKey(clazz)) {
             throw new IllegalStateException("This class is not registered in EncodingIdProvider: " + clazz);
         }

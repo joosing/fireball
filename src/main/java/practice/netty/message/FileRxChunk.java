@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import practice.netty.handler.outbound.EncodedSubMessage;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -16,15 +17,18 @@ import java.util.List;
 @Builder
 @Getter
 @Accessors(fluent = true)
-public class FileRxChunk implements Message, ReferenceCounted {
+public class FileRxChunk implements ProtocolMessage, ReferenceCounted {
     private final ChunkType chunkType;
-    private ByteBuf fileContents;
+    private final String storePath;
+    private final ByteBuf fileContents;
 
     public static FileRxChunk decode(ByteBuf message) {
         int chunkType = message.readInt();
+        String storePath = message.readCharSequence(message.readInt(), StandardCharsets.UTF_8).toString();
         ByteBuf fileContents = message.readRetainedSlice(message.readableBytes());
         return builder()
                 .chunkType(ChunkType.of(chunkType))
+                .storePath(storePath)
                 .fileContents(fileContents)
                 .build();
     }
@@ -33,6 +37,8 @@ public class FileRxChunk implements Message, ReferenceCounted {
     public List<EncodedSubMessage> encode(ByteBufAllocator allocator) {
         final ByteBuf buffer = allocator.directBuffer();
         buffer.writeInt(chunkType.value());
+        buffer.writeInt(storePath.length());
+        buffer.writeCharSequence(storePath, StandardCharsets.UTF_8);
         buffer.writeBytes(fileContents);
         var encodedMessage = new EncodedSubMessage(buffer, buffer.readableBytes());
         fileContents.release();
@@ -46,12 +52,14 @@ public class FileRxChunk implements Message, ReferenceCounted {
 
     @Override
     public ReferenceCounted retain() {
-        return fileContents.retain();
+        fileContents.retain();
+        return this;
     }
 
     @Override
     public ReferenceCounted retain(int increment) {
-        return fileContents.retain(increment);
+        fileContents.retain(increment);
+        return this;
     }
 
     /**

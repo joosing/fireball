@@ -35,12 +35,12 @@ public class FileUploadTest {
     }
 
     @Test
-    void fileDownload() throws Exception {
-        // Given: 서비스 파일 생성
+    void fileUpload() throws Exception {
+        // Given: 랜덤한 컨텐츠를 담은, 업로드 대상 파일 생성
         LocalDateTime startTime = LocalDateTime.now();
         File serviceFile = newRandomContentsFile(LOCAL_FILE_PATH, megaToByte(5));
 
-        // When: 클라이언트 측, 파일 패치 요청
+        // When: 파일 업로드 요청
         RestAssured.
                 given()
                     .contentType("application/json")
@@ -55,7 +55,7 @@ public class FileUploadTest {
                     .assertThat()
                     .statusCode(200);
 
-        // Then: 패치된 파일이 테스트 시작 이후 수정되었고, 서버 측 파일과 내용이 일치하는지 확인
+        // Then: 업로드된 파일이 테스트 시작 이후 수정되었고, 원본 파일과 업로드된 파일이 일치한다.
         var lastModifiedTime = getLastModifiedTime(REMOTE_FILE_PATH);
         assertTrue(lastModifiedTime.isAfter(startTime));
         assertTrue(contentEquals(REMOTE_FILE_PATH, LOCAL_FILE_PATH));

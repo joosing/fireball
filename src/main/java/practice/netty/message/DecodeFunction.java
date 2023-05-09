@@ -4,5 +4,5 @@ import io.netty.buffer.ByteBuf;
 
 @FunctionalInterface
 public interface DecodeFunction {
-    Message apply(ByteBuf message);
+    ProtocolMessage apply(ByteBuf message);
 }

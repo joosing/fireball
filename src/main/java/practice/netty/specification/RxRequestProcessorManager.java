@@ -1,26 +1,26 @@
 package practice.netty.specification;
 
-import practice.netty.message.Message;
-import practice.netty.processor.RequestProcessor;
+import practice.netty.message.ProtocolMessage;
+import practice.netty.processor.RxRequestProcessor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class RequestProcessorManager {
-    private final Map<Class<? extends Message>, RequestProcessor> classToProcessorMap;
+class RxRequestProcessorManager {
+    private final Map<Class<? extends ProtocolMessage>, RxRequestProcessor> classToProcessorMap;
 
-    RequestProcessorManager() {
+    RxRequestProcessorManager() {
         classToProcessorMap = new HashMap<>();
     }
 
-    RequestProcessor getRequestProcessor(Class<? extends Message> clazz) {
+    RxRequestProcessor get(Class<? extends ProtocolMessage> clazz) {
         if (!classToProcessorMap.containsKey(clazz)) {
             throw new IllegalStateException("This class is not registered in MessageSpecProvider: " + clazz);
         }
         return classToProcessorMap.get(clazz);
     }
 
-    void putRequestProcessor(Class<? extends Message> clazz, RequestProcessor processor) {
+    void put(Class<? extends ProtocolMessage> clazz, RxRequestProcessor processor) {
         classToProcessorMap.put(clazz, processor);
     }
 }
