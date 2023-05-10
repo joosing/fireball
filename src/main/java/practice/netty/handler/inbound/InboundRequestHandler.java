@@ -25,13 +25,18 @@ public class InboundRequestHandler extends SimpleChannelInboundHandler<ProtocolM
             responseBody.forEach(ctx::writeAndFlush);
             ctx.writeAndFlush(responseHeader);
         } catch (Throwable throwable) {
-            ctx.writeAndFlush(new ResponseMessage(ResponseCode.match(throwable)));
+            handleException(ctx, throwable);
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ctx.writeAndFlush(new ResponseMessage(ResponseCode.match(cause)));
-        log.error("Exception occurred while processing request", cause);
+        handleException(ctx, cause);
+    }
+
+    private static void handleException(ChannelHandlerContext ctx, Throwable throwable) {
+        log.error("Exception occurred while processing request", throwable);
+        ctx.writeAndFlush(new ResponseMessage(ResponseCode.match(throwable)));
+        ctx.close();
     }
 }
