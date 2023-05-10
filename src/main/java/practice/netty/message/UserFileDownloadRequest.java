@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class FileDownloadUserRequest implements UserMessage {
+public class UserFileDownloadRequest implements UserMessage {
     private final String remoteFilePath;
 }

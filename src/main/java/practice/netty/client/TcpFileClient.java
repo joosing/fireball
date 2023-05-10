@@ -13,9 +13,9 @@ import practice.netty.handler.inbound.ResponseSupplier;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.handler.outbound.UserRequestHandler;
-import practice.netty.message.FileDownloadProtocolRequest;
-import practice.netty.message.FileUploadUserRequest;
+import practice.netty.message.FileDownloadRequest;
 import practice.netty.message.ResponseMessage;
+import practice.netty.message.UserFileUploadRequest;
 import practice.netty.specification.ChannelSpecProvider;
 import practice.netty.specification.MessageSpecProvider;
 import practice.netty.specification.ResponseCode;
@@ -69,7 +69,7 @@ public class TcpFileClient implements FileClient {
         tcpClient.connect(remoteFile.getIp(), remoteFile.getPort()).get();
 
         // 파일 다운로드 요청
-        var request = FileDownloadProtocolRequest.builder()
+        var request = FileDownloadRequest.builder()
                 .remoteFilePath(remoteFile.getPath())
                 .build();
         tcpClient.send(request);
@@ -114,7 +114,7 @@ public class TcpFileClient implements FileClient {
         tcpClient.connect(remoteFile.getIp(), remoteFile.getPort()).get();
 
         // 파일 업로드 요청
-        var request = FileUploadUserRequest.builder()
+        var request = UserFileUploadRequest.builder()
                 .srcPath(localFilePath.getPath())
                 .dstPath(remoteFile.getPath())
                 .build();

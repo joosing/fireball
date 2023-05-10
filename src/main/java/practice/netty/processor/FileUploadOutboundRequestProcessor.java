@@ -1,8 +1,8 @@
 package practice.netty.processor;
 
 import lombok.Builder;
-import practice.netty.message.FileUploadUserRequest;
 import practice.netty.message.ProtocolMessage;
+import practice.netty.message.UserFileUploadRequest;
 import practice.netty.message.UserMessage;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public class FileUploadOutboundRequestProcessor implements OutboundRequestProces
 
     @Override
     public List<ProtocolMessage> process(UserMessage message) {
-        var userRequest = (FileUploadUserRequest) message;
+        var userRequest = (UserFileUploadRequest) message;
         return fileUploadProcessor.process(rootPath + userRequest.getSrcPath(), userRequest.getDstPath(), chunkSize);
     }
 }

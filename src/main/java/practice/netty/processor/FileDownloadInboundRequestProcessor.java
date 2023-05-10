@@ -1,7 +1,7 @@
 package practice.netty.processor;
 
 import lombok.Builder;
-import practice.netty.message.FileDownloadProtocolRequest;
+import practice.netty.message.FileDownloadRequest;
 import practice.netty.message.ProtocolMessage;
 import practice.netty.message.ResponseMessage;
 import practice.netty.specification.ResponseCode;
@@ -16,7 +16,7 @@ public class FileDownloadInboundRequestProcessor implements InboundRequestProces
 
     @Override
     public List<ProtocolMessage> process(ProtocolMessage message) {
-        var recvRequest = (FileDownloadProtocolRequest) message;
+        var recvRequest = (FileDownloadRequest) message;
         var messages = fileUploadProcessor.process(rootPath + recvRequest.getRemoteFilePath(), null, chunkSize);
         var response = new ResponseMessage(ResponseCode.OK);
         messages.add(response);

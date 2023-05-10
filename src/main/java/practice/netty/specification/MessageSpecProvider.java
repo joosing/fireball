@@ -27,14 +27,14 @@ public class MessageSpecProvider implements
     }
 
     private void configEncodingIdManager() {
-        encodingIdManager.put(FileDownloadProtocolRequest.class, 1001);
+        encodingIdManager.put(FileDownloadRequest.class, 1001);
         encodingIdManager.put(InboundFileChunk.class, 2001);
         encodingIdManager.put(OutboundFileChunk.class, 2001);
         encodingIdManager.put(ResponseMessage.class, 3001);
     }
 
     private void configMessageDecoderManager() {
-        messageDecoderManager.put(1001, FileDownloadProtocolRequest::decode);
+        messageDecoderManager.put(1001, FileDownloadRequest::decode);
         messageDecoderManager.put(2001, InboundFileChunk::decode);
         messageDecoderManager.put(3001, ResponseMessage::decode);
     }
@@ -42,7 +42,7 @@ public class MessageSpecProvider implements
     private void configInboundRequestProcessorManager() {
         // 파일 다운로드 요청 수신
         inboundRequestProcessorManager.put(
-                FileDownloadProtocolRequest.class,
+                FileDownloadRequest.class,
                 FileDownloadInboundRequestProcessor.builder()
                         .chunkSize(channelSpec.fileServerSpec().chunkSize())
                         .rootPath(channelSpec.fileServerSpec().rootPath())
@@ -59,13 +59,13 @@ public class MessageSpecProvider implements
     private void configTxRequestProcessorManager() {
         // 파일 다운로드 요청 전송 처리
         outboundRequestProcessorManager.put(
-                FileDownloadUserRequest.class,
+                UserFileDownloadRequest.class,
                 FileDownloadOutboundRequestProcessor.builder()
                         .build());
 
         // 파일 업로드 요청 전송 처리
         outboundRequestProcessorManager.put(
-                FileUploadUserRequest.class,
+                UserFileUploadRequest.class,
                 FileUploadOutboundRequestProcessor.builder()
                         .chunkSize(channelSpec.fileServerSpec().chunkSize())
                         .rootPath(channelSpec.fileServerSpec().rootPath())

@@ -1,9 +1,9 @@
 package practice.netty.processor;
 
 import lombok.Builder;
-import practice.netty.message.FileDownloadProtocolRequest;
-import practice.netty.message.FileDownloadUserRequest;
+import practice.netty.message.FileDownloadRequest;
 import practice.netty.message.ProtocolMessage;
+import practice.netty.message.UserFileDownloadRequest;
 import practice.netty.message.UserMessage;
 
 import java.util.List;
@@ -13,8 +13,8 @@ public class FileDownloadOutboundRequestProcessor implements OutboundRequestProc
 
     @Override
     public List<ProtocolMessage> process(UserMessage message) {
-        var userRequest = (FileDownloadUserRequest) message;
-        return List.of(FileDownloadProtocolRequest.builder()
+        var userRequest = (UserFileDownloadRequest) message;
+        return List.of(FileDownloadRequest.builder()
                 .remoteFilePath(userRequest.getRemoteFilePath())
                 .build());
     }
