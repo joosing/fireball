@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileUploadProcessorImpl implements FileUploadProcessor {
+public class FileChunkTransferProcessor implements FileTransferProcessor {
 
     @Override
     public List<ProtocolMessage> process(String srcPath, @Nullable String dstPath, int chunkSize) {

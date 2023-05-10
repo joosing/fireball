@@ -12,12 +12,12 @@ import java.util.List;
 public class FileDownloadInboundRequestProcessor implements InboundRequestProcessor {
     private final int chunkSize;
     private final String rootPath;
-    private final FileUploadProcessor fileUploadProcessor;
+    private final FileTransferProcessor fileTransferProcessor;
 
     @Override
     public List<ProtocolMessage> process(ProtocolMessage message) {
         var recvRequest = (FileDownloadRequest) message;
-        var messages = fileUploadProcessor.process(rootPath + recvRequest.getRemoteFilePath(), null, chunkSize);
+        var messages = fileTransferProcessor.process(rootPath + recvRequest.getRemoteFilePath(), null, chunkSize);
         var response = new ResponseMessage(ResponseCode.OK);
         messages.add(response);
         return messages;

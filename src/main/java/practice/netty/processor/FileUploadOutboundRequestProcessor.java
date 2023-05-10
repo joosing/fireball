@@ -11,11 +11,11 @@ import java.util.List;
 public class FileUploadOutboundRequestProcessor implements OutboundRequestProcessor {
     private final int chunkSize;
     private final String rootPath;
-    private final FileUploadProcessor fileUploadProcessor;
+    private final FileTransferProcessor fileTransferProcessor;
 
     @Override
     public List<ProtocolMessage> process(UserMessage message) {
         var userRequest = (UserFileUploadRequest) message;
-        return fileUploadProcessor.process(rootPath + userRequest.getSrcPath(), userRequest.getDstPath(), chunkSize);
+        return fileTransferProcessor.process(rootPath + userRequest.getSrcPath(), userRequest.getDstPath(), chunkSize);
     }
 }

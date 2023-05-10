@@ -5,6 +5,6 @@ import practice.netty.message.ProtocolMessage;
 import java.util.List;
 
 @FunctionalInterface
-public interface FileUploadProcessor {
+public interface FileTransferProcessor {
     List<ProtocolMessage> process(String srcPath, String dstPath, int chunkSize);
 }
