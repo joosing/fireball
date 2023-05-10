@@ -13,8 +13,8 @@ import practice.netty.handler.inbound.ResponseSupplier;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.handler.outbound.UserRequestHandler;
-import practice.netty.message.FileDownloadRequest;
 import practice.netty.message.ResponseMessage;
+import practice.netty.message.UserFileDownloadRequest;
 import practice.netty.message.UserFileUploadRequest;
 import practice.netty.specification.ChannelSpecProvider;
 import practice.netty.specification.MessageSpecProvider;
@@ -46,11 +46,16 @@ public class TcpFileClient implements FileClient {
 
         // 파일 다운로드 완료 이벤트 처리 준비
         var downloadCompletable = new CompletableFuture<Void>();
-        var downloadCompleteAction = (Runnable) () -> {
+        var downloadCompleteAction = (Consumer<ResponseMessage>) response -> {
             if (tcpClient.isActive()) {
                 tcpClient.disconnect();
             }
-            downloadCompletable.complete(null);
+            if (response.responseCode() == ResponseCode.OK) {
+                downloadCompletable.complete(null);
+            } else {
+                var errorMessage = response.responseCode().getMessage();
+                downloadCompletable.completeExceptionally(new RuntimeException(errorMessage));
+            }
         };
 
         // 채널 파이프라인 구성
@@ -59,17 +64,20 @@ public class TcpFileClient implements FileClient {
                 HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
                 HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.headerSpec())),
                 HandlerWorkerPair.of(() -> new InboundMessageValidator()),
-                HandlerWorkerPair.of(fileStoreEventLoopGroup, () -> new FileClientStoreHandler(localFile.getPath(), downloadCompleteAction)), // Dedicated EventLoopGroup
+                HandlerWorkerPair.of(fileStoreEventLoopGroup, () -> new FileClientStoreHandler(localFile.getPath())), // Dedicated EventLoopGroup
+                HandlerWorkerPair.of(() -> new ResponseSupplier(downloadCompleteAction)),
+
                 // Outbound
                 HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.headerSpec())),
-                HandlerWorkerPair.of(() -> new OutboundMessageValidator())));
+                HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
+                HandlerWorkerPair.of(() -> new UserRequestHandler(messageSpecProvider))));
 
         // TCP 클라이언트 생성 및 초기화
         tcpClient.init(clientEventLoopGroup, handlers);
         tcpClient.connect(remoteFile.getIp(), remoteFile.getPort()).get();
 
         // 파일 다운로드 요청
-        var request = FileDownloadRequest.builder()
+        var request = UserFileDownloadRequest.builder()
                 .remoteFilePath(remoteFile.getPath())
                 .build();
         tcpClient.send(request);

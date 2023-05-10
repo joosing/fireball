@@ -3,7 +3,6 @@ package practice.netty.handler.inbound;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import practice.netty.message.ChunkType;
 import practice.netty.message.InboundFileChunk;
 
 @RequiredArgsConstructor
@@ -13,9 +12,6 @@ public class FileServerStoreHandler extends DedicatedSimpleInboundHandler<Inboun
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, InboundFileChunk response) throws Exception {
         var targetPath = rootPath + response.storePath();
-        FileStoreAction.store(response, targetPath, null);
-        if (response.chunkType() == ChunkType.END_OF_FILE) {
-            ctx.fireChannelRead(response.retain());
-        }
+        FileStoreAction.store(response, targetPath);
     }
 }

@@ -23,11 +23,12 @@ public class MessageSpecProvider implements
         configEncodingIdManager();
         configMessageDecoderManager();
         configInboundRequestProcessorManager();
-        configTxRequestProcessorManager();
+        configOutboundRequestProcessorManager();
     }
 
     private void configEncodingIdManager() {
         encodingIdManager.put(FileDownloadRequest.class, 1001);
+        encodingIdManager.put(FileUploadRequest.class, 1002);
         encodingIdManager.put(InboundFileChunk.class, 2001);
         encodingIdManager.put(OutboundFileChunk.class, 2001);
         encodingIdManager.put(ResponseMessage.class, 3001);
@@ -35,6 +36,7 @@ public class MessageSpecProvider implements
 
     private void configMessageDecoderManager() {
         messageDecoderManager.put(1001, FileDownloadRequest::decode);
+        messageDecoderManager.put(1002, FileUploadRequest::decode);
         messageDecoderManager.put(2001, InboundFileChunk::decode);
         messageDecoderManager.put(3001, ResponseMessage::decode);
     }
@@ -51,12 +53,11 @@ public class MessageSpecProvider implements
 
         // 파일 업로드 요청 수신
         inboundRequestProcessorManager.put(
-                InboundFileChunk.class,
-                FileUploadInboundRequestProcessor.builder()
-                        .build());
+                FileUploadRequest.class,
+                EmptyBodyRetrieveProcessor.INSTANCE);
     }
 
-    private void configTxRequestProcessorManager() {
+    private void configOutboundRequestProcessorManager() {
         // 파일 다운로드 요청 전송 처리
         outboundRequestProcessorManager.put(
                 UserFileDownloadRequest.class,

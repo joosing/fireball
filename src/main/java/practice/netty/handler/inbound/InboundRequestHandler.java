@@ -12,14 +12,18 @@ import practice.netty.specification.ResponseCode;
 @Slf4j
 @RequiredArgsConstructor
 public class InboundRequestHandler extends SimpleChannelInboundHandler<ProtocolMessage> {
-    private final InboundRequestProcessorProvider requestProcessorProvider;
+    private final InboundRequestProcessorProvider processorProvider;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProtocolMessage message) {
         try {
-            var requestProcessor = requestProcessorProvider.getInboundRequestProcessor(message.getClass());
-            var responses = requestProcessor.process(message);
-            responses.forEach(ctx::writeAndFlush);
+            var requestProcessor = processorProvider.getInboundRequestProcessor(message.getClass());
+            // 응답 생성
+            var responseBody = requestProcessor.process(message);
+            var responseHeader = new ResponseMessage(ResponseCode.OK);
+            // 응답 전송
+            responseBody.forEach(ctx::writeAndFlush);
+            ctx.writeAndFlush(responseHeader);
         } catch (Throwable throwable) {
             ctx.writeAndFlush(new ResponseMessage(ResponseCode.match(throwable)));
         }

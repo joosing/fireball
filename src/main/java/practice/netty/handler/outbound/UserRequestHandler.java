@@ -15,7 +15,7 @@ public class UserRequestHandler extends ChannelOutboundHandlerAdapter {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         var userMessage = (UserMessage) msg;
         var requestProcessor = processorProvider.getOutboundRequestProcessor(userMessage.getClass());
-        var protocolMessages = requestProcessor.process(userMessage);
-        protocolMessages.forEach(ctx::writeAndFlush);
+        var messages = requestProcessor.process(userMessage);
+        messages.forEach(ctx::writeAndFlush);
     }
 }
