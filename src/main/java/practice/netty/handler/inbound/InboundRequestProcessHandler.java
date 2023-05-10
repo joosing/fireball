@@ -6,18 +6,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import practice.netty.message.ProtocolMessage;
 import practice.netty.message.ResponseMessage;
+import practice.netty.specification.InboundRequestProcessorProvider;
 import practice.netty.specification.ResponseCode;
-import practice.netty.specification.RxRequestProcessorProvider;
 
 @Slf4j
 @RequiredArgsConstructor
-public class RxRequestProcessHandler extends SimpleChannelInboundHandler<ProtocolMessage> {
-    private final RxRequestProcessorProvider requestProcessorProvider;
+public class InboundRequestProcessHandler extends SimpleChannelInboundHandler<ProtocolMessage> {
+    private final InboundRequestProcessorProvider requestProcessorProvider;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProtocolMessage message) {
         try {
-            var requestProcessor = requestProcessorProvider.getRxRequestProcessor(message.getClass());
+            var requestProcessor = requestProcessorProvider.getInboundRequestProcessor(message.getClass());
             var responses = requestProcessor.process(message);
             responses.forEach(ctx::writeAndFlush);
         } catch (Throwable throwable) {

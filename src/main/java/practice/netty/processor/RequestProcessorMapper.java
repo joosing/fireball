@@ -2,5 +2,5 @@ package practice.netty.processor;
 
 @FunctionalInterface
 public interface RequestProcessorMapper {
-    RxRequestProcessor getProcessor(String requestType);
+    InboundRequestProcessor getProcessor(String requestType);
 }

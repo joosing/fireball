@@ -9,7 +9,7 @@ import practice.netty.specification.ResponseCode;
 import java.util.List;
 
 @Builder
-public class FileDownloadRxRequestProcessor implements RxRequestProcessor {
+public class FileDownloadInboundRequestProcessor implements InboundRequestProcessor {
     private final int chunkSize;
     private final String rootPath;
     private final FileUploadProcessor fileUploadProcessor;

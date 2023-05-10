@@ -15,7 +15,7 @@ import java.util.List;
  * 파일을 청크 단위로 나누어 전송하기 위한 메시지입니다.
  */
 @RequiredArgsConstructor
-public class FileTxChunk implements ProtocolMessage {
+public class OutboundFileChunk implements ProtocolMessage {
     private final ChunkType type;
     @Nullable private final String dstPath;
     private final String srcPath;

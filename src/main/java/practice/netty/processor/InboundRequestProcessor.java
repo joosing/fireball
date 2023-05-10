@@ -6,6 +6,6 @@ import java.util.List;
 
 
 @FunctionalInterface
-public interface RxRequestProcessor {
+public interface InboundRequestProcessor {
     List<ProtocolMessage> process(ProtocolMessage message);
 }

@@ -6,6 +6,6 @@ import practice.netty.message.UserMessage;
 import java.util.List;
 
 @FunctionalInterface
-public interface TxRequestProcessor {
+public interface OutboundRequestProcessor {
     List<ProtocolMessage> process(UserMessage message);
 }

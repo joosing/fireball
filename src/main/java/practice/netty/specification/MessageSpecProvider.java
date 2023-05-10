@@ -6,67 +6,67 @@ import practice.netty.processor.*;
 
 @Component
 public class MessageSpecProvider implements
-        EncodingIdProvider, MessageDecoderProvider, RxRequestProcessorProvider, TxRequestProcessorProvider {
+        EncodingIdProvider, MessageDecoderProvider, InboundRequestProcessorProvider, OutboundRequestProcessorProvider {
 
     private final ChannelSpecProvider channelSpec;
     private final EncodingIdManager encodingIdManager;
     private final MessageDecoderManager messageDecoderManager;
-    private final RxRequestProcessorManager rxRequestProcessorManager;
-    private final TxRequestProcessorManager txRequestProcessorManager;
+    private final InboundRequestProcessorManager inboundRequestProcessorManager;
+    private final OutboundRequestProcessorManager outboundRequestProcessorManager;
 
     public MessageSpecProvider(ChannelSpecProvider channelSpec) {
         this.channelSpec = channelSpec;
         encodingIdManager = new EncodingIdManager();
         messageDecoderManager = new MessageDecoderManager();
-        rxRequestProcessorManager = new RxRequestProcessorManager();
-        txRequestProcessorManager = new TxRequestProcessorManager();
+        inboundRequestProcessorManager = new InboundRequestProcessorManager();
+        outboundRequestProcessorManager = new OutboundRequestProcessorManager();
         configEncodingIdManager();
         configMessageDecoderManager();
-        configRxRequestProcessorManager();
+        configInboundRequestProcessorManager();
         configTxRequestProcessorManager();
     }
 
     private void configEncodingIdManager() {
         encodingIdManager.put(FileDownloadProtocolRequest.class, 1001);
-        encodingIdManager.put(FileRxChunk.class, 2001);
-        encodingIdManager.put(FileTxChunk.class, 2001);
+        encodingIdManager.put(InboundFileChunk.class, 2001);
+        encodingIdManager.put(OutboundFileChunk.class, 2001);
         encodingIdManager.put(ResponseMessage.class, 3001);
     }
 
     private void configMessageDecoderManager() {
         messageDecoderManager.put(1001, FileDownloadProtocolRequest::decode);
-        messageDecoderManager.put(2001, FileRxChunk::decode);
+        messageDecoderManager.put(2001, InboundFileChunk::decode);
         messageDecoderManager.put(3001, ResponseMessage::decode);
     }
 
-    private void configRxRequestProcessorManager() {
+    private void configInboundRequestProcessorManager() {
         // 파일 다운로드 요청 수신
-        rxRequestProcessorManager.put(
+        inboundRequestProcessorManager.put(
                 FileDownloadProtocolRequest.class,
-                FileDownloadRxRequestProcessor.builder()
+                FileDownloadInboundRequestProcessor.builder()
                         .chunkSize(channelSpec.fileServerSpec().chunkSize())
                         .rootPath(channelSpec.fileServerSpec().rootPath())
                         .fileUploadProcessor(new FileUploadProcessorImpl())
                         .build());
 
         // 파일 업로드 요청 수신
-        rxRequestProcessorManager.put(
-                FileRxChunk.class,
-                FileUploadRxRequestProcessor.builder()
+        inboundRequestProcessorManager.put(
+                InboundFileChunk.class,
+                FileUploadInboundRequestProcessor.builder()
                         .build());
     }
 
     private void configTxRequestProcessorManager() {
         // 파일 다운로드 요청 전송 처리
-        txRequestProcessorManager.put(
+        outboundRequestProcessorManager.put(
                 FileDownloadUserRequest.class,
-                FileDownloadTxRequestProcessor.builder()
+                FileDownloadOutboundRequestProcessor.builder()
                         .build());
 
         // 파일 업로드 요청 전송 처리
-        txRequestProcessorManager.put(
+        outboundRequestProcessorManager.put(
                 FileUploadUserRequest.class,
-                FileUploadTxRequestProcessor.builder()
+                FileUploadOutboundRequestProcessor.builder()
                         .chunkSize(channelSpec.fileServerSpec().chunkSize())
                         .rootPath(channelSpec.fileServerSpec().rootPath())
                         .fileUploadProcessor(new FileUploadProcessorImpl())
@@ -84,12 +84,12 @@ public class MessageSpecProvider implements
     }
 
     @Override
-    public TxRequestProcessor getTxRequestProcessor(Class<? extends UserMessage> clazz) {
-        return txRequestProcessorManager.get(clazz);
+    public OutboundRequestProcessor getOutboundRequestProcessor(Class<? extends UserMessage> clazz) {
+        return outboundRequestProcessorManager.get(clazz);
     }
 
     @Override
-    public RxRequestProcessor getRxRequestProcessor(Class<? extends ProtocolMessage> clazz) {
-        return rxRequestProcessorManager.get(clazz);
+    public InboundRequestProcessor getInboundRequestProcessor(Class<? extends ProtocolMessage> clazz) {
+        return inboundRequestProcessorManager.get(clazz);
     }
 }

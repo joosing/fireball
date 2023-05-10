@@ -17,12 +17,12 @@ import java.util.List;
 @Builder
 @Getter
 @Accessors(fluent = true)
-public class FileRxChunk implements ProtocolMessage, ReferenceCounted {
+public class InboundFileChunk implements ProtocolMessage, ReferenceCounted {
     private final ChunkType chunkType;
     private final String storePath;
     private final ByteBuf fileContents;
 
-    public static FileRxChunk decode(ByteBuf message) {
+    public static InboundFileChunk decode(ByteBuf message) {
         int chunkType = message.readInt();
         String storePath = message.readCharSequence(message.readInt(), StandardCharsets.UTF_8).toString();
         ByteBuf fileContents = message.readRetainedSlice(message.readableBytes());

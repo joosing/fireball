@@ -9,7 +9,7 @@ import practice.netty.message.UserMessage;
 import java.util.List;
 
 @Builder
-public class FileDownloadTxRequestProcessor implements TxRequestProcessor {
+public class FileDownloadOutboundRequestProcessor implements OutboundRequestProcessor {
 
     @Override
     public List<ProtocolMessage> process(UserMessage message) {
