@@ -8,7 +8,7 @@ import practice.netty.message.UserMessage;
 import practice.netty.specification.OutboundRequestProcessorProvider;
 
 @RequiredArgsConstructor
-public class UserRequestProcessHandler extends ChannelOutboundHandlerAdapter {
+public class UserRequestHandler extends ChannelOutboundHandlerAdapter {
     private final OutboundRequestProcessorProvider processorProvider;
 
     @Override

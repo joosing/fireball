@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import practice.netty.handler.inbound.FileServerStoreHandler;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.InboundMessageValidator;
-import practice.netty.handler.inbound.InboundRequestProcessHandler;
+import practice.netty.handler.inbound.InboundRequestHandler;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.specification.ChannelSpecProvider;
@@ -34,7 +34,7 @@ public class TcpFileServer extends AbstractCustomServer {
                 HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.headerSpec())),
                 HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
                 // Inbound (but it makes outbound response messages)
-                HandlerWorkerPair.of(() -> new InboundRequestProcessHandler(messageSpecProvider)));
+                HandlerWorkerPair.of(() -> new InboundRequestHandler(messageSpecProvider)));
 
         // Add
         childHandlers.addAll(handlerWorkerPairs);

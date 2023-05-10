@@ -11,7 +11,7 @@ import practice.netty.specification.ResponseCode;
 
 @Slf4j
 @RequiredArgsConstructor
-public class InboundRequestProcessHandler extends SimpleChannelInboundHandler<ProtocolMessage> {
+public class InboundRequestHandler extends SimpleChannelInboundHandler<ProtocolMessage> {
     private final InboundRequestProcessorProvider requestProcessorProvider;
 
     @Override

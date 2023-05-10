@@ -12,7 +12,7 @@ import practice.netty.handler.inbound.InboundMessageValidator;
 import practice.netty.handler.inbound.ResponseSupplier;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
-import practice.netty.handler.outbound.UserRequestProcessHandler;
+import practice.netty.handler.outbound.UserRequestHandler;
 import practice.netty.message.FileDownloadProtocolRequest;
 import practice.netty.message.FileUploadUserRequest;
 import practice.netty.message.ResponseMessage;
@@ -107,7 +107,7 @@ public class TcpFileClient implements FileClient {
                 // Outbound
                 HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.headerSpec())),
                 HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
-                HandlerWorkerPair.of(() -> new UserRequestProcessHandler(messageSpecProvider))));
+                HandlerWorkerPair.of(() -> new UserRequestHandler(messageSpecProvider))));
 
         // TCP 클라이언트 생성 및 연결
         tcpClient.init(clientEventLoopGroup, handlers);
