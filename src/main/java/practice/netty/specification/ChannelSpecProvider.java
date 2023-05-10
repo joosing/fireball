@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @Accessors(fluent = true)
 @Getter
 public class ChannelSpecProvider {
-    private final FileServerSpec fileServerSpec = new FileServerSpec();
-    private final HeaderSpecProvider headerSpec = new HeaderSpecProvider();
+    private final FileServerSpec server = new FileServerSpec();
+    private final FileClientSpec client = new FileClientSpec();
+    private final HeaderSpecProvider header = new HeaderSpecProvider();
 }

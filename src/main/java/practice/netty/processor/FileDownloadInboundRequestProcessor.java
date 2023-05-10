@@ -15,7 +15,8 @@ public class FileDownloadInboundRequestProcessor implements InboundRequestProces
     @Override
     public List<ProtocolMessage> process(ProtocolMessage message) {
         var request = (FileDownloadRequest) message;
-        var srcPath = rootPath + request.getRemoteFilePath();
-        return fileTransferProcessor.process(srcPath, null, chunkSize);
+        var srcFilePath = rootPath + request.getSrcFilePath();
+        var dstFilePath = request.getDstFilePath();
+        return fileTransferProcessor.process(srcFilePath, dstFilePath, chunkSize);
     }
 }

@@ -1,7 +1,6 @@
 package practice.netty.message;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -22,8 +21,7 @@ public class ResponseMessage implements ProtocolMessage {
     }
 
     @Override
-    public List<EncodedSubMessage> encode(ByteBufAllocator allocator) {
-        var buffer = allocator.buffer();
+    public List<EncodedSubMessage> encode(ByteBuf buffer) {
         buffer.writeInt(responseCode.getCode());
         return List.of(new EncodedSubMessage(buffer, buffer.readableBytes()));
     }

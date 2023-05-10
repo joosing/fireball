@@ -17,17 +17,18 @@ public class FileUploadOutboundRequestProcessor implements OutboundRequestProces
     private final FileTransferProcessor fileTransferProcessor;
 
     @Override
-    public List<ProtocolMessage> process(UserMessage userRequest) {
-        var fileUploadRequest = (UserFileUploadRequest) userRequest;
+    public List<ProtocolMessage> process(UserMessage message) {
+        var uploadRequest = (UserFileUploadRequest) message;
 
         // 파일 청크 분할 생성
-        var srcPath = rootPath + fileUploadRequest.getSrcPath();
-        var dstPath = fileUploadRequest.getDstPath();
-        var fileChunks = fileTransferProcessor.process(srcPath, dstPath, chunkSize);
+        var srcFilePath = uploadRequest.getSrcFilePath();
+        var dstFilePath = uploadRequest.getDstFilePath();
+        var fileChunks = fileTransferProcessor.process(srcFilePath, dstFilePath, chunkSize);
 
         // 명시적 요청 헤더
         var tailHeader = FileUploadRequest.builder()
-                .remoteFilePath(dstPath)
+                .srcFilePath(srcFilePath)
+                .dstFilePath(dstFilePath)
                 .build();
 
         // 종합

@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import practice.netty.dto.LocalFile;
 import practice.netty.dto.RemoteFile;
-import practice.netty.handler.inbound.FileClientStoreHandler;
 import practice.netty.handler.inbound.FileServiceDecoder;
+import practice.netty.handler.inbound.FileStoreHandler;
 import practice.netty.handler.inbound.InboundMessageValidator;
 import practice.netty.handler.inbound.ResponseSupplier;
 import practice.netty.handler.outbound.FileServiceEncoder;
@@ -16,6 +16,7 @@ import practice.netty.handler.outbound.UserRequestHandler;
 import practice.netty.message.ResponseMessage;
 import practice.netty.message.UserFileDownloadRequest;
 import practice.netty.message.UserFileUploadRequest;
+import practice.netty.message.UserMessage;
 import practice.netty.specification.ChannelSpecProvider;
 import practice.netty.specification.MessageSpecProvider;
 import practice.netty.specification.ResponseCode;
@@ -32,103 +33,80 @@ import java.util.function.Consumer;
 @Component
 @RequiredArgsConstructor
 public class TcpFileClient implements FileClient {
-    // 이벤트루프 그룹 생성
-    private final EventLoopGroup clientEventLoopGroup;
-    private final EventLoopGroup fileStoreEventLoopGroup;
-    private final MessageSpecProvider messageSpecProvider;
-    private final ChannelSpecProvider channelSpecProvider;
+    private final EventLoopGroup clientEventLoopGroup; // 클라이언트 I/O 스레드 그룹
+    private final EventLoopGroup fileStoreEventLoopGroup; // 파일 저장 전용 스레드 그룹
+    private final MessageSpecProvider messageSpecProvider; // 메시지 스펙
+    private final ChannelSpecProvider channelSpecProvider; // 채널 스펙
 
     @Override
     public CompletableFuture<Void> downloadFile(RemoteFile remoteFile, LocalFile localFile) throws ExecutionException
             , InterruptedException {
-        // TCP 클라이언트 생성
-        TcpClient tcpClient = new DefaultTcpClient();
-
-        // 파일 다운로드 완료 이벤트 처리 준비
-        var downloadCompletable = new CompletableFuture<Void>();
-        var downloadCompleteAction = (Consumer<ResponseMessage>) response -> {
-            if (tcpClient.isActive()) {
-                tcpClient.disconnect();
-            }
-            if (response.responseCode() == ResponseCode.OK) {
-                downloadCompletable.complete(null);
-            } else {
-                var errorMessage = response.responseCode().getMessage();
-                downloadCompletable.completeExceptionally(new RuntimeException(errorMessage));
-            }
-        };
-
-        // 채널 파이프라인 구성
-        var handlers = new ArrayList<>(List.of(
-                // Inbound
-                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
-                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.headerSpec())),
-                HandlerWorkerPair.of(() -> new InboundMessageValidator()),
-                HandlerWorkerPair.of(fileStoreEventLoopGroup, () -> new FileClientStoreHandler(localFile.getPath())), // Dedicated EventLoopGroup
-                HandlerWorkerPair.of(() -> new ResponseSupplier(downloadCompleteAction)),
-
-                // Outbound
-                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.headerSpec())),
-                HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
-                HandlerWorkerPair.of(() -> new UserRequestHandler(messageSpecProvider))));
-
-        // TCP 클라이언트 생성 및 초기화
-        tcpClient.init(clientEventLoopGroup, handlers);
-        tcpClient.connect(remoteFile.getIp(), remoteFile.getPort()).get();
-
-        // 파일 다운로드 요청
-        var request = UserFileDownloadRequest.builder()
-                .remoteFilePath(remoteFile.getPath())
+        var downloadRequest = UserFileDownloadRequest.builder()
+                .srcFilePath(remoteFile.getPath())
+                .dstFilePath(localFile.getPath())
                 .build();
-        tcpClient.send(request);
-
-        // 비동기 결과 반환
-        return downloadCompletable;
+        return requestTemplate(downloadRequest, remoteFile.getIp(), remoteFile.getPort());
     }
 
     @Override
     public CompletableFuture<Void> uploadFile(LocalFile localFilePath, RemoteFile remoteFile) throws ExecutionException, InterruptedException {
+        var uploadRequest = UserFileUploadRequest.builder()
+                .srcFilePath(localFilePath.getPath())
+                .dstFilePath(remoteFile.getPath())
+                .build();
+        return requestTemplate(uploadRequest, remoteFile.getIp(), remoteFile.getPort());
+    }
+
+    private CompletableFuture<Void> requestTemplate(UserMessage request, String ip, int port) throws ExecutionException
+            , InterruptedException {
         // TCP 클라이언트 생성
         TcpClient tcpClient = new DefaultTcpClient();
 
-        // 파일 업로드 완료 이벤트 처리 준비
-        var uploadCompletable = new CompletableFuture<Void>();
-        var uploadCompleteAction = (Consumer<ResponseMessage>) response -> {
+        // 처리 완료 이벤트 준비
+        var completableFuture = new CompletableFuture<Void>();
+        var responseAction = defineResponseAction(tcpClient, completableFuture);
+
+        // 채널 파이프라인 핸들러 구성
+        var pipelineHandlers = defineChannelPipeline(responseAction);
+
+        // TCP 클라이언트 생성 및 초기화
+        tcpClient.init(clientEventLoopGroup, pipelineHandlers);
+        tcpClient.connect(ip, port).get();
+
+        // 요청 전송
+        tcpClient.send(request);
+
+        // 비동기 결과 반환
+        return completableFuture;
+    }
+
+    private List<HandlerWorkerPair> defineChannelPipeline(Consumer<ResponseMessage> transferCompleteAction) {
+        return new ArrayList<>(List.of(
+                // Inbound
+                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
+                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerWorkerPair.of(() -> new InboundMessageValidator()),
+                HandlerWorkerPair.of(fileStoreEventLoopGroup, () -> new FileStoreHandler(channelSpecProvider.client().rootPath())), // Dedicated EventLoopGroup
+                HandlerWorkerPair.of(() -> new ResponseSupplier(transferCompleteAction)),
+
+                // Outbound
+                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
+                HandlerWorkerPair.of(() -> new UserRequestHandler(messageSpecProvider))));
+    }
+
+    private static Consumer<ResponseMessage> defineResponseAction(TcpClient tcpClient, CompletableFuture<Void> completeFuture) {
+
+        return response -> {
             if (tcpClient.isActive()) {
                 tcpClient.disconnect();
             }
             if (response.responseCode() == ResponseCode.OK) {
-                uploadCompletable.complete(null);
+                completeFuture.complete(null);
             } else {
                 var errorMessage = response.responseCode().getMessage();
-                uploadCompletable.completeExceptionally(new RuntimeException(errorMessage));
+                completeFuture.completeExceptionally(new RuntimeException(errorMessage));
             }
         };
-
-        // 채널 파이프라인 구성
-        var handlers = new ArrayList<>(List.of(
-                // Inbound
-                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
-                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.headerSpec())),
-                HandlerWorkerPair.of(() -> new InboundMessageValidator()),
-                HandlerWorkerPair.of(() -> new ResponseSupplier(uploadCompleteAction)),
-                // Outbound
-                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.headerSpec())),
-                HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
-                HandlerWorkerPair.of(() -> new UserRequestHandler(messageSpecProvider))));
-
-        // TCP 클라이언트 생성 및 연결
-        tcpClient.init(clientEventLoopGroup, handlers);
-        tcpClient.connect(remoteFile.getIp(), remoteFile.getPort()).get();
-
-        // 파일 업로드 요청
-        var request = UserFileUploadRequest.builder()
-                .srcPath(localFilePath.getPath())
-                .dstPath(remoteFile.getPath())
-                .build();
-        tcpClient.send(request);
-
-        // 비동기 결과 반환
-        return uploadCompletable;
     }
 }

@@ -1,7 +1,6 @@
 package practice.netty.message;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ReferenceCounted;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,8 +33,7 @@ public class InboundFileChunk implements ProtocolMessage, ReferenceCounted {
     }
 
     @Override
-    public List<EncodedSubMessage> encode(ByteBufAllocator allocator) {
-        final ByteBuf buffer = allocator.directBuffer();
+    public List<EncodedSubMessage> encode(ByteBuf buffer) {
         buffer.writeInt(chunkType.value());
         buffer.writeInt(storePath.length());
         buffer.writeCharSequence(storePath, StandardCharsets.UTF_8);

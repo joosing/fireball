@@ -15,7 +15,8 @@ public class FileDownloadOutboundRequestProcessor implements OutboundRequestProc
     public List<ProtocolMessage> process(UserMessage message) {
         var userRequest = (UserFileDownloadRequest) message;
         return List.of(FileDownloadRequest.builder()
-                .remoteFilePath(userRequest.getRemoteFilePath())
+                .srcFilePath(userRequest.getSrcFilePath())
+                .dstFilePath(userRequest.getDstFilePath())
                 .build());
     }
 }
