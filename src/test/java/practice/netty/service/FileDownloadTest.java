@@ -45,16 +45,16 @@ public class FileDownloadTest {
                     .contentType("application/json")
                     .body("""
                             {
-                                local: {
+                                "local": {
                                     "filePath": "%s"
                                 },
-                                remote: {
+                                "remote": {
                                     "ip": "%s",
                                     "port": "%s",
                                     "filePath": "%s"
                                 }
                             }
-                            """.formatted( LOCAL_FILE_PATH, "127.0.0.1", 12345, REMOTE_FILE_PATH))
+                            """.formatted(LOCAL_FILE_PATH, "127.0.0.1", 12345, REMOTE_FILE_PATH))
                 .when()
                     .post("/download")
                 .then()

@@ -45,10 +45,10 @@ public class FileUploadTest {
                     .contentType("application/json")
                     .body("""
                             {
-                                local: {
+                                "local": {
                                     "filePath": "%s"
                                 },
-                                remote: {
+                                "remote": {
                                     "ip": "%s",
                                     "port": "%s",
                                     "filePath": "%s"
