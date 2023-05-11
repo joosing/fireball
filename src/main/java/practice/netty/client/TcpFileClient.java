@@ -4,8 +4,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import practice.netty.dto.LocalFile;
-import practice.netty.dto.RemoteFile;
+import practice.netty.dto.FileTransferDto;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreHandler;
 import practice.netty.handler.inbound.InboundMessageValidator;
@@ -39,20 +38,24 @@ public class TcpFileClient implements FileClient {
     private final ChannelSpecProvider channelSpecProvider; // 채널 스펙
 
     @Override
-    public CompletableFuture<Void> downloadFile(RemoteFile remoteFile, LocalFile localFile) throws ExecutionException
+    public CompletableFuture<Void> downloadFile(FileTransferDto fileTransferDto) throws ExecutionException
             , InterruptedException {
+        var localFile = fileTransferDto.getLocal();
+        var remoteFile = fileTransferDto.getRemote();
         var downloadRequest = UserFileDownloadRequest.builder()
-                .srcFilePath(remoteFile.getPath())
-                .dstFilePath(localFile.getPath())
+                .srcFilePath(remoteFile.getFilePath())
+                .dstFilePath(localFile.getFilePath())
                 .build();
         return requestTemplate(downloadRequest, remoteFile.getIp(), remoteFile.getPort());
     }
 
     @Override
-    public CompletableFuture<Void> uploadFile(LocalFile localFilePath, RemoteFile remoteFile) throws ExecutionException, InterruptedException {
+    public CompletableFuture<Void> uploadFile(FileTransferDto fileTransferDto) throws ExecutionException, InterruptedException {
+        var localFile = fileTransferDto.getLocal();
+        var remoteFile = fileTransferDto.getRemote();
         var uploadRequest = UserFileUploadRequest.builder()
-                .srcFilePath(localFilePath.getPath())
-                .dstFilePath(remoteFile.getPath())
+                .srcFilePath(localFile.getFilePath())
+                .dstFilePath(remoteFile.getFilePath())
                 .build();
         return requestTemplate(uploadRequest, remoteFile.getIp(), remoteFile.getPort());
     }
