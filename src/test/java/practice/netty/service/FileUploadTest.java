@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutionException;
@@ -38,7 +37,7 @@ public class FileUploadTest {
     void fileUpload() throws Exception {
         // Given: 랜덤한 컨텐츠를 담은, 업로드 대상 파일 생성
         LocalDateTime startTime = LocalDateTime.now();
-        File serviceFile = newRandomContentsFile(LOCAL_FILE_PATH, megaToByte(5));
+        newRandomContentsFile(LOCAL_FILE_PATH, megaToByte(5));
 
         // When: 파일 업로드 요청
         RestAssured.
@@ -46,11 +45,18 @@ public class FileUploadTest {
                     .contentType("application/json")
                     .body("""
                             {
-                                "path": "%s"
+                                "local": {
+                                    "filePath": "%s"
+                                },
+                                "remote": {
+                                    "ip": "%s",
+                                    "port": "%s",
+                                    "filePath": "%s"
+                                }
                             }
-                            """.formatted(LOCAL_FILE_PATH))
+                            """.formatted(LOCAL_FILE_PATH, "127.0.0.1", 12345, REMOTE_FILE_PATH))
                 .when()
-                    .post("/files/remote/{ip}/{port}/{path}", "127.0.0.1", 12345, REMOTE_FILE_PATH)
+                    .post("/upload")
                 .then()
                     .assertThat()
                     .statusCode(200);

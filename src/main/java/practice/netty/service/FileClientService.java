@@ -1,9 +1,8 @@
 package practice.netty.service;
 
-import practice.netty.dto.LocalFile;
-import practice.netty.dto.RemoteFile;
+import practice.netty.dto.FileTransferDto;
 
 public interface FileClientService {
-    void downloadFile(RemoteFile remoteFile, LocalFile localFilePath) throws Exception;
-    void uploadFile(LocalFile localFile, RemoteFile remoteFilePath) throws Exception;
+    void downloadFile(FileTransferDto fileTransferDto) throws Exception;
+    void uploadFile(FileTransferDto fileTransferDto) throws Exception;
 }
