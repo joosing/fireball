@@ -1,22 +1,22 @@
-package practice.netty.specification;
+package practice.netty.specification.message;
 
 import practice.netty.message.MessageEncodable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class EncodingIdManager {
+class ProtocolIdManager {
     private final Map<Class<? extends MessageEncodable>, Integer> classToIdMap;
 
-    EncodingIdManager() {
+    ProtocolIdManager() {
         classToIdMap = new HashMap<>();
     }
 
-    void putId(Class<? extends MessageEncodable> clazz, int id) {
+    void put(Class<? extends MessageEncodable> clazz, int id) {
         classToIdMap.put(clazz, id);
     }
 
-    int getId(Class<? extends MessageEncodable> clazz) {
+    int get(Class<? extends MessageEncodable> clazz) {
         if (!classToIdMap.containsKey(clazz)) {
             throw new IllegalStateException("This class is not registered in EncodingIdProvider: " + clazz);
         }

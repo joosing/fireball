@@ -10,11 +10,11 @@ import java.util.List;
 
 @Builder
 @Getter
-public class FileDownloadRequest implements ProtocolMessage {
+public class FileUploadRequest implements ProtocolMessage {
     private final String srcFilePath;
     private final String dstFilePath;
 
-    public static FileDownloadRequest decode(ByteBuf message) {
+    public static FileUploadRequest decode(ByteBuf message) {
         return builder()
                 .srcFilePath(message.readSlice(message.readInt()).toString(StandardCharsets.UTF_8))
                 .dstFilePath(message.readSlice(message.readInt()).toString(StandardCharsets.UTF_8))

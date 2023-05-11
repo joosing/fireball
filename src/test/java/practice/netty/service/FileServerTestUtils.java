@@ -1,5 +1,6 @@
 package practice.netty.service;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import practice.netty.util.AdvancedFileUtils;
 
@@ -9,6 +10,7 @@ import java.util.stream.IntStream;
 import static practice.netty.util.FileSizeUtils.megaToByte;
 
 @SuppressWarnings("NewClassNamingConvention")
+@Disabled("This is not a test class")
 public class FileServerTestUtils {
     static final String localFileFormat = "local%d.dat";
     static final String remoteFileFormat = "remote%d.dat";

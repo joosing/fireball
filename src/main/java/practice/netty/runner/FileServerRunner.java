@@ -5,8 +5,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import practice.netty.specification.ChannelSpecProvider;
-import practice.netty.specification.MessageSpecProvider;
+import practice.netty.specification.channel.ChannelSpecProvider;
+import practice.netty.specification.message.MessageSpecProvider;
 import practice.netty.tcp.server.TcpFileServer;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +21,7 @@ public class FileServerRunner {
     // 이벤트 루프 그룹
     private EventLoopGroup serverWorkGroup;
     private EventLoopGroup serverAcceptGroup;
+    private EventLoopGroup fileStoreGroup;
     // 서버
     @Getter private TcpFileServer server;
 
@@ -33,7 +34,8 @@ public class FileServerRunner {
         // 서버 시작
         serverWorkGroup = new NioEventLoopGroup();
         serverAcceptGroup = new NioEventLoopGroup();
-        server = new TcpFileServer(messageSpec, channelSpecProvider);
+        fileStoreGroup = new NioEventLoopGroup();
+        server = new TcpFileServer(messageSpec, channelSpecProvider, fileStoreGroup);
         server.init(serverAcceptGroup, serverWorkGroup);
         server.start(PORT).get();
 
@@ -44,5 +46,6 @@ public class FileServerRunner {
     protected void shutdown() throws InterruptedException, IOException {
         serverWorkGroup.shutdownGracefully().sync();
         serverAcceptGroup.shutdownGracefully().sync();
+        fileStoreGroup.shutdownGracefully().sync();
     }
 }

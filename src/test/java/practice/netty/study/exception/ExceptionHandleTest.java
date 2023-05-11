@@ -1,5 +1,6 @@
 package practice.netty.study.exception;
 
+import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.embedded.EmbeddedChannel;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -39,7 +40,7 @@ public class ExceptionHandleTest {
         ExceptionHandler exceptionHandler = new ExceptionHandler();
 
         channel.pipeline().addLast(
-                exceptionInboundThrowable,
+                new DefaultEventLoopGroup(), exceptionInboundThrowable,
                 exceptionHandler);
 
         channel.writeInbound("Dummy");

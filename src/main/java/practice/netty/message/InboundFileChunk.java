@@ -1,40 +1,44 @@
 package practice.netty.message;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ReferenceCounted;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import practice.netty.handler.outbound.EncodedSubMessage;
+import practice.netty.handler.outbound.EncodedPartialContents;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * 파일 패치 요청에 대한 응답 메시지입니다. 이 클래스는 클라이언트 측에서 응답을 수신하여 처리하기 위한 정보를 담고 있습니다.
+ * 파일을 청크 단위로 나누어 수신하기 위한 메시지입니다.
  */
 @Builder
 @Getter
 @Accessors(fluent = true)
-public class FileFetchRxResponse implements Message, ReferenceCounted {
+public class InboundFileChunk implements ProtocolMessage, ReferenceCounted {
     private final ChunkType chunkType;
-    private ByteBuf fileContents;
+    private final String storePath;
+    private final ByteBuf fileContents;
 
-    public static FileFetchRxResponse decode(ByteBuf message) {
+    public static InboundFileChunk decode(ByteBuf message) {
         int chunkType = message.readInt();
+        String storePath = message.readCharSequence(message.readInt(), StandardCharsets.UTF_8).toString();
         ByteBuf fileContents = message.readRetainedSlice(message.readableBytes());
         return builder()
                 .chunkType(ChunkType.of(chunkType))
+                .storePath(storePath)
                 .fileContents(fileContents)
                 .build();
     }
 
     @Override
-    public List<EncodedSubMessage> encode(ByteBufAllocator allocator) {
-        final ByteBuf buffer = allocator.directBuffer();
+    public List<EncodedPartialContents> encode(ByteBuf buffer) {
         buffer.writeInt(chunkType.value());
+        buffer.writeInt(storePath.length());
+        buffer.writeCharSequence(storePath, StandardCharsets.UTF_8);
         buffer.writeBytes(fileContents);
-        var encodedMessage = new EncodedSubMessage(buffer, buffer.readableBytes());
+        var encodedMessage = new EncodedPartialContents(buffer, buffer.readableBytes());
         fileContents.release();
         return List.of(encodedMessage);
     }
@@ -46,12 +50,14 @@ public class FileFetchRxResponse implements Message, ReferenceCounted {
 
     @Override
     public ReferenceCounted retain() {
-        return fileContents.retain();
+        fileContents.retain();
+        return this;
     }
 
     @Override
     public ReferenceCounted retain(int increment) {
-        return fileContents.retain(increment);
+        fileContents.retain(increment);
+        return this;
     }
 
     /**

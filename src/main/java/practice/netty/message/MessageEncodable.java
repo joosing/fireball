@@ -1,11 +1,11 @@
 package practice.netty.message;
 
-import io.netty.buffer.ByteBufAllocator;
-import practice.netty.handler.outbound.EncodedSubMessage;
+import io.netty.buffer.ByteBuf;
+import practice.netty.handler.outbound.EncodedPartialContents;
 
 import java.util.List;
 
 @FunctionalInterface
 public interface MessageEncodable {
-    List<EncodedSubMessage> encode(ByteBufAllocator allocator);
+    List<EncodedPartialContents> encode(ByteBuf buffer);
 }

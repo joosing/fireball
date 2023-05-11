@@ -18,7 +18,7 @@ import static practice.netty.util.FileSizeUtils.megaToByte;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT) // application.properties: server.port={defined-port}
 @Slf4j
-public class FileServerTest {
+public class FileDownloadTest {
     static final String LOCAL_FILE_PATH = "local.dat";
     static final String REMOTE_FILE_PATH = "remote.dat";
     static final String BASE_URI = "http://localhost";

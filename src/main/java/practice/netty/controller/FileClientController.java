@@ -1,16 +1,12 @@
 package practice.netty.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import practice.netty.dto.LocalFile;
 import practice.netty.dto.RemoteFile;
 import practice.netty.service.FileClientService;
 
-import java.util.concurrent.ExecutionException;
-
-@Slf4j
 @RestController
 @RequestMapping("/files")
 @RequiredArgsConstructor
@@ -19,10 +15,7 @@ public class FileClientController {
 
     @PostMapping("/local/{filePath}")
     public ResponseEntity<Void> downloadFile(@PathVariable String filePath,
-                                             @RequestBody RemoteFile remoteFile) throws ExecutionException,
-            InterruptedException {
-//        log.info("filePath: {}", filePath);
-//        log.info("remoteFileDto: {}", remoteFile);
+                                             @RequestBody RemoteFile remoteFile) throws Exception {
         fileClientService.downloadFile(remoteFile, new LocalFile(filePath));
         return ResponseEntity.ok().build();
     }
@@ -31,11 +24,7 @@ public class FileClientController {
     public ResponseEntity<Void> uploadFile(@PathVariable String ip,
                                            @PathVariable int port,
                                            @PathVariable String filePath,
-                                           @RequestBody LocalFile localFile) {
-//        log.info("ip: {}", ip);
-//        log.info("port: {}", port);
-//        log.info("filePath: {}", filePath);
-//        log.info("localFileDto: {}", localFile);
+                                           @RequestBody LocalFile localFile) throws Exception {
         fileClientService.uploadFile(localFile, new RemoteFile(ip, port, filePath));
         return ResponseEntity.ok().build();
     }
