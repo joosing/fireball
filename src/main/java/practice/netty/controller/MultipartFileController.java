@@ -19,12 +19,12 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 public class MultipartFileController {
 
-    @GetMapping("/")
+    @GetMapping("/multipart")
     public String homepage() {
         return "file-service.html";
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/multipart/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes attributes) {
 
         // check if file is empty
