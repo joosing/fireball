@@ -2,7 +2,7 @@ package practice.netty.message;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.DefaultFileRegion;
-import practice.netty.handler.outbound.EncodedSubMessage;
+import practice.netty.handler.outbound.EncodedPartialContents;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -30,19 +30,19 @@ public class OutboundFileChunk implements ProtocolMessage {
 
 
     @Override
-    public List<EncodedSubMessage> encode(ByteBuf buffer) {
+    public List<EncodedPartialContents> encode(ByteBuf buffer) {
         return List.of(encodeHeader(buffer), encodeFile());
     }
 
-    private EncodedSubMessage encodeHeader(ByteBuf buffer) {
+    private EncodedPartialContents encodeHeader(ByteBuf buffer) {
         buffer.writeInt(type.value());
         buffer.writeInt(dstPath.length());
         buffer.writeCharSequence(dstPath, StandardCharsets.UTF_8);
-        return new EncodedSubMessage(buffer, buffer.readableBytes());
+        return new EncodedPartialContents(buffer, buffer.readableBytes());
     }
 
-    private EncodedSubMessage encodeFile() {
-        return new EncodedSubMessage(new DefaultFileRegion(new File(srcPath), index, length), length);
+    private EncodedPartialContents encodeFile() {
+        return new EncodedPartialContents(new DefaultFileRegion(new File(srcPath), index, length), length);
     }
 
     @Override

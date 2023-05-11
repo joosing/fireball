@@ -31,15 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-/local.dat
-/local-file.dat
-/remote.dat
-/remote-10.dat
-/remote-100.dat
-/remote-5.dat
-/remote-1000.dat
-/hello-1gb.dat
-/local-100.dat
-/local-1000.dat
-/Locust.png
-/local-5.dat
+/files/*
+*.dat
+*.png

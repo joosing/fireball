@@ -5,7 +5,7 @@ import io.netty.util.ReferenceCounted;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import practice.netty.handler.outbound.EncodedSubMessage;
+import practice.netty.handler.outbound.EncodedPartialContents;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -33,12 +33,12 @@ public class InboundFileChunk implements ProtocolMessage, ReferenceCounted {
     }
 
     @Override
-    public List<EncodedSubMessage> encode(ByteBuf buffer) {
+    public List<EncodedPartialContents> encode(ByteBuf buffer) {
         buffer.writeInt(chunkType.value());
         buffer.writeInt(storePath.length());
         buffer.writeCharSequence(storePath, StandardCharsets.UTF_8);
         buffer.writeBytes(fileContents);
-        var encodedMessage = new EncodedSubMessage(buffer, buffer.readableBytes());
+        var encodedMessage = new EncodedPartialContents(buffer, buffer.readableBytes());
         fileContents.release();
         return List.of(encodedMessage);
     }

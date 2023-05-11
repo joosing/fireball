@@ -3,7 +3,7 @@ package practice.netty.message;
 import io.netty.buffer.ByteBuf;
 import lombok.Builder;
 import lombok.Getter;
-import practice.netty.handler.outbound.EncodedSubMessage;
+import practice.netty.handler.outbound.EncodedPartialContents;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -22,12 +22,12 @@ public class FileDownloadRequest implements ProtocolMessage {
     }
 
     @Override
-    public List<EncodedSubMessage> encode(ByteBuf buffer) {
+    public List<EncodedPartialContents> encode(ByteBuf buffer) {
         buffer.writeInt(srcFilePath.length());
         buffer.writeCharSequence(srcFilePath, StandardCharsets.UTF_8);
         buffer.writeInt(dstFilePath.length());
         buffer.writeCharSequence(dstFilePath, StandardCharsets.UTF_8);
-        return List.of(new EncodedSubMessage(buffer, buffer.readableBytes()));
+        return List.of(new EncodedPartialContents(buffer, buffer.readableBytes()));
     }
 
     @Override

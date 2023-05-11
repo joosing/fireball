@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-import practice.netty.handler.outbound.EncodedSubMessage;
+import practice.netty.handler.outbound.EncodedPartialContents;
 import practice.netty.specification.response.ResponseCode;
 
 import java.util.List;
@@ -21,8 +21,8 @@ public class ResponseMessage implements ProtocolMessage {
     }
 
     @Override
-    public List<EncodedSubMessage> encode(ByteBuf buffer) {
+    public List<EncodedPartialContents> encode(ByteBuf buffer) {
         buffer.writeInt(responseCode.getCode());
-        return List.of(new EncodedSubMessage(buffer, buffer.readableBytes()));
+        return List.of(new EncodedPartialContents(buffer, buffer.readableBytes()));
     }
 }
