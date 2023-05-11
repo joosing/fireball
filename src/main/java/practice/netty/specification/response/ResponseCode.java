@@ -1,4 +1,4 @@
-package practice.netty.specification;
+package practice.netty.specification.response;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -9,7 +9,7 @@ import practice.netty.handler.inbound.InboundMessageValidator;
 import practice.netty.handler.inbound.InboundRequestHandler;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
-import practice.netty.specification.ChannelSpecProvider;
+import practice.netty.specification.channel.ChannelSpecProvider;
 import practice.netty.specification.message.MessageSpecProvider;
 import practice.netty.tcp.common.HandlerWorkerPair;
 

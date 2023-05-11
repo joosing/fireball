@@ -1,4 +1,4 @@
-package practice.netty.specification;
+package practice.netty.specification.channel;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;

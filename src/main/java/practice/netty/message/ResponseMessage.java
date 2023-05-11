@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import practice.netty.handler.outbound.EncodedSubMessage;
-import practice.netty.specification.ResponseCode;
+import practice.netty.specification.response.ResponseCode;
 
 import java.util.List;
 

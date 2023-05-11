@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
-import practice.netty.specification.HeaderSpecProvider;
+import practice.netty.specification.channel.HeaderSpecProvider;
 import practice.netty.specification.message.MessageDecoderProvider;
 
 @RequiredArgsConstructor

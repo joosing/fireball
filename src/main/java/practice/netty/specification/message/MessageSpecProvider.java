@@ -3,7 +3,7 @@ package practice.netty.specification.message;
 import org.springframework.stereotype.Component;
 import practice.netty.message.*;
 import practice.netty.processor.*;
-import practice.netty.specification.ChannelSpecProvider;
+import practice.netty.specification.channel.ChannelSpecProvider;
 
 /**
  * 메시지 처리에 필요한 함수와 데이터를 제공합니다.

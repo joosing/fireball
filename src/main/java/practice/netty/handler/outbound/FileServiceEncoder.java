@@ -6,7 +6,7 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import lombok.RequiredArgsConstructor;
 import practice.netty.message.MessageEncodable;
-import practice.netty.specification.HeaderSpecProvider;
+import practice.netty.specification.channel.HeaderSpecProvider;
 import practice.netty.specification.message.ProtocolIdProvider;
 
 import java.util.List;

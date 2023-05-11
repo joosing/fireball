@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import practice.netty.message.ProtocolMessage;
 import practice.netty.message.ResponseMessage;
-import practice.netty.specification.ResponseCode;
 import practice.netty.specification.message.InboundRequestProcessorProvider;
+import practice.netty.specification.response.ResponseCode;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package practice.netty.specification;
+package practice.netty.specification.channel;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;

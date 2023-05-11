@@ -5,7 +5,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import practice.netty.specification.ChannelSpecProvider;
+import practice.netty.specification.channel.ChannelSpecProvider;
 import practice.netty.specification.message.MessageSpecProvider;
 import practice.netty.tcp.server.TcpFileServer;
 
