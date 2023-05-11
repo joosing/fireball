@@ -6,15 +6,15 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import lombok.RequiredArgsConstructor;
 import practice.netty.message.MessageEncodable;
-import practice.netty.specification.EncodingIdProvider;
 import practice.netty.specification.HeaderSpecProvider;
+import practice.netty.specification.message.ProtocolIdProvider;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
-    private final EncodingIdProvider idProvider;
+    private final ProtocolIdProvider idProvider;
     private final HeaderSpecProvider headerSpecProvider;
 
     @Override
@@ -38,7 +38,7 @@ public class FileServiceEncoder extends ChannelOutboundHandlerAdapter {
     private ByteBuf buildHeader(ByteBuf header, List<EncodedSubMessage> messages, Class<? extends MessageEncodable> clazz) {
         // 필드 값 획득
         var length = messages.stream().mapToInt(EncodedSubMessage::length).sum() + headerSpecProvider.id().length();
-        var id = idProvider.getId(clazz);
+        var id = idProvider.getProtocolId(clazz);
         // 버퍼에 필드 값 쓰기
         headerSpecProvider.length().writeFunc(header, length);
         headerSpecProvider.id().writeFunc(header, id);

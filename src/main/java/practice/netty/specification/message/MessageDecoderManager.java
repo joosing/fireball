@@ -1,10 +1,13 @@
-package practice.netty.specification;
+package practice.netty.specification.message;
 
 import practice.netty.message.DecodeFunction;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ */
 class MessageDecoderManager {
     private final Map<Integer, DecodeFunction> idToDecoderMap;
 

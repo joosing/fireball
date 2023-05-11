@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import practice.netty.specification.ChannelSpecProvider;
-import practice.netty.specification.MessageSpecProvider;
+import practice.netty.specification.message.MessageSpecProvider;
 import practice.netty.tcp.server.TcpFileServer;
 
 import javax.annotation.PostConstruct;

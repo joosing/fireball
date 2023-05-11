@@ -1,4 +1,4 @@
-package practice.netty.specification;
+package practice.netty.specification.message;
 
 import practice.netty.message.ProtocolMessage;
 import practice.netty.processor.InboundRequestProcessor;

@@ -1,14 +1,14 @@
-package practice.netty.specification;
+package practice.netty.specification.message;
 
 import practice.netty.message.MessageEncodable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class EncodingIdManager {
+class ProtocolIdManager {
     private final Map<Class<? extends MessageEncodable>, Integer> classToIdMap;
 
-    EncodingIdManager() {
+    ProtocolIdManager() {
         classToIdMap = new HashMap<>();
     }
 

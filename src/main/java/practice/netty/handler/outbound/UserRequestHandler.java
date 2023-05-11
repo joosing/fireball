@@ -5,7 +5,7 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import lombok.RequiredArgsConstructor;
 import practice.netty.message.UserMessage;
-import practice.netty.specification.OutboundRequestProcessorProvider;
+import practice.netty.specification.message.OutboundRequestProcessorProvider;
 
 @RequiredArgsConstructor
 public class UserRequestHandler extends ChannelOutboundHandlerAdapter {
