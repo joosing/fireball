@@ -4,6 +4,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import practice.netty.configuration.ClientEventLoopGroupConfig;
 import practice.netty.dto.FileTransferDto;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreHandler;
@@ -23,6 +24,7 @@ import practice.netty.tcp.client.DefaultTcpClient;
 import practice.netty.tcp.client.TcpClient;
 import practice.netty.tcp.common.HandlerWorkerPair;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -32,10 +34,17 @@ import java.util.function.Consumer;
 @Component
 @RequiredArgsConstructor
 public class TcpFileClient implements FileClient {
-    private final EventLoopGroup clientEventLoopGroup; // 클라이언트 I/O 스레드 그룹
-    private final EventLoopGroup fileStoreEventLoopGroup; // 파일 저장 전용 스레드 그룹
+    private final ClientEventLoopGroupConfig eventLoopGroupConfig;
     private final MessageSpecProvider messageSpecProvider; // 메시지 스펙
     private final ChannelSpecProvider channelSpecProvider; // 채널 스펙
+    private EventLoopGroup clientEventLoopGroup; // 클라이언트 I/O 스레드 그룹
+    private EventLoopGroup fileStoreEventLoopGroup; // 파일 저장 전용 스레드 그룹
+
+    @PostConstruct
+    public void setUp() {
+        clientEventLoopGroup = eventLoopGroupConfig.channelIoEventLoopGroup();
+        fileStoreEventLoopGroup = eventLoopGroupConfig.fileStoreEventLoopGroup();
+    }
 
     @Override
     public CompletableFuture<Void> downloadFile(FileTransferDto fileTransferDto) throws ExecutionException

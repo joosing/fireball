@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "fireball.io.clientThreads",
+      "type": "java.lang.String",
+      "description": "Description for fireball.io.clientThreads."
+    },
+    {
+      "name": "fireball.io.ioThread.number",
+      "type": "java.lang.String",
+      "description": "Description for fireball.io.ioThread.number."
+    }
+  ] }
