@@ -18,22 +18,20 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class FileServerRunner {
     private final ServerEventLoopGroupConfig eventLoopGroupConfig;
+    private final ChannelSpecProvider channelSpecProvider;
+    private final MessageSpecProvider messageSpecProvider;
     private static final int PORT = 12345;
     // 서버
     @Getter private TcpFileServer server;
 
     @PostConstruct
     protected void start() throws ExecutionException, InterruptedException, IOException {
-        // 스펙
-        ChannelSpecProvider channelSpecProvider = new ChannelSpecProvider();
-        MessageSpecProvider messageSpec = new MessageSpecProvider(channelSpecProvider);
-
         // 이벤트루프 그룹
         var bossGroup = eventLoopGroupConfig.bossEventLoopGroup();
         var channelIoGroup = eventLoopGroupConfig.ioEventLoopGroup();
         var fileStoreGroup = eventLoopGroupConfig.fileStoreEventLoopGroup();
         // 서버 시작
-        server = new TcpFileServer(messageSpec, channelSpecProvider, fileStoreGroup);
+        server = new TcpFileServer(messageSpecProvider, channelSpecProvider, fileStoreGroup);
         server.init(bossGroup, channelIoGroup);
         server.start(PORT).get();
 
