@@ -17,46 +17,46 @@ import java.util.List;
 @Getter
 @Accessors(fluent = true)
 public class InboundFileChunk implements ProtocolMessage, ReferenceCounted {
-    private final ChunkType chunkType;
+    private final ChunkType type;
     private final String storePath;
-    private final ByteBuf fileContents;
+    private final ByteBuf contents;
 
     public static InboundFileChunk decode(ByteBuf message) {
         int chunkType = message.readInt();
         String storePath = message.readCharSequence(message.readInt(), StandardCharsets.UTF_8).toString();
         ByteBuf fileContents = message.readRetainedSlice(message.readableBytes());
         return builder()
-                .chunkType(ChunkType.of(chunkType))
+                .type(ChunkType.of(chunkType))
                 .storePath(storePath)
-                .fileContents(fileContents)
+                .contents(fileContents)
                 .build();
     }
 
     @Override
     public List<EncodedPartialContents> encode(ByteBuf buffer) {
-        buffer.writeInt(chunkType.value());
+        buffer.writeInt(type.value());
         buffer.writeInt(storePath.length());
         buffer.writeCharSequence(storePath, StandardCharsets.UTF_8);
-        buffer.writeBytes(fileContents);
+        buffer.writeBytes(contents);
         var encodedMessage = new EncodedPartialContents(buffer, buffer.readableBytes());
-        fileContents.release();
+        contents.release();
         return List.of(encodedMessage);
     }
 
     @Override
     public int refCnt() {
-        return fileContents.refCnt();
+        return contents.refCnt();
     }
 
     @Override
     public ReferenceCounted retain() {
-        fileContents.retain();
+        contents.retain();
         return this;
     }
 
     @Override
     public ReferenceCounted retain(int increment) {
-        fileContents.retain(increment);
+        contents.retain(increment);
         return this;
     }
 
@@ -80,11 +80,11 @@ public class InboundFileChunk implements ProtocolMessage, ReferenceCounted {
 
     @Override
     public boolean release() {
-        return fileContents.release();
+        return contents.release();
     }
 
     @Override
     public boolean release(int decrement) {
-        return fileContents.release(decrement);
+        return contents.release(decrement);
     }
 }

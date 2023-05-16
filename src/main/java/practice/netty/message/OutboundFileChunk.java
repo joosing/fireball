@@ -42,7 +42,8 @@ public class OutboundFileChunk implements ProtocolMessage {
     }
 
     private EncodedPartialContents encodeFile() {
-        return new EncodedPartialContents(new DefaultFileRegion(new File(srcPath), index, length), length);
+        var fileRegion = new DefaultFileRegion(new File(srcPath), index, length);
+        return new EncodedPartialContents(fileRegion, length);
     }
 
     @Override

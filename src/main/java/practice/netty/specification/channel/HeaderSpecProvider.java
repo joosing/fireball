@@ -3,10 +3,12 @@ package practice.netty.specification.channel;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.springframework.stereotype.Component;
 
 @Getter
 @Accessors(fluent = true)
 @SuppressWarnings("FieldMayBeStatic")
+@Component
 public class HeaderSpecProvider {
     private final IdSpec id = new IdSpec();
     private final LengthSpec length = new LengthSpec();
