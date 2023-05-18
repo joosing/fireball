@@ -1,0 +1,10 @@
+# 기본 컨테이너
+FROM eclipse-temurin:17-jdk-jammy
+
+ARG TARGET_JAR_FILE=file-service-0.0.1.jar
+ARG JAVA_OPTS_BUILD="-Xms1g -Xmx4g"
+ENV JAVA_OPTS_RUN=$JAVA_OPTS_BUILD
+
+WORKDIR /app
+COPY ./target/$TARGET_JAR_FILE ./
+ENTRYPOINT java $JAVA_OPTS_RUN -jar $TARGET_JAR_FILE
