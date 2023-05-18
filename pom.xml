@@ -10,8 +10,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>practice.netty</groupId>
-	<artifactId>practice-netty</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>file-service</artifactId>
+	<version>0.0.1</version>
 	<name>practice-netty</name>
 	<description>project for netty hard practice</description>
 	<properties>
@@ -95,7 +95,12 @@
 		   <artifactId>rest-assured-all</artifactId>
 		   <version>5.3.0</version>
 		   <scope>test</scope>
-		</dependency><dependency><groupId>junit</groupId><artifactId>junit</artifactId><scope>test</scope></dependency>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -108,4 +113,12 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
