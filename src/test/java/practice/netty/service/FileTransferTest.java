@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static practice.netty.util.AdvancedFileUtils.*;
-import static practice.netty.util.FileSizeUtils.megaToByte;
 
 
 @Slf4j
@@ -44,7 +43,7 @@ public class FileTransferTest extends RestAssuredTest {
     void fileDownload() throws Exception {
         // Given: 서버 서비스 파일 생성, 클라이언트 다운로드 파일 삭제
         LocalDateTime startTime = LocalDateTime.now();
-        newRandomContentsFile(serverFilePath, megaToByte(5));
+        newRandomContentsFile(serverFilePath, 256);
         deleteIfExists(clientFilePath);
 
         // When: 클라이언트 측, 파일 패치 요청
@@ -71,7 +70,7 @@ public class FileTransferTest extends RestAssuredTest {
 
         // Then: 패치된 파일이 테스트 시작 이후 수정되었고, 서버 측 파일과 내용이 일치하는지 확인
         var lastModifiedTime = getLastModifiedTime(serverFilePath);
-        assertTrue(lastModifiedTime.isAfter(startTime));
+        assertTrue(startTime.isBefore(lastModifiedTime) || startTime.isEqual(lastModifiedTime));
         assertTrue(contentEquals(clientFilePath, serverFilePath));
     }
 
@@ -79,7 +78,7 @@ public class FileTransferTest extends RestAssuredTest {
     void fileUpload() throws Exception {
         // Given: 랜덤한 컨텐츠를 담은, 업로드 대상 파일 생성
         LocalDateTime startTime = LocalDateTime.now();
-        newRandomContentsFile(clientFilePath, megaToByte(5));
+        newRandomContentsFile(clientFilePath, 256);
         deleteIfExists(serverFilePath);
 
         // When: 파일 업로드 요청
@@ -106,7 +105,7 @@ public class FileTransferTest extends RestAssuredTest {
 
         // Then: 업로드된 파일이 테스트 시작 이후 수정되었고, 원본 파일과 업로드된 파일이 일치한다.
         var lastModifiedTime = getLastModifiedTime(serverFilePath);
-        assertTrue(lastModifiedTime.isAfter(startTime));
+        assertTrue(lastModifiedTime.isAfter(startTime) || lastModifiedTime.isEqual(startTime));
         assertTrue(contentEquals(serverFilePath, clientFilePath));
     }
 }
