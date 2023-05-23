@@ -24,7 +24,7 @@ jobs:
         cache: 'maven'
 
     - name: Run tests
-      run: mvn test -pl 'src/test/java/practice/netty'
+      run: mvn test -pl 'practice/netty/service'
 
     - name: Check test results
       run: |
