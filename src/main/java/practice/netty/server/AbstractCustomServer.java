@@ -1,11 +1,11 @@
-package practice.netty.tcp.server;
+package practice.netty.server;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import org.springframework.lang.Nullable;
-import practice.netty.tcp.common.HandlerWorkerPair;
+import practice.netty.common.HandlerWorkerPair;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;

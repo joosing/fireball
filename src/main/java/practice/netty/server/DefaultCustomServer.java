@@ -1,6 +1,6 @@
-package practice.netty.tcp.server;
+package practice.netty.server;
 
-import practice.netty.tcp.common.HandlerWorkerPair;
+import practice.netty.common.HandlerWorkerPair;
 
 import java.util.List;
 

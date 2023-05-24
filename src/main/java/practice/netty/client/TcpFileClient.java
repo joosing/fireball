@@ -4,6 +4,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import practice.netty.common.HandlerWorkerPair;
 import practice.netty.configuration.ClientEventLoopGroupConfig;
 import practice.netty.dto.FileTransferDto;
 import practice.netty.handler.inbound.FileServiceDecoder;
@@ -22,7 +23,6 @@ import practice.netty.specification.message.MessageSpecProvider;
 import practice.netty.specification.response.ResponseCode;
 import practice.netty.tcp.client.DefaultTcpClient;
 import practice.netty.tcp.client.TcpClient;
-import practice.netty.tcp.common.HandlerWorkerPair;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package practice.netty.tcp.common;
+package practice.netty.common;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;

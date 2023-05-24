@@ -1,8 +1,9 @@
-package practice.netty.tcp.server;
+package practice.netty.server;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
+import practice.netty.common.HandlerWorkerPair;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreHandler;
 import practice.netty.handler.inbound.InboundMessageValidator;
@@ -11,7 +12,6 @@ import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.specification.channel.ChannelSpecProvider;
 import practice.netty.specification.message.MessageSpecProvider;
-import practice.netty.tcp.common.HandlerWorkerPair;
 
 import java.util.List;
 

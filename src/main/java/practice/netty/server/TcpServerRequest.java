@@ -1,4 +1,4 @@
-package practice.netty.tcp.server;
+package practice.netty.server;
 
 import org.springframework.lang.Nullable;
 

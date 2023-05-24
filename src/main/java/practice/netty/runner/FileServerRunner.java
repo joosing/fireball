@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import practice.netty.configuration.ServerEventLoopGroupConfig;
+import practice.netty.server.TcpFileServer;
 import practice.netty.specification.channel.ChannelSpecProvider;
 import practice.netty.specification.message.MessageSpecProvider;
-import practice.netty.tcp.server.TcpFileServer;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;

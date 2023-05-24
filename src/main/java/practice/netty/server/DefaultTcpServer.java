@@ -1,12 +1,12 @@
-package practice.netty.tcp.server;
+package practice.netty.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.springframework.lang.Nullable;
+import practice.netty.common.HandlerWorkerPair;
 import practice.netty.handler.inbound.ClientActiveNotifier;
 import practice.netty.handler.inbound.ReadDataUpdater;
-import practice.netty.tcp.common.HandlerWorkerPair;
 import practice.netty.util.ChannelAccessUtils;
 
 import java.net.SocketAddress;

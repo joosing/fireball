@@ -1,4 +1,4 @@
-package practice.netty.tcp.server;
+package practice.netty.server;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
