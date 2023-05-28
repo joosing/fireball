@@ -1,12 +1,11 @@
 package practice.netty.client;
 
-import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import practice.netty.common.HandlerWorkerPair;
-import practice.netty.configuration.ClientEventLoopGroupConfig;
 import practice.netty.dto.FileTransferDto;
+import practice.netty.eventloop.ClientEventLoopGroupManager;
 import practice.netty.handler.inbound.CompleteResponseNotifier;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreHandler;
@@ -22,7 +21,6 @@ import practice.netty.specification.message.MessageSpecProvider;
 import practice.netty.tcp.client.DefaultTcpClient;
 import practice.netty.tcp.client.TcpClient;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -31,17 +29,9 @@ import java.util.concurrent.ExecutionException;
 @Component
 @RequiredArgsConstructor
 public class TcpFileClient implements FileClient {
-    private final ClientEventLoopGroupConfig eventLoopGroupConfig;
-    private final MessageSpecProvider messageSpecProvider; // 메시지 스펙
-    private final ChannelSpecProvider channelSpecProvider; // 채널 스펙
-    private EventLoopGroup clientEventLoopGroup; // 클라이언트 I/O 스레드 그룹
-    private EventLoopGroup fileStoreEventLoopGroup; // 파일 저장 전용 스레드 그룹
-
-    @PostConstruct
-    public void setUp() {
-        clientEventLoopGroup = eventLoopGroupConfig.channelIoEventLoopGroup();
-        fileStoreEventLoopGroup = eventLoopGroupConfig.fileStoreEventLoopGroup();
-    }
+    private final ClientEventLoopGroupManager eventLoopGroupManager;
+    private final MessageSpecProvider messageSpecProvider;
+    private final ChannelSpecProvider channelSpecProvider;
 
     @Override
     public CompletableFuture<Void> downloadFile(FileTransferDto fileTransferDto) throws ExecutionException
@@ -73,7 +63,7 @@ public class TcpFileClient implements FileClient {
 
         // Make a connection
         TcpClient tcpClient = new DefaultTcpClient();
-        tcpClient.init(clientEventLoopGroup, pipelineHandlers);
+        tcpClient.init(eventLoopGroupManager.channelIo(), pipelineHandlers);
         tcpClient.connect(ip, port).get();
 
         // Set to close the connection when the response is complete
@@ -96,7 +86,7 @@ public class TcpFileClient implements FileClient {
                 HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
                 HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
                 HandlerWorkerPair.of(() -> new InboundMessageValidator()),
-                HandlerWorkerPair.of(fileStoreEventLoopGroup, () -> new FileStoreHandler(channelSpecProvider.client().rootPath())), // Dedicated EventLoopGroup
+                HandlerWorkerPair.of(eventLoopGroupManager.fireStore(), () -> new FileStoreHandler(channelSpecProvider.client().rootPath())), // Dedicated EventLoopGroup
                 // Outbound
                 HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
                 HandlerWorkerPair.of(() -> new OutboundMessageValidator()),

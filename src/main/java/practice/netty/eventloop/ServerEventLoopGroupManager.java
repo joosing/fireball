@@ -1,4 +1,4 @@
-package practice.netty.configuration;
+package practice.netty.eventloop;
 
 import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
@@ -13,7 +13,7 @@ import javax.annotation.PreDestroy;
 
 @Component
 @Accessors(fluent = true)
-public class ServerEventLoopGroupConfig {
+public class ServerEventLoopGroupManager {
     @Value("${fireball.server.thread.max.boss}")
     private Integer maxBossThread;
     @Value("${fireball.server.thread.max.io}")
@@ -21,21 +21,21 @@ public class ServerEventLoopGroupConfig {
     @Value("${fireball.server.thread.max.file.store}")
     private Integer maxFileStoreThread;
 
-    @Getter private EventLoopGroup ioEventLoopGroup;
-    @Getter private EventLoopGroup bossEventLoopGroup;
-    @Getter private EventLoopGroup fileStoreEventLoopGroup;
+    @Getter private EventLoopGroup channelIo;
+    @Getter private EventLoopGroup boss;
+    @Getter private EventLoopGroup fireStore;
 
     @PostConstruct
     void setUp() {
-        bossEventLoopGroup = new NioEventLoopGroup(maxBossThread);
-        ioEventLoopGroup = new NioEventLoopGroup(maxIoThread);
-        fileStoreEventLoopGroup = new DefaultEventLoopGroup(maxFileStoreThread);
+        boss = new NioEventLoopGroup(maxBossThread);
+        channelIo = new NioEventLoopGroup(maxIoThread);
+        fireStore = new DefaultEventLoopGroup(maxFileStoreThread);
     }
 
     @PreDestroy
     void tearDown() throws InterruptedException {
-        ioEventLoopGroup.shutdownGracefully().sync();
-        bossEventLoopGroup.shutdownGracefully().sync();
-        fileStoreEventLoopGroup.shutdownGracefully().sync();
+        channelIo.shutdownGracefully().sync();
+        boss.shutdownGracefully().sync();
+        fireStore.shutdownGracefully().sync();
     }
 }
