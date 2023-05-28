@@ -4,7 +4,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.springframework.lang.Nullable;
-import practice.netty.common.HandlerWorkerPair;
+import practice.netty.common.HandlerFactory;
 import practice.netty.handler.inbound.ReadDataUpdater;
 import practice.netty.util.ChannelAccessUtils;
 
@@ -20,13 +20,13 @@ public class DefaultTcpClient implements TcpClient {
     private volatile BlockingQueue<Object> readQueue;
 
     @Override
-    public void init(EventLoopGroup eventLoopGroup, List<HandlerWorkerPair> handlers) {
+    public void init(EventLoopGroup eventLoopGroup, List<HandlerFactory> pipelineFactory) {
         // 읽기 큐
         readQueue = new LinkedBlockingQueue<>();
 
         // 자신에게 수신 메시지를 전달해 줄 핸들러 추가
-        handlers.add(
-                HandlerWorkerPair.of(() -> new ReadDataUpdater(this)));
+        pipelineFactory.add(
+                HandlerFactory.of(() -> new ReadDataUpdater(this)));
 
         // 부트스트랩
         bootstrap = new Bootstrap();
@@ -37,7 +37,7 @@ public class DefaultTcpClient implements TcpClient {
                 .handler(new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        handlers.forEach(config -> ch.pipeline().addLast(config.workGroup(), config.handler().get()));
+                        pipelineFactory.forEach(handlerFactory -> ch.pipeline().addLast(handlerFactory.workGroup(), handlerFactory.handlerSupplier().get()));
                     }
                 });
     }

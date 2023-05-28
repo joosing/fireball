@@ -4,7 +4,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.springframework.lang.Nullable;
-import practice.netty.common.HandlerWorkerPair;
+import practice.netty.common.HandlerFactory;
 import practice.netty.handler.inbound.ClientActiveNotifier;
 import practice.netty.handler.inbound.ReadDataUpdater;
 import practice.netty.util.ChannelAccessUtils;
@@ -22,14 +22,14 @@ public class DefaultTcpServer implements TcpServer {
     private ConcurrentHashMap<SocketAddress, ActiveChannel> activeChannels;
 
     @Override
-    public void init(EventLoopGroup bossGroup, EventLoopGroup childGroup, List<HandlerWorkerPair> childHandlers) {
+    public void init(EventLoopGroup bossGroup, EventLoopGroup childGroup, List<HandlerFactory> childHandlers) {
 
         // 접속 알림 핸들러
         childHandlers.add(
-                HandlerWorkerPair.of(() -> new ClientActiveNotifier(this)));
+                HandlerFactory.of(() -> new ClientActiveNotifier(this)));
         // 데이터 수신 알림 핸들러
         childHandlers.add(
-                HandlerWorkerPair.of(() -> new ReadDataUpdater(this)));
+                HandlerFactory.of(() -> new ReadDataUpdater(this)));
 
         bootstrap = new ServerBootstrap();
         activeChannels = new ConcurrentHashMap<>();
@@ -39,7 +39,7 @@ public class DefaultTcpServer implements TcpServer {
                     @Override
                     protected void initChannel(Channel ch) {
                         childHandlers.forEach(config -> {
-                            ch.pipeline().addLast(config.workGroup(), config.handler().get());
+                            ch.pipeline().addLast(config.workGroup(), config.handlerSupplier().get());
                         });
                     }
                 });

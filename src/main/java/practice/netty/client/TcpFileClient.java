@@ -8,7 +8,7 @@ import practice.netty.eventloop.ClientEventLoopGroupManager;
 import practice.netty.message.UserFileDownloadRequest;
 import practice.netty.message.UserFileUploadRequest;
 import practice.netty.message.UserRequest;
-import practice.netty.pipeline.PipelineManager;
+import practice.netty.pipeline.PipelineFactory;
 import practice.netty.tcp.client.DefaultTcpClient;
 import practice.netty.tcp.client.TcpClient;
 
@@ -18,13 +18,13 @@ import java.util.concurrent.ExecutionException;
 @Component
 public class TcpFileClient implements FileClient {
     private final ClientEventLoopGroupManager eventLoopGroupManager;
-    private final PipelineManager pipelineManager;
+    private final PipelineFactory pipelineFactory;
 
     @Autowired
     public TcpFileClient(ClientEventLoopGroupManager eventLoopGroupManager,
-                         @Qualifier("tcpFileClientPipelineManager") PipelineManager pipelineManager ) {
+                         @Qualifier("tcpFileClientPipelineFactory") PipelineFactory pipelineFactory) {
         this.eventLoopGroupManager = eventLoopGroupManager;
-        this.pipelineManager = pipelineManager;
+        this.pipelineFactory = pipelineFactory;
     }
 
     @Override
@@ -54,11 +54,11 @@ public class TcpFileClient implements FileClient {
     private CompletableFuture<Void> requestTemplate(UserRequest request, String ip, int port) throws ExecutionException
             , InterruptedException {
         // Configure channel pipeline
-        var pipelineHandlers = pipelineManager.getPipeline();
+        var pipelineFactory = this.pipelineFactory.get();
 
         // Make a connection
         TcpClient tcpClient = new DefaultTcpClient();
-        tcpClient.init(eventLoopGroupManager.channelIo(), pipelineHandlers);
+        tcpClient.init(eventLoopGroupManager.channelIo(), pipelineFactory);
         tcpClient.connect(ip, port).get();
 
         // Set to close the connection when the response is complete

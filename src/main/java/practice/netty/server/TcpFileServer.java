@@ -3,7 +3,7 @@ package practice.netty.server;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
-import practice.netty.common.HandlerWorkerPair;
+import practice.netty.common.HandlerFactory;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreHandler;
 import practice.netty.handler.inbound.InboundMessageValidator;
@@ -22,21 +22,21 @@ public class TcpFileServer extends AbstractCustomServer {
     private final EventLoopGroup fileStoreEventLoopGroup;
 
     @Override
-    protected void configChildHandlers(List<HandlerWorkerPair> childHandlers) {
+    protected void configChildHandlers(List<HandlerFactory> pipelineFactory) {
         // Build up
-        List<HandlerWorkerPair> handlerWorkerPairs = List.of(
+        List<HandlerFactory> handlerWorkerPairs = List.of(
                 // Inbound
-                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
-                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
-                HandlerWorkerPair.of(() -> new InboundMessageValidator()),
-                HandlerWorkerPair.of(fileStoreEventLoopGroup, () -> new FileStoreHandler(channelSpecProvider.server().rootPath())),
+                HandlerFactory.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
+                HandlerFactory.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerFactory.of(() -> new InboundMessageValidator()),
+                HandlerFactory.of(fileStoreEventLoopGroup, () -> new FileStoreHandler(channelSpecProvider.server().rootPath())),
                 // Outbound
-                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
-                HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
+                HandlerFactory.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerFactory.of(() -> new OutboundMessageValidator()),
                 // Inbound (but it makes outbound response messages)
-                HandlerWorkerPair.of(() -> new InboundRequestHandler(messageSpecProvider)));
+                HandlerFactory.of(() -> new InboundRequestHandler(messageSpecProvider)));
 
         // Add
-        childHandlers.addAll(handlerWorkerPairs);
+        pipelineFactory.addAll(handlerWorkerPairs);
     }
 }

@@ -3,7 +3,7 @@ package practice.netty.pipeline;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import practice.netty.common.HandlerWorkerPair;
+import practice.netty.common.HandlerFactory;
 import practice.netty.eventloop.ClientEventLoopGroupManager;
 import practice.netty.handler.inbound.CompleteResponseNotifier;
 import practice.netty.handler.inbound.FileServiceDecoder;
@@ -19,25 +19,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Component("tcpFileClientPipelineManager")
-public class TcpFileClientPipelineManager implements PipelineManager {
+@Component("tcpFileClientPipelineFactory")
+public class TcpFileClientPipelineFactory implements PipelineFactory {
     private final ClientEventLoopGroupManager eventLoopGroupManager;
     private final MessageSpecProvider messageSpecProvider;
     private final ChannelSpecProvider channelSpecProvider;
 
     @Override
-    public List<HandlerWorkerPair> getPipeline() {
+    public List<HandlerFactory> get() {
         return new ArrayList<>(List.of(
                 // Inbound
-                HandlerWorkerPair.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
-                HandlerWorkerPair.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
-                HandlerWorkerPair.of(() -> new InboundMessageValidator()),
-                HandlerWorkerPair.of(eventLoopGroupManager.fireStore(), () -> new FileStoreHandler(channelSpecProvider.client().rootPath())), // Dedicated EventLoopGroup
+                HandlerFactory.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
+                HandlerFactory.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerFactory.of(() -> new InboundMessageValidator()),
+                HandlerFactory.of(eventLoopGroupManager.fireStore(), () -> new FileStoreHandler(channelSpecProvider.client().rootPath())), // Dedicated EventLoopGroup
                 // Outbound
-                HandlerWorkerPair.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
-                HandlerWorkerPair.of(() -> new OutboundMessageValidator()),
-                HandlerWorkerPair.of(() -> new UserRequestHandler(messageSpecProvider)),
+                HandlerFactory.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerFactory.of(() -> new OutboundMessageValidator()),
+                HandlerFactory.of(() -> new UserRequestHandler(messageSpecProvider)),
                 // Duplex
-                HandlerWorkerPair.of(() -> new CompleteResponseNotifier())));
+                HandlerFactory.of(() -> new CompleteResponseNotifier())));
     }
 }
