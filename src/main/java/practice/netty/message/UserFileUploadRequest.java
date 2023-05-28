@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class UserFileUploadRequest implements UserMessage {
+public class UserFileUploadRequest extends UserRequest {
     private final String srcFilePath;
     private final String dstFilePath;
 }

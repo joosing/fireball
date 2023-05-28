@@ -116,7 +116,7 @@ public class MessageSpecProvider implements
      * @return 아웃바운드 요청 처리기 함수
      */
     @Override
-    public OutboundRequestProcessor getOutboundRequestProcessor(Class<? extends UserMessage> clazz) {
+    public OutboundRequestProcessor getOutboundRequestProcessor(Class<? extends UserRequest> clazz) {
         return outboundRequestProcessorManager.get(clazz);
     }
 

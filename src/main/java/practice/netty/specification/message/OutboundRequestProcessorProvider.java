@@ -1,7 +1,7 @@
 package practice.netty.specification.message;
 
 
-import practice.netty.message.UserMessage;
+import practice.netty.message.UserRequest;
 import practice.netty.processor.OutboundRequestProcessor;
 
 /**
@@ -9,5 +9,5 @@ import practice.netty.processor.OutboundRequestProcessor;
  */
 @FunctionalInterface
 public interface OutboundRequestProcessorProvider {
-    OutboundRequestProcessor getOutboundRequestProcessor(Class<? extends UserMessage> clazz);
+    OutboundRequestProcessor getOutboundRequestProcessor(Class<? extends UserRequest> clazz);
 }
