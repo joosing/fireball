@@ -73,9 +73,7 @@ public class TcpFileClient implements FileClient {
 
         // Wait for the response
         try {
-            // TODO : The client waits indefinitely when the server is unresponsive
-            // Response completion times vary depending on file size and network conditions,
-            // requiring a slightly more advanced policy for setting timeouts.
+            // If there is no response for a period of time, an SererNotResponseException is thrown.
             request.responseFuture().get();
         } finally {
             tcpClient.disconnect();

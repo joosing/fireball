@@ -1,6 +1,7 @@
 package practice.netty.pipeline;
 
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import practice.netty.eventloop.ServerEventLoopGroupManager;
@@ -35,6 +36,7 @@ public class TcpFileServerPipelineFactory implements PipelineFactory {
                 HandlerFactory.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
                 HandlerFactory.of(() -> new OutboundMessageValidator()),
                 // Inbound (but it makes outbound response messages)
+                HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.server().idleTimeSec())),
                 HandlerFactory.of(() -> new InboundRequestHandler(messageSpecProvider))));
     }
 }

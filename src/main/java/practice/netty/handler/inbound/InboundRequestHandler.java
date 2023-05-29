@@ -2,6 +2,8 @@ package practice.netty.handler.inbound;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import practice.netty.message.ProtocolMessage;
@@ -38,5 +40,15 @@ public class InboundRequestHandler extends SimpleChannelInboundHandler<ProtocolM
         log.error("An exception was thrown while processing the request on the server side.", cause);
         ctx.writeAndFlush(new ResponseMessage(ResponseCode.match(cause)));
         ctx.close();
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent e) {
+            if (e.state() == IdleState.ALL_IDLE) {
+                log.error("The client({}) channel is idle.", ctx.channel().remoteAddress());
+                ctx.close();
+            }
+        }
     }
 }

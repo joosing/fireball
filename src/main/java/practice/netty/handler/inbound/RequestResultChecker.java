@@ -3,6 +3,8 @@ package practice.netty.handler.inbound;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +42,21 @@ public class RequestResultChecker extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("An exception was thrown while processing the request on the client side.", cause);
         responseFuture.completeExceptionally(cause);
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent e) {
+            if (e.state() == IdleState.ALL_IDLE) {
+                responseFuture.completeExceptionally(new RuntimeException("The server is not responding."));
+            }
+        }
+    }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        responseFuture.completeExceptionally(new RuntimeException("Connection is closed."));
+        super.channelUnregistered(ctx);
     }
 }

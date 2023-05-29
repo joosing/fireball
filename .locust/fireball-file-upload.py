@@ -11,7 +11,7 @@ class QuickstartUser(HttpUser):
         remote_file_path = str(uuid.uuid4()) + ".dat"
         body = {
             "local": {
-                "filePath": "local-1000.dat"
+                "filePath": "local.dat"
             },
             "remote": {
                 "ip": "127.0.0.1",
