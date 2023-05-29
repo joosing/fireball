@@ -7,23 +7,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import practice.netty.dto.FileTransferDto;
-import practice.netty.service.FileClientService;
+import practice.netty.service.FileClient;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class FileClientController {
-    private final FileClientService fileClientService;
+    private final FileClient fileClient;
 
     @PostMapping("/download")
     public ResponseEntity<Void> downloadFile(@RequestBody FileTransferDto fileTransferDto) throws Exception {
-        fileClientService.downloadFile(fileTransferDto);
+        fileClient.downloadFile(fileTransferDto);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/upload")
     public ResponseEntity<Void> uploadFile(@RequestBody FileTransferDto fileTransferDto) throws Exception {
-        fileClientService.uploadFile(fileTransferDto);
+        fileClient.uploadFile(fileTransferDto);
         return ResponseEntity.ok().build();
     }
 }

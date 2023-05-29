@@ -4,8 +4,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.springframework.lang.Nullable;
-import practice.netty.common.HandlerFactory;
 import practice.netty.handler.inbound.ReadDataUpdater;
+import practice.netty.pipeline.HandlerFactory;
 import practice.netty.util.ChannelAccessUtils;
 
 import java.net.SocketAddress;

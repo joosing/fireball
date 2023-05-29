@@ -1,4 +1,4 @@
-package practice.netty.client;
+package practice.netty.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

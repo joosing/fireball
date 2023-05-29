@@ -1,8 +1,8 @@
-package practice.netty.server;
+package practice.netty.tcp.server;
 
 import io.netty.channel.EventLoopGroup;
-import practice.netty.common.HandlerFactory;
 import practice.netty.handler.inbound.ReadDataListener;
+import practice.netty.pipeline.HandlerFactory;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@ package practice.netty.runner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import practice.netty.server.FilerServer;
+import practice.netty.service.FilerServer;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;

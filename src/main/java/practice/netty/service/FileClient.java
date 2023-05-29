@@ -1,4 +1,4 @@
-package practice.netty.client;
+package practice.netty.service;
 
 import practice.netty.dto.FileTransferDto;
 

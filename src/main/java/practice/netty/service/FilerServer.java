@@ -1,4 +1,4 @@
-package practice.netty.server;
+package practice.netty.service;
 
 import java.util.concurrent.ExecutionException;
 
