@@ -1,17 +1,17 @@
 package practice.netty.tcp.client;
 
+import io.netty.channel.ChannelFuture;
 import org.springframework.lang.Nullable;
 
 import java.net.SocketAddress;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public interface TcpClientRequest {
-    Future<Boolean> connect(String ip, int port);
+    ChannelFuture connect(String ip, int port) throws InterruptedException;
 
-    Future<Boolean> disconnect();
+    ChannelFuture disconnect();
 
-    Future<Boolean> send(Object data);
+    ChannelFuture send(Object data);
 
     Object readSync() throws InterruptedException;
 

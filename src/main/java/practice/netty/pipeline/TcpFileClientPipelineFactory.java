@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import practice.netty.common.HandlerFactory;
 import practice.netty.eventloop.ClientEventLoopGroupManager;
-import practice.netty.handler.inbound.CompleteResponseNotifier;
 import practice.netty.handler.inbound.FileServiceDecoder;
 import practice.netty.handler.inbound.FileStoreHandler;
 import practice.netty.handler.inbound.InboundMessageValidator;
+import practice.netty.handler.inbound.RequestResultChecker;
 import practice.netty.handler.outbound.FileServiceEncoder;
 import practice.netty.handler.outbound.OutboundMessageValidator;
 import practice.netty.handler.outbound.UserRequestHandler;
@@ -38,6 +38,6 @@ public class TcpFileClientPipelineFactory implements PipelineFactory {
                 HandlerFactory.of(() -> new OutboundMessageValidator()),
                 HandlerFactory.of(() -> new UserRequestHandler(messageSpecProvider)),
                 // Duplex
-                HandlerFactory.of(() -> new CompleteResponseNotifier())));
+                HandlerFactory.of(() -> new RequestResultChecker())));
     }
 }

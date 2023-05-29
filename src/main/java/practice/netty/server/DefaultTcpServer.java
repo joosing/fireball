@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static practice.netty.util.PropagateChannelFuture.propagateChannelFuture;
+import static practice.netty.util.PropagateChannelFuture.propagate;
 
 public class DefaultTcpServer implements TcpServer {
     private ServerBootstrap bootstrap;
@@ -46,33 +46,24 @@ public class DefaultTcpServer implements TcpServer {
     }
 
     @Override
-    public Future<Boolean> start(int bindPort) {
+    public ChannelFuture start(int bindPort) throws InterruptedException {
         bootstrap.localAddress("0.0.0.0", bindPort);
-        CompletableFuture<Boolean> userFuture = new CompletableFuture<>();
-        bootstrap.bind().addListener((ChannelFutureListener) channelFuture -> {
-            propagateChannelFuture(userFuture, channelFuture);
-        });
-        return userFuture;
+        return bootstrap.bind().sync();
     }
 
     @Override
-    public Future<Boolean> sendAll(Object message) {
-        List<CompletableFuture<Boolean>> sendFutures = new ArrayList<>();
+    public Future<Void> sendAll(Object message) {
+        List<CompletableFuture<Void>> sendFutures = new ArrayList<>();
         activeChannels.values().forEach(activeChannel -> {
-            var sendFuture = new CompletableFuture<Boolean>();
+            var sendFuture = new CompletableFuture<Void>();
             activeChannel.channel().writeAndFlush(message).addListener((ChannelFutureListener) channelFuture -> {
-                propagateChannelFuture(sendFuture, channelFuture);
+                propagate(channelFuture, sendFuture);
             });
             sendFutures.add(sendFuture);
         });
 
         return CompletableFuture
-                .allOf(sendFutures.toArray(CompletableFuture[]::new))
-                .thenApply(ignored ->
-                        sendFutures.stream()
-                                .map(CompletableFuture::join)
-                                .reduce(Boolean::logicalAnd)
-                                .orElse(false));
+                .allOf(sendFutures.toArray(CompletableFuture[]::new));
     }
 
     @Override

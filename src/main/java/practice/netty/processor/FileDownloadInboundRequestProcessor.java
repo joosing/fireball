@@ -4,6 +4,7 @@ import lombok.Builder;
 import practice.netty.message.FileDownloadRequest;
 import practice.netty.message.ProtocolMessage;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @Builder
@@ -13,7 +14,7 @@ public class FileDownloadInboundRequestProcessor implements InboundRequestProces
     private final FileTransferProcessor fileTransferProcessor;
 
     @Override
-    public List<ProtocolMessage> process(ProtocolMessage message) {
+    public List<ProtocolMessage> process(ProtocolMessage message) throws FileNotFoundException {
         var request = (FileDownloadRequest) message;
         var srcFilePath = rootPath + request.getSrcFilePath();
         var dstFilePath = request.getDstFilePath();

@@ -31,12 +31,12 @@ public abstract class AbstractCustomServer implements CustomServer {
     protected abstract void configChildHandlers(List<HandlerFactory> pipelineFactory);
 
     @Override
-    public Future<Boolean> start(int bindPort) {
+    public Future<Void> start(int bindPort) throws InterruptedException {
         return server.start(bindPort);
     }
 
     @Override
-    public Future<Boolean> sendAll(Object message) {
+    public Future<Void> sendAll(Object message) {
         return server.sendAll(message);
     }
 

@@ -5,22 +5,29 @@ import practice.netty.message.OutboundFileChunk;
 import practice.netty.message.ProtocolMessage;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileChunkTransferProcessor implements FileTransferProcessor {
+public class CommonFileChunkTransferProcessor implements FileTransferProcessor {
 
     @Override
-    public List<ProtocolMessage> process(String srcPath, String dstPath, int chunkSize) {
-        var srcFile = new File(srcPath);
-        var result = new ArrayList<ProtocolMessage>();
+    public List<ProtocolMessage> process(String srcPath, String dstPath, int chunkSize) throws FileNotFoundException {
+        // Check if the source file exists
+        if (!Files.exists(Path.of(srcPath))) {
+            throw new FileNotFoundException(srcPath);
+        }
 
-        // 파일의 시작을 나타내는 비어있는 청크 전송
+        // Send an empty chunk to indicate the start of the file
+        var result = new ArrayList<ProtocolMessage>();
         var startChunk = new OutboundFileChunk(ChunkType.START_OF_FILE, srcPath, dstPath, 0, 0);
         result.add(startChunk);
 
-        // 파일을 청크로 분할 전송
+        // Send a file content in chunks
         long start = 0;
+        var srcFile = new File(srcPath);
         long remainBytes = srcFile.length();
         while (remainBytes > 0) {
             var readBytes = (int) Math.min(remainBytes, chunkSize);
@@ -30,7 +37,7 @@ public class FileChunkTransferProcessor implements FileTransferProcessor {
             start += readBytes;
         }
 
-        // 파일 끝을 나타내는 비어있는 청크 전송
+        // Send an empty chunk to indicate the end of the file
         var lastChunk = new OutboundFileChunk(ChunkType.END_OF_FILE, srcPath, dstPath, start, 0);
         result.add(lastChunk);
 

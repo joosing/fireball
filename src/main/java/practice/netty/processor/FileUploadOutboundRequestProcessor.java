@@ -6,6 +6,7 @@ import practice.netty.message.ProtocolMessage;
 import practice.netty.message.UserFileUploadRequest;
 import practice.netty.message.UserRequest;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class FileUploadOutboundRequestProcessor implements OutboundRequestProces
     private final FileTransferProcessor fileTransferProcessor;
 
     @Override
-    public List<ProtocolMessage> process(UserRequest message) {
+    public List<ProtocolMessage> process(UserRequest message) throws FileNotFoundException {
         var uploadRequest = (UserFileUploadRequest) message;
 
         // 파일 청크 분할 생성

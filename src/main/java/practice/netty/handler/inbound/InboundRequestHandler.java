@@ -34,9 +34,9 @@ public class InboundRequestHandler extends SimpleChannelInboundHandler<ProtocolM
         handleException(ctx, cause);
     }
 
-    private static void handleException(ChannelHandlerContext ctx, Throwable throwable) {
-        log.error("Exception occurred while processing request", throwable);
-        ctx.writeAndFlush(new ResponseMessage(ResponseCode.match(throwable)));
+    private static void handleException(ChannelHandlerContext ctx, Throwable cause) {
+        log.error("An exception was thrown while processing the request on the server side.", cause);
+        ctx.writeAndFlush(new ResponseMessage(ResponseCode.match(cause)));
         ctx.close();
     }
 }

@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 public interface TcpServerRequest {
 
-    Future<Boolean> start(int bindPort);
+    Future<Void> start(int bindPort) throws InterruptedException;
 
-    Future<Boolean> sendAll(Object message);
+    Future<Void> sendAll(Object message);
 
     @Nullable
     Object read(SocketAddress clientAddress, int timeout, TimeUnit unit) throws InterruptedException;

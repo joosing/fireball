@@ -16,7 +16,7 @@ class QuickstartUser(HttpUser):
             "remote": {
                 "ip": "127.0.0.1",
                 "port": 12345,
-                "filePath": "remote.dat"
+                "filePath": "remote-1000.dat"
             }
         }
         self.client.post("/download", json=body)

@@ -61,7 +61,7 @@ public class MessageSpecProvider implements
                 FileDownloadInboundRequestProcessor.builder()
                         .chunkSize(channelSpec.server().chunkSize())
                         .rootPath(channelSpec.server().rootPath())
-                        .fileTransferProcessor(new FileChunkTransferProcessor())
+                        .fileTransferProcessor(new CommonFileChunkTransferProcessor())
                         .build());
 
         // 파일 업로드 요청 수신
@@ -86,7 +86,7 @@ public class MessageSpecProvider implements
                 FileUploadOutboundRequestProcessor.builder()
                         .chunkSize(channelSpec.server().chunkSize())
                         .rootPath(channelSpec.server().rootPath())
-                        .fileTransferProcessor(new FileChunkTransferProcessor())
+                        .fileTransferProcessor(new CommonFileChunkTransferProcessor())
                         .build());
     }
 

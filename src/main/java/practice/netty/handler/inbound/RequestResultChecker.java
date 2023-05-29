@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import practice.netty.message.ResponseMessage;
 import practice.netty.message.UserRequest;
 import practice.netty.specification.response.ResponseCode;
@@ -13,7 +14,8 @@ import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Getter
-public class CompleteResponseNotifier extends ChannelDuplexHandler {
+@Slf4j
+public class RequestResultChecker extends ChannelDuplexHandler {
     private CompletableFuture<Void> responseFuture;
 
     @Override
@@ -34,5 +36,11 @@ public class CompleteResponseNotifier extends ChannelDuplexHandler {
                 responseFuture.completeExceptionally(new RuntimeException(errorMessage));
             }
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("An exception was thrown while processing the request on the client side.", cause);
+        responseFuture.completeExceptionally(cause);
     }
 }

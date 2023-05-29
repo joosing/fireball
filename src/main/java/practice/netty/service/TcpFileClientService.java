@@ -14,14 +14,14 @@ public class TcpFileClientService implements FileClientService {
     @Override
     public void downloadFile(FileTransferDto fileTransferDto) throws Exception {
         var stopWatch = StopWatchUtils.start();
-        fileClient.downloadFile(fileTransferDto).get();
+        fileClient.downloadFile(fileTransferDto);
         StopWatchUtils.stopAndPrintSeconds(stopWatch, "downloadFile:");
     }
 
     @Override
     public void uploadFile(FileTransferDto fileTransferDto) throws Exception {
         var stopWatch = StopWatchUtils.start();
-        fileClient.uploadFile(fileTransferDto).get();
+        fileClient.uploadFile(fileTransferDto);
         StopWatchUtils.stopAndPrintSeconds(stopWatch, "upload:");
     }
 }

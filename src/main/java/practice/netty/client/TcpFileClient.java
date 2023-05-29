@@ -12,8 +12,8 @@ import practice.netty.pipeline.PipelineFactory;
 import practice.netty.tcp.client.DefaultTcpClient;
 import practice.netty.tcp.client.TcpClient;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @Component
 public class TcpFileClient implements FileClient {
@@ -28,31 +28,31 @@ public class TcpFileClient implements FileClient {
     }
 
     @Override
-    public CompletableFuture<Void> downloadFile(FileTransferDto fileTransferDto) throws ExecutionException
-            , InterruptedException {
+    public void downloadFile(FileTransferDto fileTransferDto) throws ExecutionException
+            , InterruptedException, TimeoutException {
         var localFile = fileTransferDto.getLocal();
         var remoteFile = fileTransferDto.getRemote();
         var downloadRequest = UserFileDownloadRequest.builder()
                 .srcFilePath(remoteFile.getFilePath())
                 .dstFilePath(localFile.getFilePath())
                 .build();
-        return requestTemplate(downloadRequest, remoteFile.getIp(), remoteFile.getPort());
+        requestTemplate(downloadRequest, remoteFile.getIp(), remoteFile.getPort());
     }
 
     @Override
-    public CompletableFuture<Void> uploadFile(FileTransferDto fileTransferDto) throws ExecutionException,
-            InterruptedException {
+    public void uploadFile(FileTransferDto fileTransferDto) throws ExecutionException,
+            InterruptedException, TimeoutException {
         var localFile = fileTransferDto.getLocal();
         var remoteFile = fileTransferDto.getRemote();
         var uploadRequest = UserFileUploadRequest.builder()
                 .srcFilePath(localFile.getFilePath())
                 .dstFilePath(remoteFile.getFilePath())
                 .build();
-        return requestTemplate(uploadRequest, remoteFile.getIp(), remoteFile.getPort());
+        requestTemplate(uploadRequest, remoteFile.getIp(), remoteFile.getPort());
     }
 
-    private CompletableFuture<Void> requestTemplate(UserRequest request, String ip, int port) throws ExecutionException
-            , InterruptedException {
+    private void requestTemplate(UserRequest request, String ip, int port) throws ExecutionException
+            , InterruptedException, TimeoutException {
         // Configure channel pipeline
         var pipelineFactory = this.pipelineFactory.get();
 
@@ -68,10 +68,17 @@ public class TcpFileClient implements FileClient {
             }
         });
 
-        // send a request
+        // Send a request
         tcpClient.send(request);
 
-        // Return an asynchronous result
-        return request.responseFuture();
+        // Wait for the response
+        try {
+            // TODO : The client waits indefinitely when the server is unresponsive
+            // Response completion times vary depending on file size and network conditions,
+            // requiring a slightly more advanced policy for setting timeouts.
+            request.responseFuture().get();
+        } finally {
+            tcpClient.disconnect();
+        }
     }
 }
