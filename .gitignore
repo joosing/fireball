@@ -34,3 +34,4 @@ build/
 /files/*
 *.dat
 *.png
+/.locust/files/
