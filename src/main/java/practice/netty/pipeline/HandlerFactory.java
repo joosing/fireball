@@ -35,7 +35,7 @@ public final class HandlerFactory {
         return workGroup;
     }
 
-    public Supplier<ChannelHandler> handlerSupplier() {
-        return handlerSupplier;
+    public ChannelHandler handler() {
+        return handlerSupplier.get();
     }
 }

@@ -22,13 +22,13 @@ public class DefaultTcpServer implements TcpServer {
     private ConcurrentHashMap<SocketAddress, ActiveChannel> activeChannels;
 
     @Override
-    public void init(EventLoopGroup bossGroup, EventLoopGroup childGroup, List<HandlerFactory> childHandlers) {
+    public void init(EventLoopGroup bossGroup, EventLoopGroup childGroup, List<HandlerFactory> pipelineFactory) {
 
         // 접속 알림 핸들러
-        childHandlers.add(
+        pipelineFactory.add(
                 HandlerFactory.of(() -> new ClientActiveNotifier(this)));
         // 데이터 수신 알림 핸들러
-        childHandlers.add(
+        pipelineFactory.add(
                 HandlerFactory.of(() -> new ReadDataUpdater(this)));
 
         bootstrap = new ServerBootstrap();
@@ -38,8 +38,8 @@ public class DefaultTcpServer implements TcpServer {
                 .childHandler(new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        childHandlers.forEach(config -> {
-                            ch.pipeline().addLast(config.workGroup(), config.handlerSupplier().get());
+                        pipelineFactory.forEach(handlerFactory -> {
+                            ch.pipeline().addLast(handlerFactory.workGroup(), handlerFactory.handler());
                         });
                     }
                 });

@@ -38,7 +38,9 @@ public class DefaultTcpClient implements TcpClient {
                 .handler(new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        pipelineFactory.forEach(handlerFactory -> ch.pipeline().addLast(handlerFactory.workGroup(), handlerFactory.handlerSupplier().get()));
+                        pipelineFactory.forEach(handlerFactory -> {
+                            ch.pipeline().addLast(handlerFactory.workGroup(), handlerFactory.handler());
+                        });
                     }
                 });
     }
