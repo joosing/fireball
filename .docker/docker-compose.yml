@@ -2,7 +2,7 @@ version: "0.0.1"
 services:
   file:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
     image: file-service
     container_name: file-service
