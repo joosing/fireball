@@ -34,7 +34,7 @@ public class MultipartFileController {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
         // save the file on the local file system
-        Path path = Paths.get("./io/" + fileName);
+        Path path = Paths.get("./files/" + fileName);
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 
         // return success response
