@@ -27,6 +27,8 @@ public class TcpFileServerPipelineFactory implements PipelineFactory {
     @Override
     public List<HandlerFactory> get() {
         return new ArrayList<>(List.of(
+                // Duplex
+                HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.server().idleTimeSec())),
                 // Inbound
                 HandlerFactory.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
                 HandlerFactory.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
@@ -36,7 +38,6 @@ public class TcpFileServerPipelineFactory implements PipelineFactory {
                 HandlerFactory.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
                 HandlerFactory.of(() -> new OutboundMessageValidator()),
                 // Inbound (but it makes outbound response messages)
-                HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.server().idleTimeSec())),
                 HandlerFactory.of(() -> new InboundRequestHandler(messageSpecProvider))));
     }
 }

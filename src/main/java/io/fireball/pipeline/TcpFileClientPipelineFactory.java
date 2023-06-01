@@ -28,6 +28,8 @@ public class TcpFileClientPipelineFactory implements PipelineFactory {
     @Override
     public List<HandlerFactory> get() {
         return new ArrayList<>(List.of(
+                // Duplex
+                HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.client().idleTimeSec())),
                 // Inbound
                 HandlerFactory.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
                 HandlerFactory.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
@@ -38,7 +40,6 @@ public class TcpFileClientPipelineFactory implements PipelineFactory {
                 HandlerFactory.of(() -> new OutboundMessageValidator()),
                 HandlerFactory.of(() -> new UserRequestHandler(messageSpecProvider)),
                 // Duplex
-                HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.client().idleTimeSec())),
                 HandlerFactory.of(() -> new RequestResultChecker())));
     }
 }
