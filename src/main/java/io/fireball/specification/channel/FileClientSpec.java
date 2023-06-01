@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Accessors(fluent = true)
 @Component
 public class FileClientSpec {
-    @Value("${fireball.client.file.root-path}")
+    @Value("${fireball.client.root-path}")
     private String rootPath;
     private final int idleTimeSec = 3;
 }

@@ -14,9 +14,9 @@ import javax.annotation.PreDestroy;
 @Component
 @Accessors(fluent = true)
 public class ClientEventLoopGroupManager {
-    @Value("${fireball.client.thread.max.io}")
+    @Value("${fireball.client.thread.io}")
     private Integer nChannelIoThread;
-    @Value("${fireball.client.thread.max.file.store}")
+    @Value("${fireball.client.thread.file.store}")
     private Integer nFileStoreThread;
 
     @Getter private EventLoopGroup channelIo;

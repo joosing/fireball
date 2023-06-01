@@ -14,11 +14,11 @@ import javax.annotation.PreDestroy;
 @Component
 @Accessors(fluent = true)
 public class ServerEventLoopGroupManager {
-    @Value("${fireball.server.thread.max.boss}")
+    @Value("${fireball.server.thread.boss}")
     private Integer maxBossThread;
-    @Value("${fireball.server.thread.max.io}")
+    @Value("${fireball.server.thread.io}")
     private Integer maxIoThread;
-    @Value("${fireball.server.thread.max.file.store}")
+    @Value("${fireball.server.thread.file-store}")
     private Integer maxFileStoreThread;
 
     @Getter private EventLoopGroup channelIo;

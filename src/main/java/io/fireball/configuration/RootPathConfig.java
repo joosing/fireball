@@ -13,20 +13,20 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class RootPathConfig {
-    @Value("${fireball.client.file.root-path}")
+    @Value("${fireball.client.root-path}")
     private String clientRootPath;
-    @Value("${fireball.server.file.root-path}")
+    @Value("${fireball.server.root-path}")
     private String serverRootPath;
 
     @PostConstruct
     public void configure() throws IOException {
         if (StringUtils.isBlank(clientRootPath)) {
             throw new RuntimeException("You must set the client side root directory." +
-                    "For example: -Dfireball.client.file.root-path=/some/path)");
+                    "For example: -Dfireball.client.root-path=/some/path)");
         }
         if (StringUtils.isBlank(serverRootPath)) {
             throw new RuntimeException("You must set the server side root directory." +
-                    "For example: -Dfireball.server.file.root-path=/some/path)");
+                    "For example: -Dfireball.server.root-path=/some/path)");
         }
 
         FileUtils.forceMkdir(new File(clientRootPath));
