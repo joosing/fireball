@@ -30,6 +30,7 @@ public class FileTransferTest extends RestAssuredTest {
     @Override
     @BeforeEach
     public void setUp() throws Exception {
+        super.setUp();
         clientFileName = "local.dat";
         serverFileName = "remote.dat";
         clientFilePath = Path.of(channelSpecProvider.client().rootPath(), clientFileName).normalize().toString();
