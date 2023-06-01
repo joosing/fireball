@@ -12,5 +12,5 @@ import org.springframework.stereotype.Component;
 public class FileClientSpec {
     @Value("${fireball.client.file.root-path}")
     private String rootPath;
-    private final int idleTimeSec = 10;
+    private final int idleTimeSec = 3;
 }

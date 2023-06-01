@@ -7,6 +7,7 @@ import io.fireball.message.UserRequest;
 import lombok.Builder;
 
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class FileUploadOutboundRequestProcessor implements OutboundRequestProces
         var uploadRequest = (UserFileUploadRequest) message;
 
         // 파일 청크 분할 생성
-        var srcFilePath = rootPath + uploadRequest.getSrcFilePath();
+        var srcFilePath = Path.of(rootPath, uploadRequest.getSrcFilePath()).normalize().toString();
         var dstFilePath = uploadRequest.getDstFilePath();
         var fileChunks = fileTransferProcessor.process(srcFilePath, dstFilePath, chunkSize);
 

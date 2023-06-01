@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,8 +30,8 @@ public class FileTransferTest extends RestAssuredTest {
     public void setUp() throws Exception {
         clientFileName = "local.dat";
         serverFileName = "remote.dat";
-        clientFilePath = channelSpecProvider.client().rootPath() + clientFileName;
-        serverFilePath = channelSpecProvider.server().rootPath() + serverFileName;
+        clientFilePath = Path.of(channelSpecProvider.client().rootPath(), clientFileName).normalize().toString();
+        serverFilePath = Path.of(channelSpecProvider.server().rootPath(), serverFileName).normalize().toString();
     }
 
     @AfterEach
