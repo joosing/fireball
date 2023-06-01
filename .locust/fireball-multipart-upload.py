@@ -3,7 +3,7 @@ from locust import HttpUser, task, between
 
 
 class MultipartFileUser(HttpUser):
-    host = "http://localhost:8080"
+    host = "http://localhost:58080"
     wait_time = between(1, 5)
 
     @task
