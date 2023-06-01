@@ -1,5 +1,7 @@
-package io.fireball.configuration;
+package io.fireball.environment;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +14,9 @@ import java.io.IOException;
 
 @Component
 @Slf4j
-public class RootPathConfig {
+@Getter
+@Accessors(fluent = true)
+public class RootPathEnvironment {
     @Value("${fireball.client.root-path}")
     private String clientRootPath;
     @Value("${fireball.server.root-path}")
@@ -22,19 +26,14 @@ public class RootPathConfig {
     public void configure() throws IOException {
         if (StringUtils.isBlank(clientRootPath)) {
             throw new RuntimeException("You must set the client side root directory." +
-                    "For example: -Dfireball.client.root-path=/some/path)");
+                    "Like that: -Dfireball.client.root-path=/some/path)");
         }
         if (StringUtils.isBlank(serverRootPath)) {
             throw new RuntimeException("You must set the server side root directory." +
-                    "For example: -Dfireball.server.root-path=/some/path)");
+                    "Like that: -Dfireball.server.root-path=/some/path)");
         }
 
         FileUtils.forceMkdir(new File(clientRootPath));
         FileUtils.forceMkdir(new File(serverRootPath));
-    }
-
-    private static void logAndThrowException(String message) {
-        log.info(message);
-        throw new RuntimeException(message);
     }
 }
