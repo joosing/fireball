@@ -21,11 +21,16 @@ public class InboundRequestHandler extends SimpleChannelInboundHandler<ProtocolM
         try {
             var requestProcessor = processorProvider.getInboundRequestProcessor(message.getClass());
             // 응답 생성
-            var responseBody = requestProcessor.process(message);
-            var responseHeader = new ResponseMessage(ResponseCode.OK);
+            var responses = requestProcessor.process(message);
+            responses.add(new ResponseMessage(ResponseCode.OK));
             // 응답 전송
-            responseBody.forEach(ctx::writeAndFlush);
-            ctx.writeAndFlush(responseHeader);
+            responses.forEach(response -> {
+                ctx.writeAndFlush(response).addListener(future -> {
+                    if (!future.isSuccess()) {
+                        log.error("Failed to send a response.", future.cause());
+                    }
+                });
+            });
         } catch (Throwable throwable) {
             handleException(ctx, throwable);
         }

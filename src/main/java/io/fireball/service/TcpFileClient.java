@@ -69,7 +69,11 @@ public class TcpFileClient implements FileClient {
         });
 
         // Send a request
-        tcpClient.send(request);
+        tcpClient.send(request).addListener(f -> {
+            if (!f.isSuccess()) {
+                request.responseFuture().completeExceptionally(f.cause());
+            }
+        });
 
         // Wait for the response
         try {
