@@ -84,8 +84,8 @@ public class MessageSpecProvider implements
         outboundRequestProcessorManager.put(
                 UserFileUploadRequest.class,
                 FileUploadOutboundRequestProcessor.builder()
-                        .chunkSize(channelSpec.server().chunkSize())
-                        .rootPath(channelSpec.server().rootPath())
+                        .chunkSize(channelSpec.client().chunkSize())
+                        .rootPath(channelSpec.client().rootPath())
                         .fileTransferProcessor(new CommonFileChunkTransferProcessor())
                         .build());
     }
