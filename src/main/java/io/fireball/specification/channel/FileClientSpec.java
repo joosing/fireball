@@ -13,4 +13,6 @@ public class FileClientSpec {
     @Value("${fireball.client.root-path}")
     private String rootPath;
     private final int idleTimeSec = 3;
+    private final int nChannelIoMaxThread = 0; // zero value is netty's default setting (CPU core * 2)
+    private final int nFileStoreMaxThread = 0;
 }
