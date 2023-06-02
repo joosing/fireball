@@ -28,7 +28,7 @@ public class TcpFileServerPipelineFactory implements PipelineFactory {
     public List<HandlerFactory> get() {
         return new ArrayList<>(List.of(
                 // Duplex
-                HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.server().idleTimeSec())),
+                HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.server().idleDetectionSeconds())),
                 // Inbound
                 HandlerFactory.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
                 HandlerFactory.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
