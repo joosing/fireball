@@ -56,14 +56,10 @@ public class FileTransferTest extends RestAssuredTest {
                     .contentType("application/json")
                     .body("""
                             {
-                                "local": {
-                                    "filePath": "%s"
-                                },
-                                "remote": {
-                                    "ip": "%s",
-                                    "port": "%s",
-                                    "filePath": "%s"
-                                }
+                                "localFile": "%s",
+                                "remoteIp": "%s",
+                                "remotePort": "%s",
+                                "remoteFile": "%s"
                             }
                             """.formatted(clientFileName, "127.0.0.1", 12345, serverFileName))
                 .when()
@@ -90,17 +86,13 @@ public class FileTransferTest extends RestAssuredTest {
                 given()
                     .contentType("application/json")
                     .body("""
-                                {
-                                    "local": {
-                                        "filePath": "%s"
-                                    },
-                                    "remote": {
-                                        "ip": "%s",
-                                        "port": "%s",
-                                        "filePath": "%s"
-                                    }
-                                }
-                                """.formatted(clientFileName, "127.0.0.1", 12345, serverFileName))
+                            {
+                                "localFile": "%s",
+                                "remoteIp": "%s",
+                                "remotePort": "%s",
+                                "remoteFile": "%s"
+                            }
+                            """.formatted(clientFileName, "127.0.0.1", 12345, serverFileName))
                 .when()
                   .post("/upload")
                 .then()

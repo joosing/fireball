@@ -11,13 +11,10 @@ class FireballClientUser(HttpUser):
         # local_file_path = str(uuid.uuid4()) + ".dat"
         local_file_path = "local-1000.dat"
         body = {
-            "local": {
-                "filePath": local_file_path
-            },
-            "remote": {
-                "ip": "127.0.0.1",
-                "port": 12345,
-                "filePath": "remote-1000.dat"
+                "localFile": local_file_path,
+                "remoteIp": "127.0.0.1",
+                "remotePort": 12345,
+                "remoteFile": "remote-1000.dat"
             }
         }
         self.client.post("/download", json=body)
