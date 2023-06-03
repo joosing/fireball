@@ -11,13 +11,10 @@ class FireballClientUser(HttpUser):
         # remote_file_path = str(uuid.uuid4()) + ".dat"
         remote_file_path = "remote-1000.dat"
         body = {
-            "local": {
-                "filePath": "local-1000.dat"
-            },
-            "remote": {
-                "ip": "127.0.0.1",
-                "port": 21,
-                "filePath": remote_file_path
+                "localFile": "local-1000.dat",
+                "remoteIp": "127.0.0.1",
+                "remotePort": 21,
+                "remoteFile": remote_file_path
             }
         }
         self.client.post("/test/ftp/upload", json=body)

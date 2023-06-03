@@ -29,7 +29,7 @@ public class FtpFileClientController {
         var ftp = new FTPClient();
 
         // connect
-        ftp.connect(fileTransferDto.getRemote().getIp(), fileTransferDto.getRemote().getPort());
+        ftp.connect(fileTransferDto.getRemoteIp(), fileTransferDto.getRemotePort());
         int reply = ftp.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
             ftp.disconnect();
@@ -39,10 +39,10 @@ public class FtpFileClientController {
         ftp.login("test", "1234");
 
         // normalize path
-        var srcPath = Path.of(fileClientSpec.rootPath(), fileTransferDto.getLocal().getFilePath()).normalize().toString();
+        var srcPath = Path.of(fileClientSpec.rootPath(), fileTransferDto.getLocalFile()).normalize().toString();
 
         // upload file
-        var result = ftp.storeFile(fileTransferDto.getRemote().getFilePath(), new FileInputStream(srcPath));
+        var result = ftp.storeFile(fileTransferDto.getRemoteFile(), new FileInputStream(srcPath));
         return ResponseEntity.ok(result);
     }
 }

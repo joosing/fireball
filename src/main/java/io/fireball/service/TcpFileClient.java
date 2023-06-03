@@ -28,27 +28,23 @@ public class TcpFileClient implements FileClient {
     }
 
     @Override
-    public void downloadFile(FileTransferDto fileTransferDto) throws ExecutionException
+    public void downloadFile(FileTransferDto spec) throws ExecutionException
             , InterruptedException, TimeoutException {
-        var localFile = fileTransferDto.getLocal();
-        var remoteFile = fileTransferDto.getRemote();
         var downloadRequest = UserFileDownloadRequest.builder()
-                .srcFilePath(remoteFile.getFilePath())
-                .dstFilePath(localFile.getFilePath())
+                .srcFilePath(spec.getRemoteFile())
+                .dstFilePath(spec.getLocalFile())
                 .build();
-        requestTemplate(downloadRequest, remoteFile.getIp(), remoteFile.getPort());
+        requestTemplate(downloadRequest, spec.getRemoteIp(), spec.getRemotePort());
     }
 
     @Override
-    public void uploadFile(FileTransferDto fileTransferDto) throws ExecutionException,
+    public void uploadFile(FileTransferDto spec) throws ExecutionException,
             InterruptedException, TimeoutException {
-        var localFile = fileTransferDto.getLocal();
-        var remoteFile = fileTransferDto.getRemote();
         var uploadRequest = UserFileUploadRequest.builder()
-                .srcFilePath(localFile.getFilePath())
-                .dstFilePath(remoteFile.getFilePath())
+                .srcFilePath(spec.getLocalFile())
+                .dstFilePath(spec.getRemoteFile())
                 .build();
-        requestTemplate(uploadRequest, remoteFile.getIp(), remoteFile.getPort());
+        requestTemplate(uploadRequest, spec.getRemoteIp(), spec.getRemotePort());
     }
 
     private void requestTemplate(UserRequest request, String ip, int port) throws ExecutionException
