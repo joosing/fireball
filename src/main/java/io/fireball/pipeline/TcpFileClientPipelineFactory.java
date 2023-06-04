@@ -1,10 +1,10 @@
 package io.fireball.pipeline;
 
 import io.fireball.eventloop.ClientEventLoopGroupManager;
+import io.fireball.handler.duplex.RequestResultChecker;
 import io.fireball.handler.inbound.FileServiceDecoder;
 import io.fireball.handler.inbound.FileStoreHandler;
 import io.fireball.handler.inbound.InboundMessageValidator;
-import io.fireball.handler.inbound.RequestResultChecker;
 import io.fireball.handler.outbound.FileServiceEncoder;
 import io.fireball.handler.outbound.OutboundMessageValidator;
 import io.fireball.handler.outbound.UserRequestHandler;

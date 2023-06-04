@@ -1,4 +1,4 @@
-package io.fireball.handler.inbound;
+package io.fireball.handler.duplex;
 
 import io.fireball.message.ResponseMessage;
 import io.fireball.message.UserRequest;
