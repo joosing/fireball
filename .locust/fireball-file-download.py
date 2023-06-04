@@ -13,7 +13,7 @@ class FireballClientUser(HttpUser):
         body = {
                 "localFile": local_file_path,
                 "remoteIp": "127.0.0.1",
-                "remotePort": 12345,
+                "remotePort": 50711,
                 "remoteFile": "remote-1000.dat"
             }
         }
