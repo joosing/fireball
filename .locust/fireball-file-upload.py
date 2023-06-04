@@ -13,7 +13,7 @@ class FireballClientUser(HttpUser):
         body = {
                 "localFile": "local-1000.dat",
                 "remoteIp": "127.0.0.1",
-                "remotePort": 12345,
+                "remotePort": 50711,
                 "remoteFile": remote_file_path
             }
         self.client.post("/upload", json=body)

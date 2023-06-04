@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Slf4j
 @ActiveProfiles("test")
 public class FileTransferTest extends RestAssuredTest {
+    static final int FILE_SERVER_PORT = 50711;
     @Autowired
     ChannelSpecProvider channelSpecProvider;
     String clientFileName;
@@ -61,7 +62,7 @@ public class FileTransferTest extends RestAssuredTest {
                                 "remotePort": "%s",
                                 "remoteFile": "%s"
                             }
-                            """.formatted(clientFileName, "127.0.0.1", 12345, serverFileName))
+                            """.formatted(clientFileName, "127.0.0.1", FILE_SERVER_PORT, serverFileName))
                 .when()
                     .post("/download")
                 .then()
@@ -92,7 +93,7 @@ public class FileTransferTest extends RestAssuredTest {
                                 "remotePort": "%s",
                                 "remoteFile": "%s"
                             }
-                            """.formatted(clientFileName, "127.0.0.1", 12345, serverFileName))
+                            """.formatted(clientFileName, "127.0.0.1", FILE_SERVER_PORT, serverFileName))
                 .when()
                   .post("/upload")
                 .then()
