@@ -17,6 +17,7 @@ public class FileStoreAction {
         // Delete an existing file
         if (chunk.type() == ChunkType.START_OF_FILE) {
             AdvancedFileUtils.deleteIfExists(targetPath);
+            AdvancedFileUtils.makeDirectoriesIfNotExist(targetPath);
         }
 
         final ByteBuf chunkContents = chunk.contents();
