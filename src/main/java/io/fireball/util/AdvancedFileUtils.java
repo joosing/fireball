@@ -90,4 +90,19 @@ public final class AdvancedFileUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static void makeDirectoriesIfNotExist(String targetPath) {
+        var lastDirSeparatorIndex = targetPath.lastIndexOf(File.separator);
+        if (lastDirSeparatorIndex == -1) {
+            return;
+        }
+        var directoryPath = targetPath.substring(0, lastDirSeparatorIndex);
+        if (!directoryPath.isEmpty()) {
+            try {
+                FileUtils.forceMkdir(new File(directoryPath));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
