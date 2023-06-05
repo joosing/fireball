@@ -1,7 +1,9 @@
 package io.fireball.handler.duplex;
 
+import io.fireball.exception.ServerNotResponseException;
+import io.fireball.exception.ServerRuntimeException;
 import io.fireball.message.ResponseMessage;
-import io.fireball.specification.response.ResponseCode;
+import io.fireball.specification.response.ResponseSpec;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
@@ -29,11 +31,11 @@ public class RequestResultChecker extends ChannelDuplexHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof ResponseMessage response) {
-            if (response.responseCode() == ResponseCode.OK) {
+            if (response.responseSpec() == ResponseSpec.OK) {
                 completableFuture.complete(null);
             } else {
-                var errorMessage = response.responseCode().getMessage();
-                completableFuture.completeExceptionally(new RuntimeException(errorMessage));
+                var spec = response.responseSpec();
+                completableFuture.completeExceptionally(new ServerRuntimeException(spec.getErrorNo(), spec.getMessage()));
             }
         }
     }
@@ -54,7 +56,7 @@ public class RequestResultChecker extends ChannelDuplexHandler {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent e) {
             if (e.state() == IdleState.ALL_IDLE) {
-                completableFuture.completeExceptionally(new RuntimeException("The server is not responding."));
+                completableFuture.completeExceptionally(new ServerNotResponseException());
             }
         }
     }

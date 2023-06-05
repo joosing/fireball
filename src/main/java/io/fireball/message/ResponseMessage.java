@@ -1,7 +1,7 @@
 package io.fireball.message;
 
 import io.fireball.handler.outbound.EncodedPartialContents;
-import io.fireball.specification.response.ResponseCode;
+import io.fireball.specification.response.ResponseSpec;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,16 +13,16 @@ import java.util.List;
 @Getter
 @Accessors(fluent = true)
 public class ResponseMessage implements ProtocolMessage {
-    private final ResponseCode responseCode;
+    private final ResponseSpec responseSpec;
 
     public static ResponseMessage decode(ByteBuf message) {
-        ResponseCode responseCode = ResponseCode.match(message.readInt());
-        return new ResponseMessage(responseCode);
+        ResponseSpec responseSpec = ResponseSpec.match(message.readInt());
+        return new ResponseMessage(responseSpec);
     }
 
     @Override
     public List<EncodedPartialContents> encode(ByteBuf buffer) {
-        buffer.writeInt(responseCode.getCode());
+        buffer.writeInt(responseSpec.getErrorNo());
         return List.of(new EncodedPartialContents(buffer, buffer.readableBytes()));
     }
 }

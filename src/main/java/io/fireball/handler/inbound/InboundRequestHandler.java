@@ -3,7 +3,7 @@ package io.fireball.handler.inbound;
 import io.fireball.message.ProtocolMessage;
 import io.fireball.message.ResponseMessage;
 import io.fireball.specification.message.InboundRequestProcessorProvider;
-import io.fireball.specification.response.ResponseCode;
+import io.fireball.specification.response.ResponseSpec;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
@@ -22,7 +22,7 @@ public class InboundRequestHandler extends SimpleChannelInboundHandler<ProtocolM
             var requestProcessor = processorProvider.getInboundRequestProcessor(message.getClass());
             // 응답 생성
             var responses = requestProcessor.process(message);
-            responses.add(new ResponseMessage(ResponseCode.OK));
+            responses.add(new ResponseMessage(ResponseSpec.OK));
             // 응답 전송
             responses.forEach(response -> {
                 ctx.writeAndFlush(response).addListener(future -> {
@@ -43,7 +43,7 @@ public class InboundRequestHandler extends SimpleChannelInboundHandler<ProtocolM
 
     private static void handleException(ChannelHandlerContext ctx, Throwable cause) {
         log.error("An exception was thrown while processing the request on the server side.", cause);
-        ctx.writeAndFlush(new ResponseMessage(ResponseCode.match(cause)));
+        ctx.writeAndFlush(new ResponseMessage(ResponseSpec.match(cause)));
         ctx.close();
     }
 

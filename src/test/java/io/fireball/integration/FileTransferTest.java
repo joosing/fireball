@@ -67,6 +67,7 @@ public class FileTransferTest extends RestAssuredTest {
                     .post("/download")
                 .then()
                     .assertThat()
+                    .log().all()
                     .statusCode(200);
 
         // Then: 패치된 파일이 테스트 시작 이후 수정되었고, 서버 측 파일과 내용이 일치하는지 확인
@@ -98,6 +99,7 @@ public class FileTransferTest extends RestAssuredTest {
                   .post("/upload")
                 .then()
                     .assertThat()
+                    .log().all()
                     .statusCode(200);
 
         // Then: 업로드된 파일이 테스트 시작 이후 수정되었고, 원본 파일과 업로드된 파일이 일치한다.
