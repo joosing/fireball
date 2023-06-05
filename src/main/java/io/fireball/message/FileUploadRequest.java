@@ -29,9 +29,4 @@ public class FileUploadRequest implements ProtocolMessage {
         buffer.writeCharSequence(dstFilePath, StandardCharsets.UTF_8);
         return List.of(new EncodedPartialContents(buffer, buffer.readableBytes()));
     }
-
-    @Override
-    public void validate() throws Exception {
-        // TODO: 입력된 경로의 포멧을 검증하는 로직을 추가 해야합니다.
-    }
 }

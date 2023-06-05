@@ -6,7 +6,6 @@ import io.fireball.message.UserFileUploadRequest;
 import io.fireball.message.UserRequest;
 import lombok.Builder;
 
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ public class FileUploadOutboundRequestProcessor implements OutboundRequestProces
     private final FileTransferProcessor fileTransferProcessor;
 
     @Override
-    public List<ProtocolMessage> process(UserRequest message) throws FileNotFoundException {
+    public List<ProtocolMessage> process(UserRequest message) throws Exception {
         var uploadRequest = (UserFileUploadRequest) message;
 
         // 파일 청크 분할 생성

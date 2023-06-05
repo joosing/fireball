@@ -4,7 +4,6 @@ import io.fireball.message.FileDownloadRequest;
 import io.fireball.message.ProtocolMessage;
 import lombok.Builder;
 
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -15,7 +14,7 @@ public class FileDownloadInboundRequestProcessor implements InboundRequestProces
     private final FileTransferProcessor fileTransferProcessor;
 
     @Override
-    public List<ProtocolMessage> process(ProtocolMessage message) throws FileNotFoundException {
+    public List<ProtocolMessage> process(ProtocolMessage message) throws Exception {
         var request = (FileDownloadRequest) message;
         var srcFilePath = Path.of(rootPath, request.getSrcFilePath()).normalize().toString();
         var dstFilePath = request.getDstFilePath();
