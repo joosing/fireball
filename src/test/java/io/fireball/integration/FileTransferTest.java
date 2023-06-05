@@ -32,24 +32,24 @@ public class FileTransferTest extends RestAssuredTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        clientFileName = "/hello";
-        serverFileName = "/hello";
+        clientFileName = "local.dat";
+        serverFileName = "remote.dat";
         clientFilePath = Path.of(channelSpecProvider.client().rootPath(), clientFileName).normalize().toString();
         serverFilePath = Path.of(channelSpecProvider.server().rootPath(), serverFileName).normalize().toString();
     }
 
     @AfterEach
     public void tearDown() {
-/*        AdvancedFileUtils.deleteIfExists(clientFilePath);
-        AdvancedFileUtils.deleteIfExists(serverFilePath);*/
+        AdvancedFileUtils.deleteIfExists(clientFilePath);
+        AdvancedFileUtils.deleteIfExists(serverFilePath);
     }
 
     @Test
     void fileDownload() throws Exception {
         // Given: 서버 서비스 파일 생성, 클라이언트 다운로드 파일 삭제
         LocalDateTime startTime = LocalDateTime.now();
-//        AdvancedFileUtils.newRandomContentsFile(serverFilePath, 256);
-//        AdvancedFileUtils.deleteIfExists(clientFilePath);
+        AdvancedFileUtils.newRandomContentsFile(serverFilePath, 256);
+        AdvancedFileUtils.deleteIfExists(clientFilePath);
 
         // When: 클라이언트 측, 파일 패치 요청
         RestAssured.
@@ -64,7 +64,7 @@ public class FileTransferTest extends RestAssuredTest {
                             }
                             """.formatted(clientFileName, "127.0.0.1", FILE_SERVER_PORT, serverFileName))
                 .when()
-                    .post("/download")
+                    .put("/download")
                 .then()
                     .assertThat()
                     .log().all()
@@ -80,8 +80,8 @@ public class FileTransferTest extends RestAssuredTest {
     void fileUpload() throws Exception {
         // Given: 랜덤한 컨텐츠를 담은, 업로드 대상 파일 생성
         LocalDateTime startTime = LocalDateTime.now();
-//        AdvancedFileUtils.newRandomContentsFile(clientFilePath, 256);
-//        AdvancedFileUtils.deleteIfExists(serverFilePath);
+        AdvancedFileUtils.newRandomContentsFile(clientFilePath, 256);
+        AdvancedFileUtils.deleteIfExists(serverFilePath);
 
         // When: 파일 업로드 요청
         RestAssured.
@@ -96,7 +96,7 @@ public class FileTransferTest extends RestAssuredTest {
                             }
                             """.formatted(clientFileName, "127.0.0.1", FILE_SERVER_PORT, serverFileName))
                 .when()
-                  .post("/upload")
+                    .put("/upload")
                 .then()
                     .assertThat()
                     .log().all()

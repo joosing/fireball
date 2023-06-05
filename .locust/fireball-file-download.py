@@ -16,4 +16,4 @@ class FireballClientUser(HttpUser):
                 "remotePort": 50711,
                 "remoteFile": "remote-1000.dat"
             }
-        self.client.post("/download", json=body)
+        self.client.put("/download", json=body)
