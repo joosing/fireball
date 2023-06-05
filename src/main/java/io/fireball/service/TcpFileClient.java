@@ -57,13 +57,6 @@ public class TcpFileClient implements FileClient {
         tcpClient.init(eventLoopGroupManager.channelIo(), pipelineFactory);
         tcpClient.connect(ip, port).get();
 
-        // Set to close the connection when the response is complete
-        request.responseFuture().thenRunAsync(() -> {
-            if (tcpClient.isActive()) {
-                tcpClient.disconnect();
-            }
-        });
-
         // Send a request
         tcpClient.send(request).addListener(f -> {
             if (!f.isSuccess()) {
