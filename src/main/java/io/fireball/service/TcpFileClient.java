@@ -2,6 +2,7 @@ package io.fireball.service;
 
 import io.fireball.dto.FileTransferDto;
 import io.fireball.eventloop.ClientEventLoopGroupManager;
+import io.fireball.handler.duplex.RequestResultChecker;
 import io.fireball.message.UserFileDownloadRequest;
 import io.fireball.message.UserFileUploadRequest;
 import io.fireball.message.UserRequest;
@@ -57,17 +58,19 @@ public class TcpFileClient implements FileClient {
         tcpClient.init(eventLoopGroupManager.channelIo(), pipelineFactory);
         tcpClient.connect(ip, port).get();
 
+        // Get a response future
+        var future = tcpClient.pipeline().get(RequestResultChecker.class).completableFuture();
+
         // Send a request
         tcpClient.send(request).addListener(f -> {
             if (!f.isSuccess()) {
-                request.responseFuture().completeExceptionally(f.cause());
+                future.completeExceptionally(f.cause());
             }
         });
 
         // Wait for the response
         try {
-            // If there is no response for a period of time, an SererNotResponseException is thrown.
-            request.responseFuture().get();
+            future.get();
         } finally {
             tcpClient.disconnect();
         }
