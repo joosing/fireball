@@ -1,0 +1,17 @@
+version: "0.0.1"
+services:
+  file:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fireball
+    command: bash
+    tty: true
+    container_name: fireball
+    ports:
+      - "58080:58080"
+      - "50711:50711"
+    volumes:
+      - ./files:/app/files
+    environment:
+      JAVA_OPTS_RUN: "-Xms1g -Xmx4g -XX:MaxDirectMemorySize=3g "

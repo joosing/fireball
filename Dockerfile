@@ -2,13 +2,14 @@ FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
 
-COPY ../.mvn .mvn
-COPY ../mvnw pom.xml ./
+RUN apt-get update && apt-get install -y git
+RUN java --version
+RUN git clone https://github.com/joosing/fireball.git
+RUN cd fireball
 RUN ./mvnw dependency:resolve
+RUN ./mvnw clean package -DskipTests
 
-COPY ../src ./src
-
-ENTRYPOINT ./mvnw spring-boot:run
+ENTRYPOINT java -Dfireball.server.root-path="/app/files" -Dfireball.client.root-path="/app/files" -jar ./target/fireball-0.0.1.final.jar
 
 # I have encountered the error "/bin/sh: 1: ./mvnw: not found" while building a docker image
 # This happens when Windows OS uses "\r\n" as an internal newline in the mvnw file
