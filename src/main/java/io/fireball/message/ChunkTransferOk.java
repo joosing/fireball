@@ -14,6 +14,6 @@ public class ChunkTransferOk implements ProtocolMessage {
 
     @Override
     public List<EncodedBodyPiece> encode(ByteBuf buffer) {
-        return List.of(); // Empty body.
+        return List.of(new EncodedBodyPiece(buffer, buffer.readableBytes())); // Empty body.
     }
 }
