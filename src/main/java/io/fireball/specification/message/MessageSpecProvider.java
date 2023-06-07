@@ -39,6 +39,7 @@ public class MessageSpecProvider implements
         protocolIdManager.put(InboundFileChunk.class, 2001);
         protocolIdManager.put(OutboundFileChunk.class, 2001);
         protocolIdManager.put(ResponseMessage.class, 3001);
+        protocolIdManager.put(ChunkTransferOk.class, 4001);
     }
 
     /**
@@ -49,13 +50,14 @@ public class MessageSpecProvider implements
         messageDecoderManager.put(1002, FileUploadRequest::decode);
         messageDecoderManager.put(2001, InboundFileChunk::decode);
         messageDecoderManager.put(3001, ResponseMessage::decode);
+        messageDecoderManager.put(4001, ChunkTransferOk::decode);
     }
 
     /**
-     * 인바운드 요청 처리기 관리자를 구성합니다.
+     * Inbound Request
      */
     private void configureInboundRequestProcessorManager() {
-        // 파일 다운로드 요청 수신
+        // File Download
         inboundRequestProcessorManager.put(
                 FileDownloadRequest.class,
                 FileDownloadInboundRequestProcessor.builder()
@@ -64,23 +66,23 @@ public class MessageSpecProvider implements
                         .fileTransferProcessor(new CommonFileChunkTransferProcessor())
                         .build());
 
-        // 파일 업로드 요청 수신
+        // File Upload
         inboundRequestProcessorManager.put(
                 FileUploadRequest.class,
                 EmptyBodyRetrieveProcessor.INSTANCE);
     }
 
     /**
-     * 아웃바운드 요청 처리기 관리자를 구성합니다.
+     * Outbound Request
      */
     private void configureOutboundRequestProcessorManager() {
-        // 파일 다운로드 요청 전송 처리
+        // File Download
         outboundRequestProcessorManager.put(
                 UserFileDownloadRequest.class,
                 FileDownloadOutboundRequestProcessor.builder()
                         .build());
 
-        // 파일 업로드 요청 전송 처리
+        // File Upload
         outboundRequestProcessorManager.put(
                 UserFileUploadRequest.class,
                 FileUploadOutboundRequestProcessor.builder()
