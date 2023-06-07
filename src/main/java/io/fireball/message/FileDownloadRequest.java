@@ -1,6 +1,6 @@
 package io.fireball.message;
 
-import io.fireball.handler.outbound.EncodedPartialContents;
+import io.fireball.handler.outbound.EncodedBodyPiece;
 import io.netty.buffer.ByteBuf;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,12 +22,12 @@ public class FileDownloadRequest implements ProtocolMessage {
     }
 
     @Override
-    public List<EncodedPartialContents> encode(ByteBuf buffer) {
+    public List<EncodedBodyPiece> encode(ByteBuf buffer) {
         buffer.writeInt(srcFilePath.length());
         buffer.writeCharSequence(srcFilePath, StandardCharsets.UTF_8);
         buffer.writeInt(dstFilePath.length());
         buffer.writeCharSequence(dstFilePath, StandardCharsets.UTF_8);
-        return List.of(new EncodedPartialContents(buffer, buffer.readableBytes()));
+        return List.of(new EncodedBodyPiece(buffer, buffer.readableBytes()));
     }
 
     @Override

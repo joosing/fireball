@@ -1,6 +1,6 @@
 package io.fireball.message;
 
-import io.fireball.handler.outbound.EncodedPartialContents;
+import io.fireball.handler.outbound.EncodedBodyPiece;
 import io.fireball.specification.response.ResponseSpec;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -21,8 +21,8 @@ public class ResponseMessage implements ProtocolMessage {
     }
 
     @Override
-    public List<EncodedPartialContents> encode(ByteBuf buffer) {
+    public List<EncodedBodyPiece> encode(ByteBuf buffer) {
         buffer.writeInt(responseSpec.getErrorNo());
-        return List.of(new EncodedPartialContents(buffer, buffer.readableBytes()));
+        return List.of(new EncodedBodyPiece(buffer, buffer.readableBytes()));
     }
 }

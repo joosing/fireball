@@ -1,6 +1,6 @@
 package io.fireball.message;
 
-import io.fireball.handler.outbound.EncodedPartialContents;
+import io.fireball.handler.outbound.EncodedBodyPiece;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.DefaultFileRegion;
 
@@ -30,20 +30,20 @@ public class OutboundFileChunk implements ProtocolMessage {
 
 
     @Override
-    public List<EncodedPartialContents> encode(ByteBuf buffer) {
+    public List<EncodedBodyPiece> encode(ByteBuf buffer) {
         return List.of(encodeHeader(buffer), encodeFile());
     }
 
-    private EncodedPartialContents encodeHeader(ByteBuf buffer) {
+    private EncodedBodyPiece encodeHeader(ByteBuf buffer) {
         buffer.writeInt(type.value());
         buffer.writeInt(dstPath.length());
         buffer.writeCharSequence(dstPath, StandardCharsets.UTF_8);
-        return new EncodedPartialContents(buffer, buffer.readableBytes());
+        return new EncodedBodyPiece(buffer, buffer.readableBytes());
     }
 
-    private EncodedPartialContents encodeFile() {
+    private EncodedBodyPiece encodeFile() {
         var fileRegion = new DefaultFileRegion(new File(srcPath), index, length);
-        return new EncodedPartialContents(fileRegion, length);
+        return new EncodedBodyPiece(fileRegion, length);
     }
 
     @Override

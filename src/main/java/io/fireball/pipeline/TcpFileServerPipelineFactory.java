@@ -1,11 +1,11 @@
 package io.fireball.pipeline;
 
 import io.fireball.eventloop.ServerEventLoopGroupManager;
-import io.fireball.handler.inbound.FileServiceDecoder;
 import io.fireball.handler.inbound.FileStoreHandler;
 import io.fireball.handler.inbound.InboundMessageValidator;
 import io.fireball.handler.inbound.InboundRequestHandler;
-import io.fireball.handler.outbound.FileServiceEncoder;
+import io.fireball.handler.inbound.MessageDecoder;
+import io.fireball.handler.outbound.MessageEncoder;
 import io.fireball.handler.outbound.OutboundMessageValidator;
 import io.fireball.specification.channel.ChannelSpecProvider;
 import io.fireball.specification.message.MessageSpecProvider;
@@ -29,14 +29,14 @@ public class TcpFileServerPipelineFactory implements PipelineFactory {
         return new ArrayList<>(List.of(
                 // Duplex
                 HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.server().idleDetectionSeconds())),
+                // Outbound
+                HandlerFactory.of(() -> new MessageEncoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerFactory.of(() -> new OutboundMessageValidator()),
                 // Inbound
                 HandlerFactory.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
-                HandlerFactory.of(() -> new FileServiceDecoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerFactory.of(() -> new MessageDecoder(messageSpecProvider, channelSpecProvider.header())),
                 HandlerFactory.of(() -> new InboundMessageValidator()),
                 HandlerFactory.of(eventLoopGroupManager.fireStore(), () -> new FileStoreHandler(channelSpecProvider.server().rootPath())),
-                // Outbound
-                HandlerFactory.of(() -> new FileServiceEncoder(messageSpecProvider, channelSpecProvider.header())),
-                HandlerFactory.of(() -> new OutboundMessageValidator()),
                 // Inbound (but it makes outbound response messages)
                 HandlerFactory.of(() -> new InboundRequestHandler(messageSpecProvider))));
     }

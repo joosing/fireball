@@ -8,7 +8,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class FileServiceDecoder extends SimpleChannelInboundHandler<ByteBuf> {
+public class MessageDecoder extends SimpleChannelInboundHandler<ByteBuf> {
     private final MessageDecoderProvider decoderProvider;
     private final HeaderSpecProvider headerSpecProvider;
 

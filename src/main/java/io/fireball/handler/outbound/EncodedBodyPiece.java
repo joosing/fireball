@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Accessors(fluent = true)
-public class EncodedPartialContents {
+public class EncodedBodyPiece {
     /**
      * 인코딩되어 전송될 메시지 내용을 저장합니다. contents는 ByteBuf 또는 FileRegion 타입만 네티 채널에 의해 전송될 수 있습니다.
      */
@@ -22,7 +22,7 @@ public class EncodedPartialContents {
      */
     private final int length;
 
-    public EncodedPartialContents(Object contents, int length) {
+    public EncodedBodyPiece(Object contents, int length) {
         if (!(contents instanceof ByteBuf || contents instanceof FileRegion)) {
             throw new IllegalArgumentException("contents must be ByteBuf or FileRegion");
         }
