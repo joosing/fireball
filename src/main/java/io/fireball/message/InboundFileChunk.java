@@ -1,6 +1,6 @@
 package io.fireball.message;
 
-import io.fireball.handler.outbound.EncodedPartialContents;
+import io.fireball.handler.outbound.EncodedBodyPiece;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.ReferenceCounted;
 import lombok.Builder;
@@ -33,12 +33,12 @@ public class InboundFileChunk implements ProtocolMessage, ReferenceCounted {
     }
 
     @Override
-    public List<EncodedPartialContents> encode(ByteBuf buffer) {
+    public List<EncodedBodyPiece> encode(ByteBuf buffer) {
         buffer.writeInt(type.value());
         buffer.writeInt(storePath.length());
         buffer.writeCharSequence(storePath, StandardCharsets.UTF_8);
         buffer.writeBytes(contents);
-        var encodedMessage = new EncodedPartialContents(buffer, buffer.readableBytes());
+        var encodedMessage = new EncodedBodyPiece(buffer, buffer.readableBytes());
         contents.release();
         return List.of(encodedMessage);
     }
