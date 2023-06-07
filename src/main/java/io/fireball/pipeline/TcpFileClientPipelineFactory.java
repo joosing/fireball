@@ -30,15 +30,15 @@ public class TcpFileClientPipelineFactory implements PipelineFactory {
         return new ArrayList<>(List.of(
                 // Duplex
                 HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.client().idleDetectionSeconds())),
+                // Outbound
+                HandlerFactory.of(() -> new MessageEncoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerFactory.of(() -> new OutboundMessageValidator()),
+                HandlerFactory.of(() -> new UserRequestHandler(messageSpecProvider)),
                 // Inbound
                 HandlerFactory.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
                 HandlerFactory.of(() -> new MessageDecoder(messageSpecProvider, channelSpecProvider.header())),
                 HandlerFactory.of(() -> new InboundMessageValidator()),
                 HandlerFactory.of(eventLoopGroupManager.fireStore(), () -> new FileStoreHandler(channelSpecProvider.client().rootPath())), // Dedicated EventLoopGroup
-                // Outbound
-                HandlerFactory.of(() -> new MessageEncoder(messageSpecProvider, channelSpecProvider.header())),
-                HandlerFactory.of(() -> new OutboundMessageValidator()),
-                HandlerFactory.of(() -> new UserRequestHandler(messageSpecProvider)),
                 // Duplex
                 HandlerFactory.of(() -> new RequestResultChecker())));
     }

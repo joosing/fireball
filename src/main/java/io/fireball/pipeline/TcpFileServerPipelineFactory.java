@@ -29,14 +29,14 @@ public class TcpFileServerPipelineFactory implements PipelineFactory {
         return new ArrayList<>(List.of(
                 // Duplex
                 HandlerFactory.of(() -> new IdleStateHandler(0, 0, channelSpecProvider.server().idleDetectionSeconds())),
+                // Outbound
+                HandlerFactory.of(() -> new MessageEncoder(messageSpecProvider, channelSpecProvider.header())),
+                HandlerFactory.of(() -> new OutboundMessageValidator()),
                 // Inbound
                 HandlerFactory.of(() -> new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)),
                 HandlerFactory.of(() -> new MessageDecoder(messageSpecProvider, channelSpecProvider.header())),
                 HandlerFactory.of(() -> new InboundMessageValidator()),
                 HandlerFactory.of(eventLoopGroupManager.fireStore(), () -> new FileStoreHandler(channelSpecProvider.server().rootPath())),
-                // Outbound
-                HandlerFactory.of(() -> new MessageEncoder(messageSpecProvider, channelSpecProvider.header())),
-                HandlerFactory.of(() -> new OutboundMessageValidator()),
                 // Inbound (but it makes outbound response messages)
                 HandlerFactory.of(() -> new InboundRequestHandler(messageSpecProvider))));
     }
