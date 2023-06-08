@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 @Component
 @RequiredArgsConstructor
 public class FileServerRunner {
-    @Value("${fireball.server.port}")
+    @Value("${file.server.port}")
     private Integer port;
     private final FilerServer server;
 

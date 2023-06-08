@@ -1,6 +1,7 @@
 package io.fireball.service;
 
-import io.fireball.dto.FileTransferDto;
+import io.fireball.dto.FileDownloadDto;
+import io.fireball.dto.FileUploadDto;
 import io.fireball.eventloop.ClientEventLoopGroupManager;
 import io.fireball.handler.duplex.RequestResultChecker;
 import io.fireball.message.UserFileDownloadRequest;
@@ -29,23 +30,23 @@ public class TcpFileClient implements FileClient {
     }
 
     @Override
-    public void downloadFile(FileTransferDto spec) throws ExecutionException
+    public void downloadFile(FileDownloadDto spec) throws ExecutionException
             , InterruptedException, TimeoutException {
         var downloadRequest = UserFileDownloadRequest.builder()
-                .srcFilePath(spec.getRemoteFile())
-                .dstFilePath(spec.getLocalFile())
+                .srcFile(spec.source().file())
+                .dstFile(spec.destination().file())
                 .build();
-        requestTemplate(downloadRequest, spec.getRemoteIp(), spec.getRemotePort());
+        requestTemplate(downloadRequest, spec.source().ip(), spec.source().port());
     }
 
     @Override
-    public void uploadFile(FileTransferDto spec) throws ExecutionException,
+    public void uploadFile(FileUploadDto spec) throws ExecutionException,
             InterruptedException, TimeoutException {
         var uploadRequest = UserFileUploadRequest.builder()
-                .srcFilePath(spec.getLocalFile())
-                .dstFilePath(spec.getRemoteFile())
+                .srcFile(spec.source().file())
+                .dstFile(spec.destination().file())
                 .build();
-        requestTemplate(uploadRequest, spec.getRemoteIp(), spec.getRemotePort());
+        requestTemplate(uploadRequest, spec.destination().ip(), spec.destination().port());
     }
 
     private void requestTemplate(UserRequest request, String ip, int port) throws ExecutionException

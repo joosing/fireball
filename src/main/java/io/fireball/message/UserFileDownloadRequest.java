@@ -6,6 +6,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class UserFileDownloadRequest implements UserRequest {
-    private final String srcFilePath;
-    private final String dstFilePath;
+    private final String srcFile;
+    private final String dstFile;
 }

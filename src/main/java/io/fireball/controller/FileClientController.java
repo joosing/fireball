@@ -1,11 +1,12 @@
 package io.fireball.controller;
 
-import io.fireball.dto.FileTransferDto;
+import io.fireball.dto.FileDownloadDto;
+import io.fireball.dto.FileUploadDto;
 import io.fireball.service.FileClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,15 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class FileClientController {
     private final FileClient fileClient;
 
-    @PutMapping("/download")
-    public ResponseEntity<Void> downloadFile(@RequestBody FileTransferDto fileTransferDto) throws Exception {
-        fileClient.downloadFile(fileTransferDto);
+    @PostMapping("/download")
+    public ResponseEntity<Void> downloadFileNew(@RequestBody FileDownloadDto spec) throws Exception {
+        fileClient.downloadFile(spec);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/upload")
-    public ResponseEntity<Void> uploadFile(@RequestBody FileTransferDto fileTransferDto) throws Exception {
-        fileClient.uploadFile(fileTransferDto);
+    @PostMapping("/upload")
+    public ResponseEntity<Void> uploadFile(@RequestBody FileUploadDto spec) throws Exception {
+        fileClient.uploadFile(spec);
         return ResponseEntity.ok().build();
     }
 }

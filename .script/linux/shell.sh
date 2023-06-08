@@ -5,6 +5,6 @@ git clone https://github.com/joosing/fireball.git
 cd fireball
 chmod 744 mvnw
 ./mvnw clean package -DskipTests
-java -Dfireball.server.root-path="/app/files" -Dfireball.client.root-path="/app/files"  -jar ./target/fireball-0.0.1.jar &
+java -Dfile.server.root="/app/files" -Dfile.client.root="/app/files"  -jar ./target/fireball-0.0.1.jar &
 
 # -XX:MaxDirectMemorySize=3g

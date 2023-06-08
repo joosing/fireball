@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Accessors(fluent = true)
 @Component
 public class FileServerSpec {
-    @Value("${fireball.server.root-path}")
+    @Value("${file.server.root}")
     private String rootPath;
     private final int idleDetectionSeconds = 3;
     private final int chunkSize = 1024 * 1024 * 5;
