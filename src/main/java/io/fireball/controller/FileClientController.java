@@ -1,6 +1,7 @@
 package io.fireball.controller;
 
-import io.fireball.dto.FileTransferDto;
+import io.fireball.dto.FileDownloadDto;
+import io.fireball.dto.FileUploadDto;
 import io.fireball.service.FileClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +17,14 @@ public class FileClientController {
     private final FileClient fileClient;
 
     @PostMapping("/download")
-    public ResponseEntity<Void> downloadFile(@RequestBody FileTransferDto fileTransferDto) throws Exception {
-        fileClient.downloadFile(fileTransferDto);
+    public ResponseEntity<Void> downloadFileNew(@RequestBody FileDownloadDto spec) throws Exception {
+        fileClient.downloadFile(spec);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<Void> uploadFile(@RequestBody FileTransferDto fileTransferDto) throws Exception {
-        fileClient.uploadFile(fileTransferDto);
+    public ResponseEntity<Void> uploadFile(@RequestBody FileUploadDto spec) throws Exception {
+        fileClient.uploadFile(spec);
         return ResponseEntity.ok().build();
     }
 }

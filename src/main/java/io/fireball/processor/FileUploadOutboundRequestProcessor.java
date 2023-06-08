@@ -22,8 +22,8 @@ public class FileUploadOutboundRequestProcessor implements OutboundRequestProces
         var uploadRequest = (UserFileUploadRequest) message;
 
         // 파일 청크 분할 생성
-        var srcFilePath = Path.of(rootPath, uploadRequest.getSrcFilePath()).normalize().toString();
-        var dstFilePath = uploadRequest.getDstFilePath();
+        var srcFilePath = Path.of(rootPath, uploadRequest.getSrcFile()).normalize().toString();
+        var dstFilePath = uploadRequest.getDstFile();
         var fileChunks = fileTransferProcessor.process(srcFilePath, dstFilePath, chunkSize);
 
         // 명시적 요청 헤더

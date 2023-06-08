@@ -57,12 +57,16 @@ public class FileTransferTest extends RestAssuredTest {
                     .contentType("application/json")
                     .body("""
                             {
-                                "localFile": "%s",
-                                "remoteIp": "%s",
-                                "remotePort": "%s",
-                                "remoteFile": "%s"
+                              "source": {
+                                "ip": "%s",
+                                "port": %d,
+                                "file": "%s"
+                              },
+                              "destination": {
+                                "file": "%s"
+                              }
                             }
-                            """.formatted(clientFileName, "127.0.0.1", FILE_SERVER_PORT, serverFileName))
+                            """.formatted("127.0.0.1", FILE_SERVER_PORT, serverFileName, clientFileName))
                 .when()
                     .post("/download")
                 .then()
@@ -89,10 +93,14 @@ public class FileTransferTest extends RestAssuredTest {
                     .contentType("application/json")
                     .body("""
                             {
-                                "localFile": "%s",
-                                "remoteIp": "%s",
-                                "remotePort": "%s",
-                                "remoteFile": "%s"
+                              "source": {
+                                "file": "%s"
+                              },
+                              "destination": {
+                                "ip": "%s",
+                                "port": %d,
+                                "file": "%s"
+                              }
                             }
                             """.formatted(clientFileName, "127.0.0.1", FILE_SERVER_PORT, serverFileName))
                 .when()
