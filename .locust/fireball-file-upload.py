@@ -16,4 +16,4 @@ class FireballClientUser(HttpUser):
                 "remotePort": 50711,
                 "remoteFile": remote_file_path
             }
-        self.client.put("/upload", json=body)
+        self.client.post("/upload", json=body)
