@@ -20,4 +20,4 @@ class FireballClientUser(HttpUser):
             "file": remote_file
           }
         }
-        self.client.post("/upload", json=body)
+        self.client.post("/api/upload", json=body)

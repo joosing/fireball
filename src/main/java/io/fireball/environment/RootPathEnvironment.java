@@ -17,20 +17,20 @@ import java.io.IOException;
 @Getter
 @Accessors(fluent = true)
 public class RootPathEnvironment {
-    @Value("${fireball.client.root-path}")
+    @Value("${file.client.root}")
     private String clientRootPath;
-    @Value("${fireball.server.root-path}")
+    @Value("${file.server.root}")
     private String serverRootPath;
 
     @PostConstruct
     public void configure() throws IOException {
         if (StringUtils.isBlank(clientRootPath)) {
             throw new RuntimeException("You must set the client side root directory." +
-                    "Like that: -Dfireball.client.root-path=/some/path)");
+                    "Like that: -Dfile.client.root=/some/path)");
         }
         if (StringUtils.isBlank(serverRootPath)) {
             throw new RuntimeException("You must set the server side root directory." +
-                    "Like that: -Dfireball.server.root-path=/some/path)");
+                    "Like that: -Dfile.server.root=/some/path)");
         }
 
         FileUtils.forceMkdir(new File(clientRootPath));

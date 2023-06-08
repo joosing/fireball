@@ -68,7 +68,7 @@ public class FileTransferTest extends RestAssuredTest {
                             }
                             """.formatted("127.0.0.1", FILE_SERVER_PORT, serverFileName, clientFileName))
                 .when()
-                    .post("/download")
+                    .post("/api/download")
                 .then()
                     .assertThat()
                     .log().all()
@@ -104,7 +104,7 @@ public class FileTransferTest extends RestAssuredTest {
                             }
                             """.formatted(clientFileName, "127.0.0.1", FILE_SERVER_PORT, serverFileName))
                 .when()
-                    .post("/upload")
+                    .post("/api/upload")
                 .then()
                     .assertThat()
                     .log().all()

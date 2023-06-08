@@ -9,7 +9,7 @@ RUN cd fireball
 RUN ./mvnw dependency:resolve
 RUN ./mvnw clean package -DskipTests
 
-ENTRYPOINT java -Dfireball.server.root-path="/app/files" -Dfireball.client.root-path="/app/files" -jar ./target/fireball-0.0.1.final.jar
+ENTRYPOINT java -Dfile.server.root="/app/files" -Dfile.client.root="/app/files" -jar ./target/fireball-0.0.1.final.jar
 
 # I have encountered the error "/bin/sh: 1: ./mvnw: not found" while building a docker image
 # This happens when Windows OS uses "\r\n" as an internal newline in the mvnw file

@@ -20,4 +20,4 @@ class FireballClientUser(HttpUser):
             "file": source_file
           }
         }
-        self.client.post("/download", json=body)
+        self.client.post("/api/download", json=body)
