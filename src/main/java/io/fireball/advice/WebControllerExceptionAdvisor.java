@@ -38,8 +38,8 @@ public class WebControllerExceptionAdvisor {
 
     private static ResponseEntity<String> buildEntity(ResponseSpec responseSpec) {
         return ResponseEntity.status(responseSpec.getHttpStatus())
-                .header("error-no", responseSpec.getErrorNo().toString())
-                .header("message", responseSpec.getMessage())
+                .header("Error-No", responseSpec.getErrorNo().toString())
+                .header("Error-Message", responseSpec.getMessage())
                 .build();
     }
 }
