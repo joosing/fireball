@@ -40,7 +40,7 @@ public class CommonFileChunkTransferProcessor implements FileTransferProcessor {
         long remainBytes = srcFile.length();
         while (remainBytes > 0) {
             var readBytes = (int) Math.min(remainBytes, chunkSize);
-            var chunk = new OutboundFileChunk(ChunkType.FILE_CONTENTS, srcPath, dstPath, start, readBytes);
+            var chunk = new OutboundFileChunk(ChunkType.MIDDLE_OF_FILE, srcPath, dstPath, start, readBytes);
             messages.add(chunk);
             remainBytes -= readBytes;
             start += readBytes;
