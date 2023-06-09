@@ -11,11 +11,11 @@ import java.io.FileNotFoundException;
 @RequiredArgsConstructor
 @Getter
 public enum ResponseSpec {
-    OK (0, "OK", HttpStatus.OK),
-    SYSTEM_ERROR(1, "System Error", HttpStatus.INTERNAL_SERVER_ERROR),
-    FILE_NOT_FOUND (100, "File Not Found", HttpStatus.BAD_REQUEST),
-    SERVER_NOT_RESPONSE (101, "The server is not responding.", HttpStatus.INTERNAL_SERVER_ERROR),
-    NOT_FILE (102, "Requested file is not a file.", HttpStatus.BAD_REQUEST),
+    OK (0, "OK.", HttpStatus.OK),
+    FILE_NOT_FOUND (1, "The file does not exist.", HttpStatus.BAD_REQUEST),
+    NOT_FILE (2, "Item is not a file.", HttpStatus.BAD_REQUEST),
+    SYSTEM_ERROR(3, "Internal system error.", HttpStatus.INTERNAL_SERVER_ERROR),
+    SERVER_NOT_RESPONSE (4, "No response from server.", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     private final Integer errorNo;
@@ -25,10 +25,10 @@ public enum ResponseSpec {
     public static ResponseSpec match(int code) {
         return switch(code) {
             case 0 -> OK;
-            case 1 -> SYSTEM_ERROR;
-            case 100 -> FILE_NOT_FOUND;
-            case 101 -> SERVER_NOT_RESPONSE;
-            case 102 -> NOT_FILE;
+            case 1 -> FILE_NOT_FOUND;
+            case 2 -> NOT_FILE;
+            case 3 -> SYSTEM_ERROR;
+            case 4 -> SERVER_NOT_RESPONSE;
             default -> throw new IllegalArgumentException("Unknown code: " + code);
         };
     }
