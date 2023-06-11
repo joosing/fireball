@@ -140,10 +140,10 @@ Error-Message: The file does not exist.
 | Error-No | Error-Message | HTTP Response Code |
 | --- | --- | --- |
 | 0 | OK. | 200 (OK) |
-| 1 | The file does not exist. | 400 (BAD_REQUEST) |
-| 2 | Item is not a file. | 400 (BAD_REQUEST) |
-| 3 | Internal System Error. | 500 (INTERNAL_SERVER_ERRO) |
-| 4 | No response from server. | 500 (INTERNAL_SERVER_ERRO) |
+| 4000 | The file does not exist. | 400 (BAD_REQUEST) |
+| 4001 | Item is not a file. | 400 (BAD_REQUEST) |
+| 5000 | Internal System Error. | 500 (INTERNAL_SERVER_ERRO) |
+| 5001 | No response from server. | 500 (INTERNAL_SERVER_ERRO) |
 
 # 7. Design
 
