@@ -35,7 +35,7 @@ public class RequestResultChecker extends ChannelDuplexHandler {
                 completableFuture.complete(null);
             } else {
                 var spec = response.responseSpec();
-                completableFuture.completeExceptionally(new ServerRuntimeException(spec.getErrorNo(), spec.getMessage()));
+                completableFuture.completeExceptionally(new ServerRuntimeException(spec.getErrorNo(), spec.getErrorMessage()));
             }
         }
     }

@@ -19,20 +19,30 @@ public enum ResponseSpec {
     ;
 
     private final Integer errorNo;
-    private final String message;
-    private final HttpStatus httpStatus;
+    private final String errorMessage;
+    private final HttpStatus httpResponseStatus;
 
-    public static ResponseSpec match(int code) {
-        return switch(code) {
+    /**
+     * Map an errorNo to a ResponseSpec.
+     * @param errorNo Error Number
+     * @return Matched ResponseSpec
+     */
+    public static ResponseSpec match(int errorNo) {
+        return switch(errorNo) {
             case 0 -> OK;
             case 4000 -> FILE_NOT_FOUND;
             case 4001 -> NOT_FILE;
             case 5000 -> SYSTEM_ERROR;
             case 5001 -> SERVER_NOT_RESPONSE;
-            default -> throw new IllegalArgumentException("Unknown code: " + code);
+            default -> throw new IllegalArgumentException("Unknown errorNo: " + errorNo);
         };
     }
 
+    /**
+     * Map an exception to a ResponseSpec.
+     * @param throwable Exception
+     * @return Matched ResponseSpec
+     */
     public static ResponseSpec match(Throwable throwable) {
         if (throwable == null) {
             return OK;
